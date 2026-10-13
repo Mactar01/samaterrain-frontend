@@ -1,0 +1,103 @@
+<div class="min-h-[calc(100vh-64px)] relative py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+  <!-- Background Image with Overlay -->
+  <div class="absolute inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1518605368461-1e1c7f7ce74a?q=80&w=2000&auto=format&fit=crop" 
+         alt="Grass background" 
+         class="w-full h-full object-cover" />
+    <!-- Gradient overlay for readability -->
+    <div class="absolute inset-0 bg-gradient-to-b from-green-900/80 to-slate-900/90 mix-blend-multiply"></div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="relative z-10 w-full max-w-4xl mx-auto">
+    <div class="mb-8 text-center sm:text-left">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight drop-shadow-md">
+        Ajouter un nouveau terrain
+      </h2>
+      <p class="mt-2 text-sm text-green-100 font-medium drop-shadow-sm">
+        Remplissez les informations ci-dessous pour publier votre infrastructure sur l'application des joueurs.
+      </p>
+    </div>
+
+    <div class="bg-white/95 backdrop-blur-md shadow-2xl shadow-black/40 rounded-3xl overflow-hidden border border-white/20">
+      <div class="px-6 py-8 sm:p-10">
+        <form (ngSubmit)="onSubmit()" #fieldForm="ngForm">
+      
+      <div *ngIf="errorMessage" class="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
+        <p class="text-sm text-red-700">{{ errorMessage }}</p>
+      </div>
+
+      <div class="grid grid-cols-6 gap-6">
+        
+        <div class="col-span-6 sm:col-span-3">
+          <label for="name" class="block text-sm font-medium text-gray-700">Nom du terrain</label>
+          <input type="text" name="name" id="name" [(ngModel)]="field.name" required
+                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
+        </div>
+
+        <div class="col-span-6 sm:col-span-3">
+          <label for="type" class="block text-sm font-medium text-gray-700">Type de surface</label>
+          <select id="type" name="type" [(ngModel)]="field.type"
+                  class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 transition-colors shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+            <option value="artificial_grass">Synthétique</option>
+            <option value="natural_grass">Naturel</option>
+            <option value="futsal">Futsal (Indoor)</option>
+            <option value="concrete">Béton / Goudron</option>
+          </select>
+        </div>
+
+        <div class="col-span-6 sm:col-span-3">
+          <label for="capacity" class="block text-sm font-medium text-gray-700">Capacité (Nombre de joueurs)</label>
+          <input type="number" name="capacity" id="capacity" [(ngModel)]="field.capacity" required min="2"
+                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
+        </div>
+
+        <div class="col-span-6 sm:col-span-3">
+          <label for="city" class="block text-sm font-medium text-gray-700">Ville</label>
+          <input type="text" name="city" id="city" [(ngModel)]="field.city" required
+                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
+        </div>
+
+        <div class="col-span-6 sm:col-span-3">
+          <label for="price" class="block text-sm font-medium text-gray-700">Prix de location par heure (CFA)</label>
+          <input type="number" name="price" id="price" [(ngModel)]="field.price_per_hour" required min="0"
+                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
+        </div>
+
+        <div class="col-span-6">
+          <label for="address" class="block text-sm font-medium text-gray-700">Adresse complète</label>
+          <input type="text" name="address" id="address" [(ngModel)]="field.address" required
+                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
+        </div>
+
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-gray-700">Photo du terrain (optionnel)</label>
+          <div class="mt-1 flex items-center">
+            <span class="inline-block h-24 w-32 rounded-md overflow-hidden bg-gray-100 border border-gray-300">
+              <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
+              <svg *ngIf="!imagePreview" class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v14h14V5H5zm2 10l3-4 4 5h5v1H7v-2z" />
+              </svg>
+            </span>
+            <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-8 border-t border-gray-200 pt-5">
+        <div class="flex justify-end">
+          <button type="button" onclick="history.back()"
+                  class="bg-white py-2 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-bold transition-transform active:scale-95 text-gray-700 hover:bg-gray-50 focus:outline-none">
+            Annuler
+          </button>
+          <button type="submit" [disabled]="!fieldForm.form.valid || isSubmitting"
+                  class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none disabled:opacity-50">
+            {{ isSubmitting ? 'Enregistrement...' : 'Créer le terrain' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  </div>
+</div>

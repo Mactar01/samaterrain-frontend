@@ -1,0 +1,73 @@
+{
+  "name": "myterrain-frontend",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0",
+    "start:develop": "ng serve --configuration develop --host 0.0.0.0",
+    "start:preprod": "ng serve --configuration preprod --host 0.0.0.0",
+    "start:prod": "ng serve --configuration prod --host 0.0.0.0",
+    "build": "ng build --configuration prod",
+    "build:develop": "ng build --configuration develop",
+    "build:preprod": "ng build --configuration preprod",
+    "build:prod": "ng build --configuration prod",
+    "watch": "ng build --watch --configuration develop",
+    "test": "ng test",
+    "electron:install": "npm install --save-dev electron electron-builder",
+    "electron:start": "ng build --base-href ./ && npx electron .",
+    "electron:build": "ng build --base-href ./ && npx electron-builder --win --x64"
+  },
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@sweetalert2/ngx-sweetalert2": "^15.0.0",
+    "chart.js": "^4.5.1",
+    "ng2-charts": "^10.0.0",
+    "rxjs": "~7.8.0",
+    "sweetalert2": "^11.26.25",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.2"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.21",
+    "@angular/cli": "^21.2.21",
+    "@angular/compiler-cli": "^21.2.0",
+    "autoprefixer": "^10.5.4",
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.3",
+    "jsdom": "^28.0.0",
+    "postcss": "^8.5.26",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "build": {
+    "appId": "com.myterrain.loueur",
+    "productName": "myTerrain Loueur",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "dist/frontend/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "electron/icon.png"
+    },
+    "nsis": {
+      "installerIcon": "electron/icon.png",
+      "shortcutName": "myTerrain Loueur",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

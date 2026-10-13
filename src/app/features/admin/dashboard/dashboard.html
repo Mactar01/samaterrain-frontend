@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-neutral-100 font-sans text-neutral-900">
+  <!-- Top Navigation -->
+  <nav class="bg-black text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <svg class="w-8 h-8 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          <span class="font-bold text-xl tracking-wider uppercase">Administration</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-neutral-300">Bienvenue, {{ adminName }}</span>
+          <button (click)="logout()" class="px-4 py-2 border border-white rounded-md text-sm font-medium hover:bg-white hover:text-black transition-colors duration-200">
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8 flex justify-between items-end">
+      <div>
+        <h1 class="text-3xl font-extrabold text-black tracking-tight">Tableau de bord</h1>
+        <p class="mt-2 text-sm text-neutral-600">Vue d'ensemble des statistiques de la plateforme.</p>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div *ngIf="loadingStats" class="flex justify-center items-center py-10">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-black"></div>
+    </div>
+
+    <div *ngIf="!loadingStats" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-neutral-200">
+        <div class="p-5 flex items-center">
+          <div class="flex-shrink-0 bg-black p-3 rounded-md">
+            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-xs font-medium text-neutral-500 uppercase tracking-wide truncate">Loueurs (Partenaires)</dt>
+            <dd class="text-3xl font-bold text-black">{{ stats.total_owners }}</dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-neutral-200">
+        <div class="p-5 flex items-center">
+          <div class="flex-shrink-0 bg-neutral-800 p-3 rounded-md">
+            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"></path></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-xs font-medium text-neutral-500 uppercase tracking-wide truncate">Terrains Inscrits</dt>
+            <dd class="text-3xl font-bold text-black">{{ stats.total_fields }}</dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-neutral-200">
+        <div class="p-5 flex items-center">
+          <div class="flex-shrink-0 bg-neutral-700 p-3 rounded-md">
+            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-xs font-medium text-neutral-500 uppercase tracking-wide truncate">Joueurs (App)</dt>
+            <dd class="text-3xl font-bold text-black">{{ stats.total_players }}</dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-neutral-200">
+        <div class="p-5 flex items-center">
+          <div class="flex-shrink-0 bg-neutral-600 p-3 rounded-md">
+            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dt class="text-xs font-medium text-neutral-500 uppercase tracking-wide truncate">Réservations</dt>
+            <dd class="text-3xl font-bold text-black">{{ stats.total_reservations }}</dd>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Owners Management Table -->
+    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm">
+      <div class="px-6 py-5 border-b border-neutral-200 bg-neutral-50 rounded-t-lg flex justify-between items-center">
+        <div>
+          <h3 class="text-lg leading-6 font-bold text-black">Gestion des partenaires (Loueurs)</h3>
+          <p class="mt-1 text-sm text-neutral-500">Ajoutez, modifiez ou bloquez l'accès aux gérants de terrains.</p>
+        </div>
+        <div class="flex gap-2">
+          <button (click)="openCreateOwnerModal()" class="bg-black text-white px-4 py-2 rounded shadow text-sm hover:bg-neutral-800 transition">
+            + Ajouter un loueur
+          </button>
+          <button (click)="openInviteOwnerModal()" class="bg-green-600 text-white px-4 py-2 rounded shadow text-sm hover:bg-green-700 transition flex items-center gap-1">
+            📧 Inviter par lien
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loadingOwners" class="p-10 text-center text-neutral-500 flex flex-col justify-center items-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black mb-3"></div>
+        Chargement des loueurs...
+      </div>
+
+      <div *ngIf="!loadingOwners && owners.length === 0" class="p-10 text-center text-neutral-500">
+        Aucun partenaire trouvé. Créez-en un pour commencer !
+      </div>
+
+      <div *ngIf="!loadingOwners && owners.length > 0" class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-neutral-200">
+          <thead class="bg-white">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Complexe / Nom</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Contact</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Statut</th>
+              <th scope="col" class="relative px-6 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-neutral-100">
+            <tr *ngFor="let owner of owners" class="hover:bg-neutral-50 transition">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-black">{{ owner.business_name }}</div>
+                <div class="text-sm text-neutral-500">{{ owner.user?.name }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-neutral-900">{{ owner.user?.email }}</div>
+                <div class="text-sm text-neutral-500">{{ owner.user?.phone || 'Non renseigné' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span *ngIf="owner.user?.is_active" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                  Actif
+                </span>
+                <span *ngIf="!owner.user?.is_active" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                  Bloqué
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button (click)="toggleOwnerStatus(owner)" class="text-black hover:text-neutral-600 mr-4 font-semibold">
+                  {{ owner.user?.is_active ? 'Bloquer' : 'Débloquer' }}
+                </button>
+                <button (click)="deleteOwner(owner.id)" class="text-red-600 hover:text-red-900 font-semibold">
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

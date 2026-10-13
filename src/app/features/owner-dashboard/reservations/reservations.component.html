@@ -1,0 +1,97 @@
+﻿<div class="min-h-screen bg-slate-50 flex flex-col">
+  <!-- Navbar simplifiée -->
+  <div class="bg-slate-900 shadow-sm border-b border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="bg-green-500 text-white p-1.5 rounded-lg shadow-sm">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <span class="text-xl font-bold text-white tracking-tight">myTerrain<span class="text-green-500">.</span></span>
+    </div>
+    <div class="flex items-center gap-4">
+      <a routerLink="/dashboard" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">Retour au tableau de bord</a>
+    </div>
+  </div>
+
+  <main class="flex-1 overflow-y-auto p-4 sm:p-8 max-w-7xl mx-auto w-full">
+    <div class="mb-8">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Réservations & Notifications</h1>
+      <p class="mt-1 text-sm text-slate-500">Consultez l'historique complet des réservations sur vos terrains.</p>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
+    </div>
+
+    <div *ngIf="!loading && reservations.length === 0" class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-slate-900">Aucune réservation</h3>
+      <p class="mt-1 text-slate-500">Vous n'avez pas encore reçu de réservations.</p>
+    </div>
+
+    <div *ngIf="!loading && reservations.length > 0" class="bg-white shadow overflow-hidden sm:rounded-lg border border-slate-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joueur</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terrain & Position</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Heure (Jeu)</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paiement</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let res of reservations" class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ res.created_at | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ res.guest_name || res.user?.name }}</div>
+                <div class="text-sm text-gray-500"><a href="tel:{{res.guest_phone || res.user?.phone}}" class="hover:text-green-600">{{ res.guest_phone || res.user?.phone || 'N/A' }}</a></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-bold">{{ res.field?.name }}</div>
+                <div class="text-sm text-gray-500">{{ res.field?.address }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ res.time_slot?.date | date:'dd/MM/yyyy' }}</div>
+                <div class="text-sm text-gray-500">{{ res.time_slot?.start_time?.substring(0,5) }} - {{ res.time_slot?.end_time?.substring(0,5) }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-yellow-100 text-yellow-800': res.status === 'pending',
+                        'bg-green-100 text-green-800': res.status === 'confirmed',
+                        'bg-red-100 text-red-800': res.status === 'cancelled'
+                      }">
+                  {{ res.status === 'confirmed' ? 'Confirmé' : (res.status === 'pending' ? 'En attente' : 'Annulé') }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">Total: <span class="font-medium">{{ res.total_price }} FCFA</span></div>
+                <div class="text-sm text-green-600 font-bold">Acompte: {{ getPaidAmount(res.payment) }} FCFA</div>
+                <div class="text-sm text-red-500 font-medium" *ngIf="res.total_price - getPaidAmount(res.payment) > 0">
+                  Reste: {{ res.total_price - getPaidAmount(res.payment) }} FCFA
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button *ngIf="res.status === 'confirmed' || res.status === 'pending'" 
+                        (click)="cancelReservation(res.id)" 
+                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors font-semibold">
+                  Annuler
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
