@@ -12,8 +12,9 @@ RUN npm ci
 # Copier tout le code source
 COPY . .
 
-# Construire l'application pour la production
-RUN npm run build -- --configuration production
+# Construire l'application (preprod par défaut, prod configurable via --build-arg CONFIGURATION=prod)
+ARG CONFIGURATION=preprod
+RUN npm run build:${CONFIGURATION}
 
 # Étape 2 : Serveur Nginx pour distribuer les fichiers statiques
 FROM nginx:alpine

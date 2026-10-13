@@ -3,5 +3,5 @@ export const environment = {
   production: false,
   staging: true,
   name: 'preprod',
-  apiUrl: 'https://staging-api.myterrain.sn/api/v1' // Remplacer par l'URL ou domaine DigitalOcean
+  apiUrl: 'http://165.232.65.22:8000/api/v1'
 };
