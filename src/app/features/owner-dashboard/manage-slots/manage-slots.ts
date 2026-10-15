@@ -25,6 +25,10 @@ export class ManageSlotsComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private cdr = inject(ChangeDetectorRef);
 
+  goBack() {
+    window.history.back();
+  }
+
   fieldId!: number;
   selectedDate: string = new Date().toISOString().split('T')[0];
   slots: any[] = [];

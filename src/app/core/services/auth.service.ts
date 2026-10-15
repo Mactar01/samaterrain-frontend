@@ -3,27 +3,67 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { User, UserRole, AuthResponse } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
-  private currentUserSubject = new BehaviorSubject<any>(null);
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      this.currentUserSubject.next(JSON.parse(savedUser));
+      try {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
     }
   }
 
-  get currentUser() {
+  get currentUser(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
 
-  login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials, {
+  get currentUserValue(): User | null {
+    if (!this.currentUserSubject.value) {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          this.currentUserSubject.next(parsed);
+          return parsed;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return this.currentUserSubject.value;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  getUserRole(): UserRole | null {
+    return this.currentUserValue?.role ?? null;
+  }
+
+  hasRole(roles: UserRole | UserRole[]): boolean {
+    const currentRole = this.getUserRole();
+    if (!currentRole) return false;
+    const allowed = Array.isArray(roles) ? roles : [roles];
+    return allowed.includes(currentRole);
+  }
+
+  login(credentials: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
       headers: { 'Bypass-Tunnel-Reminder': 'true' }
     }).pipe(
       tap(response => {

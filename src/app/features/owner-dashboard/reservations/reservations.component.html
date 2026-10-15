@@ -1,8 +1,8 @@
-﻿<div class="min-h-screen bg-slate-50 flex flex-col">
-  <!-- Navbar simplifiée -->
-  <div class="bg-slate-900 shadow-sm border-b border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
+<div class="min-h-screen bg-slate-50 flex flex-col">
+  <!-- Top Navbar -->
+  <header class="bg-slate-900 shadow-sm border-b border-slate-800 px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-40">
     <div class="flex items-center gap-3">
-      <div class="bg-green-500 text-white p-1.5 rounded-lg shadow-sm">
+      <div class="bg-green-500 text-slate-900 p-1.5 rounded-xl shadow-md shadow-green-500/20">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
@@ -10,80 +10,180 @@
       <span class="text-xl font-bold text-white tracking-tight">myTerrain<span class="text-green-500">.</span></span>
     </div>
     <div class="flex items-center gap-4">
-      <a routerLink="/dashboard" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">Retour au tableau de bord</a>
+      <a routerLink="/dashboard" class="inline-flex items-center text-sm font-medium text-slate-300 hover:text-white transition-colors">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Retour au tableau de bord
+      </a>
     </div>
-  </div>
+  </header>
 
   <main class="flex-1 overflow-y-auto p-4 sm:p-8 max-w-7xl mx-auto w-full">
-    <div class="mb-8">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Réservations & Notifications</h1>
-      <p class="mt-1 text-sm text-slate-500">Consultez l'historique complet des réservations sur vos terrains.</p>
+    <!-- Header Title -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gestion des Réservations</h1>
+        <p class="mt-1 text-sm text-slate-500">Suivez les réservations des joueurs, les acomptes réglés et contactez vos clients.</p>
+      </div>
+      <div>
+        <button
+          (click)="exportToCSV()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-900 shadow-sm transition-all">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Exporter en CSV
+        </button>
+      </div>
     </div>
 
-    <div *ngIf="loading" class="flex justify-center py-12">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
+    <!-- Filter bar -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <!-- Search input -->
+      <div class="relative w-full md:w-80">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onFilterChange()"
+          placeholder="Rechercher par joueur, tel, terrain..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 focus:bg-white transition-all" />
+      </div>
+
+      <!-- Status buttons -->
+      <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+        <button
+          (click)="selectedStatus = 'all'; onFilterChange()"
+          [ngClass]="selectedStatus === 'all' ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+          Tous
+        </button>
+        <button
+          (click)="selectedStatus = 'confirmed'; onFilterChange()"
+          [ngClass]="selectedStatus === 'confirmed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+          Confirmés
+        </button>
+        <button
+          (click)="selectedStatus = 'pending'; onFilterChange()"
+          [ngClass]="selectedStatus === 'pending' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+          En attente
+        </button>
+        <button
+          (click)="selectedStatus = 'cancelled'; onFilterChange()"
+          [ngClass]="selectedStatus === 'cancelled' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+          Annulés
+        </button>
+      </div>
     </div>
 
-    <div *ngIf="!loading && reservations.length === 0" class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-      <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      <h3 class="mt-4 text-lg font-medium text-slate-900">Aucune réservation</h3>
-      <p class="mt-1 text-slate-500">Vous n'avez pas encore reçu de réservations.</p>
+    <!-- Skeletons while loading -->
+    <div *ngIf="loading" class="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+      <app-skeleton-loader type="table-row"></app-skeleton-loader>
+      <app-skeleton-loader type="table-row"></app-skeleton-loader>
+      <app-skeleton-loader type="table-row"></app-skeleton-loader>
+      <app-skeleton-loader type="table-row"></app-skeleton-loader>
     </div>
 
-    <div *ngIf="!loading && reservations.length > 0" class="bg-white shadow overflow-hidden sm:rounded-lg border border-slate-200">
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredReservations.length === 0">
+      <app-empty-state
+        icon="calendar"
+        title="Aucune réservation correspondante"
+        message="Aucune réservation n'a été trouvée pour les critères sélectionnés.">
+      </app-empty-state>
+    </div>
+
+    <!-- Table of Reservations -->
+    <div *ngIf="!loading && filteredReservations.length > 0" class="bg-white shadow-sm overflow-hidden rounded-2xl border border-gray-200">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joueur</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terrain & Position</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Heure (Jeu)</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paiement</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Créée le</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Joueur & Contact</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Terrain</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Heure de Jeu</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Paiement</th>
+              <th scope="col" class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let res of reservations" class="hover:bg-slate-50 transition-colors">
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr *ngFor="let res of filteredReservations" class="hover:bg-slate-50 transition-colors">
+              <!-- Created at -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ res.created_at | date:'dd/MM/yyyy HH:mm' }}
               </td>
+
+              <!-- Player -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">{{ res.guest_name || res.user?.name }}</div>
-                <div class="text-sm text-gray-500"><a href="tel:{{res.guest_phone || res.user?.phone}}" class="hover:text-green-600">{{ res.guest_phone || res.user?.phone || 'N/A' }}</a></div>
+                <div class="text-sm font-bold text-gray-900">{{ res.player_name || res.guest_name || res.user?.name || 'Joueur' }}</div>
+                <div class="flex items-center gap-2 mt-1">
+                  <a href="tel:{{ res.player_phone || res.guest_phone || res.user?.phone }}" class="text-xs text-gray-500 hover:text-green-600 font-medium">
+                    {{ res.player_phone || res.guest_phone || res.user?.phone || 'N/A' }}
+                  </a>
+                  <!-- WhatsApp Link button -->
+                  <a
+                    *ngIf="res.player_phone || res.guest_phone || res.user?.phone"
+                    [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Envoyer un message WhatsApp"
+                    class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 hover:bg-green-200 text-green-700 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.92-.457-1.503-.62-2.464-2.155-2.538-2.256-.075-.101-.6-799-.6-1.523 0-.724.379-1.08.513-1.228.134-.149.294-.187.392-.187.099 0 .198.001.284.006.091.004.213-.034.333.254.125.3.428 1.042.465 1.118.038.076.063.165.013.266-.05.1-.075.165-.15.253-.075.088-.158.196-.226.264-.075.076-.153.158-.066.308.087.15.385.636.827 1.028.568.504 1.047.66 1.196.734.15.075.238.063.326-.038.088-.101.376-.438.476-.589.1-.15.2-.126.338-.075.138.05 879.414 1.03.488.15.075.25.113.287.175.038.063.038.363-.106.768z" />
+                    </svg>
+                  </a>
+                </div>
               </td>
+
+              <!-- Field -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900 font-bold">{{ res.field?.name }}</div>
-                <div class="text-sm text-gray-500">{{ res.field?.address }}</div>
+                <div class="text-sm font-bold text-gray-900">{{ res.field?.name || 'Terrain' }}</div>
+                <div class="text-xs text-gray-500">{{ res.field?.location || res.field?.address || '' }}</div>
               </td>
+
+              <!-- Date & Time -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ res.time_slot?.date | date:'dd/MM/yyyy' }}</div>
-                <div class="text-sm text-gray-500">{{ res.time_slot?.start_time?.substring(0,5) }} - {{ res.time_slot?.end_time?.substring(0,5) }}</div>
+                <div class="text-sm text-gray-900 font-medium">{{ res.time_slot?.date | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ res.time_slot?.start_time?.substring(0,5) }} - {{ res.time_slot?.end_time?.substring(0,5) }}</div>
               </td>
+
+              <!-- Status badge -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                       [ngClass]="{
-                        'bg-yellow-100 text-yellow-800': res.status === 'pending',
+                        'bg-amber-100 text-amber-800': res.status === 'pending',
                         'bg-green-100 text-green-800': res.status === 'confirmed',
                         'bg-red-100 text-red-800': res.status === 'cancelled'
                       }">
                   {{ res.status === 'confirmed' ? 'Confirmé' : (res.status === 'pending' ? 'En attente' : 'Annulé') }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">Total: <span class="font-medium">{{ res.total_price }} FCFA</span></div>
-                <div class="text-sm text-green-600 font-bold">Acompte: {{ getPaidAmount(res.payment) }} FCFA</div>
-                <div class="text-sm text-red-500 font-medium" *ngIf="res.total_price - getPaidAmount(res.payment) > 0">
-                  Reste: {{ res.total_price - getPaidAmount(res.payment) }} FCFA
+
+              <!-- Payment -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="text-gray-900 font-semibold">{{ res.total_price }} FCFA</div>
+                <div class="text-xs text-green-600 font-bold">Acompte : {{ getPaidAmount(res.payment) }} FCFA</div>
+                <div class="text-xs text-red-500 font-medium" *ngIf="res.total_price - getPaidAmount(res.payment) > 0">
+                  Reste : {{ res.total_price - getPaidAmount(res.payment) }} FCFA
                 </div>
               </td>
+
+              <!-- Actions -->
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button *ngIf="res.status === 'confirmed' || res.status === 'pending'" 
-                        (click)="cancelReservation(res.id)" 
-                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors font-semibold">
+                <button
+                  *ngIf="res.status === 'confirmed' || res.status === 'pending'"
+                  (click)="cancelReservation(res.id)"
+                  class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors">
                   Annuler
                 </button>
               </td>
@@ -94,4 +194,3 @@
     </div>
   </main>
 </div>
-

@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class LayoutComponent implements OnInit {
   adminName = '';
+  mobileMenuOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -22,6 +23,14 @@ export class LayoutComponent implements OnInit {
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
     this.adminName = user ? user.name : 'Administrateur';
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
   }
 
   logout() {
