@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { formatApiError } from '../../../core/utils/error-formatter';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -148,11 +149,7 @@ export class DashboardComponent implements OnInit {
             this.loadStats();
           },
           error: (err) => {
-            let errorMsg = err.error?.message || 'Erreur lors de la création.';
-            if (err.error?.errors) {
-              const errors = Object.values(err.error.errors).flat();
-              errorMsg = errors.join('<br>');
-            }
+            const errorMsg = formatApiError(err);
             Swal.fire({
               title: 'Erreur',
               html: errorMsg,
@@ -197,7 +194,7 @@ export class DashboardComponent implements OnInit {
           this.adminService.inviteOwner({ email, business_name }).subscribe({
             next: (res) => resolve(res),
             error: (err) => {
-              Swal.showValidationMessage(err.error?.message || 'Erreur lors de la génération.');
+              Swal.showValidationMessage(formatApiError(err));
               reject();
             }
           });

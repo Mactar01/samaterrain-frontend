@@ -8,10 +8,12 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { Reservation } from '../../../core/models/reservation.model';
 
+import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+
 @Component({
   selector: 'app-reservations',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SkeletonLoaderComponent, EmptyStateComponent],
+  imports: [CommonModule, RouterModule, FormsModule, SkeletonLoaderComponent, EmptyStateComponent, DarkModeToggleComponent],
   providers: [DatePipe],
   templateUrl: './reservations.component.html'
 })

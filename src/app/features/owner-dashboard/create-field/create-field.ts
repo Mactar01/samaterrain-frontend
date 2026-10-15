@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FieldService } from '../../../core/services/field.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { formatApiError } from '../../../core/utils/error-formatter';
 
 @Component({
   selector: 'app-create-field',
@@ -70,7 +71,7 @@ export class CreateFieldComponent {
       },
       error: (err) => {
         console.error("CREATE FIELD ERROR:", err);
-        this.confirmationService.error(err.error?.message || "Erreur lors de la création du terrain.");
+        this.confirmationService.error(formatApiError(err));
         this.isSubmitting = false;
       }
     });

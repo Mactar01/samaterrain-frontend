@@ -16,6 +16,8 @@ import { environment } from '../../../../environments/environment';
 import { Field } from '../../../core/models/field.model';
 import { User } from '../../../core/models/user.model';
 
+import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -25,7 +27,8 @@ import { User } from '../../../core/models/user.model';
     FormsModule,
     BaseChartDirective,
     SkeletonLoaderComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    DarkModeToggleComponent
   ],
   templateUrl: './dashboard.component.html'
 })

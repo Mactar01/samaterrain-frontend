@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FieldService } from '../../../core/services/field.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { formatApiError } from '../../../core/utils/error-formatter';
 import { forkJoin } from 'rxjs';
+
+import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
 
 interface WeekDay {
   date: string;      // YYYY-MM-DD
@@ -16,7 +19,7 @@ interface WeekDay {
 @Component({
   selector: 'app-manage-slots',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DarkModeToggleComponent],
   templateUrl: './manage-slots.html'
 })
 export class ManageSlotsComponent implements OnInit {
@@ -207,7 +210,7 @@ export class ManageSlotsComponent implements OnInit {
         this.refreshData();
       },
       error: (err: any) => {
-        this.confirmationService.error(err.error?.message || "Erreur lors de l'ajout.");
+        this.confirmationService.error(formatApiError(err));
         this.isAdding = false;
       }
     });
@@ -354,7 +357,7 @@ export class ManageSlotsComponent implements OnInit {
       },
       error: (err) => {
         this.isBulkGenerating = false;
-        this.confirmationService.error(err.error?.message || "Erreur lors de la génération en masse.");
+        this.confirmationService.error(formatApiError(err));
         this.refreshData();
       }
     });
@@ -363,7 +366,7 @@ export class ManageSlotsComponent implements OnInit {
   formatDisplayDate(date: string): string {
     if (!date) return '';
     const [y, m, d] = date.split('-');
-    const months = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+    const months = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
     return `${d} ${months[parseInt(m)-1]} ${y}`;
   }
 
@@ -376,7 +379,7 @@ export class ManageSlotsComponent implements OnInit {
         next: () => {
           slot.status = 'available';
           slot.block_reason = null;
-          this.confirmationService.toast('Créneau débloqué', 'success');
+          this.confirmationService.toast('Créneau débloqué avec succès', 'success');
         },
         error: () => this.confirmationService.error("Erreur lors de la modification du statut.")
       });
@@ -420,7 +423,7 @@ export class ManageSlotsComponent implements OnInit {
 
   confirmManualReserve() {
     if (!this.manualReserve.playerName || !this.manualReserve.playerPhone) {
-      this.confirmationService.toast('Veuillez remplir le nom et le téléphone', 'warning');
+      this.confirmationService.toast('Veuillez renseigner le nom et le numéro de téléphone', 'warning');
       return;
     }
     this.isReserving = true;
@@ -433,12 +436,12 @@ export class ManageSlotsComponent implements OnInit {
       next: (res) => {
         this.isReserving = false;
         this.showManualReserveModal = false;
-        this.confirmationService.toast(res.message || 'Réservation confirmée !', 'success');
+        this.confirmationService.toast(res.message || 'Réservation confirmée avec succès !', 'success');
         this.refreshData();
       },
       error: (err) => {
         this.isReserving = false;
-        this.confirmationService.error(err.error?.message || 'Erreur lors de la réservation');
+        this.confirmationService.error(formatApiError(err));
       }
     });
   }

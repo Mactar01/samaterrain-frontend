@@ -2,102 +2,109 @@
   <!-- Background Image with Overlay -->
   <div class="absolute inset-0 z-0">
     <img src="https://images.unsplash.com/photo-1518605368461-1e1c7f7ce74a?q=80&w=2000&auto=format&fit=crop" 
-         alt="Grass background" 
+         alt="Terrain background" 
          class="w-full h-full object-cover" />
-    <!-- Gradient overlay for readability -->
-    <div class="absolute inset-0 bg-gradient-to-b from-green-900/80 to-slate-900/90 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-green-950/85 via-slate-900/90 to-slate-950/95 mix-blend-multiply"></div>
   </div>
 
   <!-- Form Container -->
-  <div class="relative z-10 w-full max-w-4xl mx-auto">
+  <div class="relative z-10 w-full max-w-4xl mx-auto my-6">
     <div class="mb-8 text-center sm:text-left">
-      <h2 class="text-3xl font-extrabold text-white tracking-tight drop-shadow-md">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-3 backdrop-blur-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nouveau Complexe
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
         Ajouter un nouveau terrain
       </h2>
-      <p class="mt-2 text-sm text-green-100 font-medium drop-shadow-sm">
-        Remplissez les informations ci-dessous pour publier votre infrastructure sur l'application des joueurs.
+      <p class="mt-2 text-sm text-emerald-100/90 font-medium max-w-2xl">
+        Renseignez les détails de votre infrastructure sportive. Vos créneaux seront immédiatement visibles par les joueurs.
       </p>
     </div>
 
-    <div class="bg-white/95 backdrop-blur-md shadow-2xl shadow-black/40 rounded-3xl overflow-hidden border border-white/20">
+    <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden border border-white/20 dark:border-slate-800 transition-colors duration-200">
       <div class="px-6 py-8 sm:p-10">
         <form (ngSubmit)="onSubmit()" #fieldForm="ngForm">
       
-      <div *ngIf="errorMessage" class="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
-        <p class="text-sm text-red-700">{{ errorMessage }}</p>
-      </div>
-
-      <div class="grid grid-cols-6 gap-6">
-        
-        <div class="col-span-6 sm:col-span-3">
-          <label for="name" class="block text-sm font-medium text-gray-700">Nom du terrain</label>
-          <input type="text" name="name" id="name" [(ngModel)]="field.name" required
-                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
-        </div>
-
-        <div class="col-span-6 sm:col-span-3">
-          <label for="type" class="block text-sm font-medium text-gray-700">Type de surface</label>
-          <select id="type" name="type" [(ngModel)]="field.type"
-                  class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 transition-colors shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
-            <option value="artificial_grass">Synthétique</option>
-            <option value="natural_grass">Naturel</option>
-            <option value="futsal">Futsal (Indoor)</option>
-            <option value="concrete">Béton / Goudron</option>
-          </select>
-        </div>
-
-        <div class="col-span-6 sm:col-span-3">
-          <label for="capacity" class="block text-sm font-medium text-gray-700">Capacité (Nombre de joueurs)</label>
-          <input type="number" name="capacity" id="capacity" [(ngModel)]="field.capacity" required min="2"
-                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
-        </div>
-
-        <div class="col-span-6 sm:col-span-3">
-          <label for="city" class="block text-sm font-medium text-gray-700">Ville</label>
-          <input type="text" name="city" id="city" [(ngModel)]="field.city" required
-                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
-        </div>
-
-        <div class="col-span-6 sm:col-span-3">
-          <label for="price" class="block text-sm font-medium text-gray-700">Prix de location par heure (CFA)</label>
-          <input type="number" name="price" id="price" [(ngModel)]="field.price_per_hour" required min="0"
-                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
-        </div>
-
-        <div class="col-span-6">
-          <label for="address" class="block text-sm font-medium text-gray-700">Adresse complète</label>
-          <input type="text" name="address" id="address" [(ngModel)]="field.address" required
-                 class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-xl py-3 px-4 border border-gray-300 shadow-sm focus:ring-2 focus:ring-green-500 transition-colors">
-        </div>
-
-        <div class="col-span-6">
-          <label class="block text-sm font-medium text-gray-700">Photo du terrain (optionnel)</label>
-          <div class="mt-1 flex items-center">
-            <span class="inline-block h-24 w-32 rounded-md overflow-hidden bg-gray-100 border border-gray-300">
-              <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
-              <svg *ngIf="!imagePreview" class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v14h14V5H5zm2 10l3-4 4 5h5v1H7v-2z" />
-              </svg>
-            </span>
-            <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+          <div *ngIf="errorMessage" class="mb-6 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 p-4 rounded-xl">
+            <p class="text-sm font-medium text-red-700 dark:text-red-300">{{ errorMessage }}</p>
           </div>
-        </div>
 
-      </div>
+          <div class="grid grid-cols-6 gap-6">
+            
+            <div class="col-span-6 sm:col-span-3">
+              <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Nom du terrain *</label>
+              <input type="text" name="name" id="name" [(ngModel)]="field.name" required placeholder="ex: Terrain A - Wembley"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+            </div>
 
-      <div class="mt-8 border-t border-gray-200 pt-5">
-        <div class="flex justify-end">
-          <button type="button" onclick="history.back()"
-                  class="bg-white py-2 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-bold transition-transform active:scale-95 text-gray-700 hover:bg-gray-50 focus:outline-none">
-            Annuler
-          </button>
-          <button type="submit" [disabled]="!fieldForm.form.valid || isSubmitting"
-                  class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none disabled:opacity-50">
-            {{ isSubmitting ? 'Enregistrement...' : 'Créer le terrain' }}
-          </button>
-        </div>
+            <div class="col-span-6 sm:col-span-3">
+              <label for="type" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Type de surface</label>
+              <select id="type" name="type" [(ngModel)]="field.type"
+                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                <option value="artificial_grass">Pelouse synthétique</option>
+                <option value="natural_grass">Gazon naturel</option>
+                <option value="futsal">Futsal (Indoor / Parquet)</option>
+                <option value="concrete">Béton / Goudron</option>
+              </select>
+            </div>
+
+            <div class="col-span-6 sm:col-span-3">
+              <label for="capacity" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Capacité recommandée (joueurs)</label>
+              <input type="number" name="capacity" id="capacity" [(ngModel)]="field.capacity" required min="2" placeholder="ex: 10 (5 vs 5)"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+            </div>
+
+            <div class="col-span-6 sm:col-span-3">
+              <label for="city" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Ville *</label>
+              <input type="text" name="city" id="city" [(ngModel)]="field.city" required placeholder="ex: Dakar, Almadies"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+            </div>
+
+            <div class="col-span-6 sm:col-span-3">
+              <label for="price" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Prix par heure (FCFA) *</label>
+              <input type="number" name="price" id="price" [(ngModel)]="field.price_per_hour" required min="0" placeholder="ex: 25000"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm font-semibold">
+            </div>
+
+            <div class="col-span-6 sm:col-span-3">
+              <label for="address" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Adresse détaillée *</label>
+              <input type="text" name="address" id="address" [(ngModel)]="field.address" required placeholder="ex: Route de Ngor, près de la station"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+            </div>
+
+            <div class="col-span-6">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Photo du terrain (optionnelle)</label>
+              <div class="flex items-center gap-4">
+                <span class="inline-block h-24 w-32 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center">
+                  <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
+                  <svg *ngIf="!imagePreview" class="h-10 w-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </span>
+                <label for="image" class="cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-3 px-5 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-sm">
+                  <span>Choisir un fichier</span>
+                  <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" class="sr-only">
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-8 border-t border-slate-100 dark:border-slate-800 pt-6 flex justify-end gap-3">
+            <button type="button" onclick="history.back()"
+                    class="bg-white dark:bg-slate-800 py-3 px-6 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all cursor-pointer">
+              Annuler
+            </button>
+            <button type="submit" [disabled]="!fieldForm.form.valid || isSubmitting"
+                    class="inline-flex justify-center items-center py-3 px-8 rounded-2xl shadow-lg shadow-emerald-600/20 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98">
+              {{ isSubmitting ? 'Enregistrement...' : 'Créer le terrain' }}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
+    </div>
   </div>
 </div>

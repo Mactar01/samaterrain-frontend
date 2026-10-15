@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+import { formatApiError } from '../../../core/utils/error-formatter';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, DarkModeToggleComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
@@ -15,6 +18,10 @@ export class ProfileComponent implements OnInit {
   profileForm!: FormGroup;
   isLoading = false;
   user: any = null;
+
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -80,13 +87,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        let errMsg = err.error?.message || 'Erreur lors de la mise à jour du profil.';
-        if (err.error?.errors) {
-          const firstError = Object.values(err.error.errors)[0] as string[];
-          if (firstError && firstError.length > 0) {
-            errMsg = firstError[0];
-          }
-        }
+        const errMsg = formatApiError(err);
         this.confirmationService.error(errMsg);
       }
     });

@@ -3,11 +3,13 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AdminService } from "../../core/services/admin.service";
+import { formatApiError } from "../../core/utils/error-formatter";
+import { DarkModeToggleComponent } from "../../shared/components/dark-mode-toggle/dark-mode-toggle.component";
 
 @Component({
   selector: "app-owner-register",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DarkModeToggleComponent],
   templateUrl: "./owner-register.html",
   styleUrls: ["./owner-register.scss"]
 })
@@ -21,6 +23,9 @@ export class OwnerRegisterComponent implements OnInit {
   successMessage = "";
   errorMessage = "";
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -28,6 +33,14 @@ export class OwnerRegisterComponent implements OnInit {
     private adminService: AdminService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get("token") || "";
@@ -45,7 +58,7 @@ export class OwnerRegisterComponent implements OnInit {
     );
 
     if (!this.token) {
-      this.tokenError = "Lien d invitation invalide ou manquant.";
+      this.tokenError = "Lien d'invitation invalide ou manquant.";
       this.validating = false;
       return;
     }
@@ -57,7 +70,7 @@ export class OwnerRegisterComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.tokenError = "Ce lien d invitation est invalide, expire ou deja utilise.";
+        this.tokenError = "Ce lien d'invitation est invalide, a expiré ou a déjà été utilisé.";
         this.validating = false;
         this.cdr.detectChanges();
       }
@@ -83,13 +96,13 @@ export class OwnerRegisterComponent implements OnInit {
     this.adminService.registerFromInvitation(payload).subscribe({
       next: () => {
         this.successMessage =
-          "Compte cree avec succes ! Vous pouvez maintenant vous connecter.";
+          "Votre compte loueur a été créé avec succès ! Redirection en cours...";
         this.loading = false;
-        setTimeout(() => this.router.navigate(["/login"]), 3000);
+        setTimeout(() => this.router.navigate(["/login"]), 2500);
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        this.errorMessage = err.error?.message || "Une erreur est survenue.";
+        this.errorMessage = formatApiError(err);
         this.loading = false;
         this.cdr.detectChanges();
       }
