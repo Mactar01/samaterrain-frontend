@@ -60,7 +60,7 @@ export class OwnerRegisterComponent implements OnInit {
         phone: ["", [Validators.required]],
         business_name: ["", [Validators.required]],
         address: ["", [Validators.required]],
-        siret: ["", [Validators.required]],
+        siret: [""],
         password: ["", [Validators.required, Validators.minLength(8)]],
         password_confirmation: ["", [Validators.required]]
       },
