@@ -1,5 +1,5 @@
 <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 transition-colors duration-200">
-  <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 w-full max-w-lg p-6 sm:p-10 transition-colors">
+  <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 w-full max-w-2xl p-6 sm:p-10 transition-colors">
 
     <!-- Top bar with dark mode toggle -->
     <div class="flex justify-end mb-2">
@@ -71,9 +71,9 @@
         {{ errorMessage }}
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4" autocomplete="off">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5" autocomplete="off">
 
-        <!-- Nom complet -->
+        <!-- 1. Nom complet -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nom et Prénom *</label>
           <input formControlName="name" type="text" placeholder="Ex: Moussa Diop" autocomplete="name"
@@ -83,11 +83,11 @@
           </p>
         </div>
 
-        <!-- Adresse Email (Modifiable) -->
+        <!-- 2. Adresse Email (Modifiable) -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Adresse Email de connexion *
+              Email de connexion *
             </label>
             <span class="text-[11px] font-semibold text-green-600 dark:text-green-400">
               Modifiable
@@ -96,42 +96,51 @@
           <input formControlName="email" type="email" placeholder="loueur@exemple.com" autocomplete="email"
             class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-green-500/15 focus:border-green-600 text-sm transition-all" />
           <p *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="text-red-500 text-xs mt-1">
-            Veuillez renseigner une adresse email valide.
-          </p>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            Cette adresse servira d'identifiant de connexion à votre espace partenaire.
+            Veuillez renseigner un email valide.
           </p>
         </div>
 
-        <!-- Téléphone -->
+        <!-- 3. Téléphone -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Téléphone professionnel *</label>
           <input formControlName="phone" type="tel" placeholder="Ex: 77 000 00 00" autocomplete="tel"
             class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-green-500/15 focus:border-green-600 text-sm transition-all" />
+          <p *ngIf="form.get('phone')?.touched && form.get('phone')?.invalid" class="text-red-500 text-xs mt-1">
+            Le téléphone est obligatoire.
+          </p>
         </div>
 
-        <!-- Nom du complexe -->
+        <!-- 4. Nom du complexe -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nom du complexe sportif *</label>
           <input formControlName="business_name" type="text" placeholder="Ex: Complexe Sportif Almadies" autocomplete="organization"
             class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-green-500/15 focus:border-green-600 text-sm transition-all" />
+          <p *ngIf="form.get('business_name')?.touched && form.get('business_name')?.invalid" class="text-red-500 text-xs mt-1">
+            Le nom du complexe est obligatoire.
+          </p>
         </div>
 
-        <!-- Adresse -->
+        <!-- 5. Adresse -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Adresse exacte *</label>
           <input formControlName="address" type="text" placeholder="Ex: Route des Almadies, Dakar" autocomplete="street-address"
             class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-green-500/15 focus:border-green-600 text-sm transition-all" />
+          <p *ngIf="form.get('address')?.touched && form.get('address')?.invalid" class="text-red-500 text-xs mt-1">
+            L'adresse est obligatoire.
+          </p>
         </div>
 
-        <!-- NINEA / SIRET -->
+        <!-- 6. NINEA / SIRET -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">NINEA / RCCM (ou SIRET) *</label>
           <input formControlName="siret" type="text" placeholder="Ex: 004589231" autocomplete="off"
             class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-green-500/15 focus:border-green-600 text-sm transition-all" />
+          <p *ngIf="form.get('siret')?.touched && form.get('siret')?.invalid" class="text-red-500 text-xs mt-1">
+            Le NINEA / SIRET est obligatoire.
+          </p>
         </div>
 
-        <!-- Mot de passe avec oeil -->
+        <!-- 7. Mot de passe avec oeil -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Mot de passe *</label>
           <div class="relative">
@@ -140,7 +149,7 @@
             <button
               type="button"
               (click)="togglePassword()"
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none cursor-pointer"
               [title]="showPassword ? 'Masquer' : 'Afficher'">
               <svg *ngIf="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -151,9 +160,12 @@
               </svg>
             </button>
           </div>
+          <p *ngIf="form.get('password')?.touched && form.get('password')?.invalid" class="text-red-500 text-xs mt-1">
+            Minimum 8 caractères.
+          </p>
         </div>
 
-        <!-- Confirmation mot de passe avec oeil -->
+        <!-- 8. Confirmation mot de passe avec oeil -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Confirmer le mot de passe *</label>
           <div class="relative">
@@ -162,7 +174,7 @@
             <button
               type="button"
               (click)="toggleConfirmPassword()"
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none cursor-pointer"
               [title]="showConfirmPassword ? 'Masquer' : 'Afficher'">
               <svg *ngIf="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -178,10 +190,10 @@
           </p>
         </div>
 
-        <!-- Submit Button -->
-        <div class="pt-2">
+        <!-- Submit Button (Plein largeur sur 2 colonnes) -->
+        <div class="sm:col-span-2 pt-2">
           <button type="submit" [disabled]="loading || form.invalid"
-            class="w-full py-3.5 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl shadow-md shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98] text-sm">
+            class="w-full py-3.5 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl shadow-md shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98] text-sm cursor-pointer">
             <span *ngIf="!loading">Créer mon compte loueur</span>
             <span *ngIf="loading" class="flex items-center justify-center gap-2">
               <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
