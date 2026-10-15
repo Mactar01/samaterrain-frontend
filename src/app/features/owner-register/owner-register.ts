@@ -56,6 +56,7 @@ export class OwnerRegisterComponent implements OnInit {
     this.form = this.fb.group(
       {
         name: ["", [Validators.required]],
+        email: ["", [Validators.required, Validators.email]],
         phone: ["", [Validators.required]],
         business_name: ["", [Validators.required]],
         address: ["", [Validators.required]],
@@ -76,6 +77,12 @@ export class OwnerRegisterComponent implements OnInit {
       next: (res: any) => {
         this.invitation = res;
         this.validating = false;
+        if (res.email) {
+          this.form.patchValue({ email: res.email });
+        }
+        if (res.business_name) {
+          this.form.patchValue({ business_name: res.business_name });
+        }
         this.cdr.detectChanges();
       },
       error: () => {

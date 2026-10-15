@@ -45,7 +45,7 @@ export class AdminService {
   }
 
   // ---- Invitations ----
-  inviteOwner(data: { email: string; business_name: string }): Observable<any> {
+  inviteOwner(data: { email?: string; business_name?: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/owners/invite`, data);
   }
 

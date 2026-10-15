@@ -330,25 +330,31 @@ export class DashboardComponent implements OnInit {
   }
 
   submitInviteOwner() {
-    if (!this.inviteData.email || !this.inviteData.business_name) {
-      this.inviteError = "Veuillez renseigner l'email et le nom du complexe.";
-      return;
-    }
-
     this.isInviting = true;
     this.inviteError = '';
 
-    this.adminService.inviteOwner(this.inviteData).subscribe({
+    const payload: { email?: string; business_name?: string } = {};
+    if (this.inviteData.email?.trim()) {
+      payload.email = this.inviteData.email.trim();
+    }
+    if (this.inviteData.business_name?.trim()) {
+      payload.business_name = this.inviteData.business_name.trim();
+    }
+
+    this.adminService.inviteOwner(payload).subscribe({
       next: (res) => {
         this.isInviting = false;
-        const inviteMailto = `mailto:${encodeURIComponent(this.inviteData.email)}?subject=${encodeURIComponent("Invitation à rejoindre myTerrain - Espace Loueur")}&body=${encodeURIComponent(
-          `Bonjour,\n\nVous êtes invité à rejoindre la plateforme myTerrain pour gérer vos réservations et vos terrains pour "${this.inviteData.business_name}".\n\nCliquez sur ce lien sécurisé pour finaliser votre inscription :\n${res.invite_link}\n\nCe lien est valable pendant 7 jours.\n\nCordialement,\nL'équipe myTerrain`
-        )}`;
+        let inviteMailto = '';
+        if (payload.email) {
+          inviteMailto = `mailto:${encodeURIComponent(payload.email)}?subject=${encodeURIComponent("Invitation à rejoindre myTerrain - Espace Loueur")}&body=${encodeURIComponent(
+            `Bonjour,\n\nVous êtes invité à rejoindre la plateforme myTerrain pour gérer vos réservations et vos terrains${payload.business_name ? ' pour "' + payload.business_name + '"' : ''}.\n\nCliquez sur ce lien sécurisé pour finaliser votre inscription :\n${res.invite_link}\n\nCe lien est valable pendant 7 jours.\n\nCordialement,\nL'équipe myTerrain`
+          )}`;
+        }
         this.inviteResult = {
           invite_link: res.invite_link,
           whatsapp_link: res.whatsapp_link,
-          mailto_link: inviteMailto,
-          email: this.inviteData.email
+          mailto_link: inviteMailto || undefined,
+          email: payload.email
         };
         this.toastService.success('Lien d\'invitation généré avec succès !');
         this.cdr.detectChanges();
@@ -356,6 +362,7 @@ export class DashboardComponent implements OnInit {
       error: (err) => {
         this.isInviting = false;
         this.inviteError = formatApiError(err);
+        this.toastService.error(this.inviteError);
         this.cdr.detectChanges();
       }
     });
