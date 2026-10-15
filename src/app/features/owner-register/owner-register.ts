@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AdminService } from "../../core/services/admin.service";
+import { AuthService } from "../../core/services/auth.service";
 import { formatApiError } from "../../core/utils/error-formatter";
 import { DarkModeToggleComponent } from "../../shared/components/dark-mode-toggle/dark-mode-toggle.component";
 
@@ -31,6 +32,7 @@ export class OwnerRegisterComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private adminService: AdminService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -44,6 +46,13 @@ export class OwnerRegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get("token") || "";
+
+    // Si on arrive sur une page d'invitation avec un jeton valide,
+    // on s'assure qu'aucune session résiduelle (ex: admin en cours de test) ne vienne corrompre l'inscription
+    if (this.token) {
+      this.authService.clearSession();
+    }
+
     this.form = this.fb.group(
       {
         name: ["", [Validators.required]],
@@ -94,12 +103,17 @@ export class OwnerRegisterComponent implements OnInit {
     };
 
     this.adminService.registerFromInvitation(payload).subscribe({
-      next: () => {
-        this.successMessage =
-          "Votre compte loueur a été créé avec succès ! Redirection en cours...";
+      next: (res: any) => {
         this.loading = false;
-        setTimeout(() => this.router.navigate(["/login"]), 2500);
+        // Connexion automatique immédiate avec le compte Loueur créé
+        if (res && res.token && res.user) {
+          this.authService.saveSession(res.token, res.user);
+        }
+        this.successMessage =
+          "Félicitations ! Votre compte Loueur Partenaire a été activé. Redirection vers votre espace...";
         this.cdr.detectChanges();
+        // Redirection vers l'espace Loueur Partenaire (JAMAIS vers /admin !)
+        setTimeout(() => this.router.navigate(["/dashboard"]), 1200);
       },
       error: (err: any) => {
         this.errorMessage = formatApiError(err);

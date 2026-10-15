@@ -57,30 +57,80 @@
       </div>
 
       <!-- Status buttons -->
-      <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+      <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+        <!-- Tous -->
         <button
-          (click)="selectedStatus = 'all'; onFilterChange()"
-          [ngClass]="selectedStatus === 'all' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-          class="px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap">
-          Tous
+          type="button"
+          (click)="setStatusFilter('all')"
+          [ngClass]="selectedStatus === 'all'
+            ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm font-bold'
+            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+          class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap cursor-pointer">
+          <span>Tous</span>
+          <span
+            [ngClass]="selectedStatus === 'all'
+              ? 'bg-white/20 dark:bg-slate-900/15 text-white dark:text-slate-900'
+              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'"
+            class="px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center tabular-nums">
+            {{ countAll }}
+          </span>
         </button>
+
+        <!-- Confirmés -->
         <button
-          (click)="selectedStatus = 'confirmed'; onFilterChange()"
-          [ngClass]="selectedStatus === 'confirmed' ? 'bg-green-600 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-          class="px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap">
-          Confirmés
+          type="button"
+          (click)="setStatusFilter('confirmed')"
+          [ngClass]="selectedStatus === 'confirmed'
+            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20 font-bold'
+            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+          class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap cursor-pointer">
+          <span class="w-2 h-2 rounded-full" [ngClass]="selectedStatus === 'confirmed' ? 'bg-white' : 'bg-emerald-500'"></span>
+          <span>Confirmés</span>
+          <span
+            [ngClass]="selectedStatus === 'confirmed'
+              ? 'bg-white/20 text-white'
+              : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'"
+            class="px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center tabular-nums">
+            {{ countConfirmed }}
+          </span>
         </button>
+
+        <!-- En attente -->
         <button
-          (click)="selectedStatus = 'pending'; onFilterChange()"
-          [ngClass]="selectedStatus === 'pending' ? 'bg-amber-500 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-          class="px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap">
-          En attente
+          type="button"
+          (click)="setStatusFilter('pending')"
+          [ngClass]="selectedStatus === 'pending'
+            ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/20 font-bold'
+            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+          class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap cursor-pointer">
+          <span class="w-2 h-2 rounded-full" [ngClass]="selectedStatus === 'pending' ? 'bg-white' : 'bg-amber-400'"></span>
+          <span>En attente</span>
+          <span
+            [ngClass]="selectedStatus === 'pending'
+              ? 'bg-white/20 text-white'
+              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'"
+            class="px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center tabular-nums">
+            {{ countPending }}
+          </span>
         </button>
+
+        <!-- Annulés -->
         <button
-          (click)="selectedStatus = 'cancelled'; onFilterChange()"
-          [ngClass]="selectedStatus === 'cancelled' ? 'bg-red-500 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-          class="px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap">
-          Annulés
+          type="button"
+          (click)="setStatusFilter('cancelled')"
+          [ngClass]="selectedStatus === 'cancelled'
+            ? 'bg-rose-600 text-white shadow-sm shadow-rose-600/20 font-bold'
+            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+          class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl transition-all whitespace-nowrap cursor-pointer">
+          <span class="w-2 h-2 rounded-full" [ngClass]="selectedStatus === 'cancelled' ? 'bg-white' : 'bg-rose-500'"></span>
+          <span>Annulés</span>
+          <span
+            [ngClass]="selectedStatus === 'cancelled'
+              ? 'bg-white/20 text-white'
+              : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'"
+            class="px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center tabular-nums">
+            {{ countCancelled }}
+          </span>
         </button>
       </div>
     </div>
@@ -161,12 +211,8 @@
               <!-- Status badge -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold"
-                      [ngClass]="{
-                        'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300': res.status === 'pending',
-                        'bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300': res.status === 'confirmed',
-                        'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300': res.status === 'cancelled'
-                      }">
-                  {{ res.status === 'confirmed' ? 'Confirmé' : (res.status === 'pending' ? 'En attente' : 'Annulé') }}
+                      [ngClass]="getStatusClass(res.status)">
+                  {{ getStatusLabel(res.status) }}
                 </span>
               </td>
 
@@ -179,14 +225,57 @@
                 </div>
               </td>
 
-              <!-- Actions -->
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button
-                  *ngIf="res.status === 'confirmed' || res.status === 'pending'"
-                  (click)="cancelReservation(res.id)"
-                  class="text-red-600 dark:text-red-400 hover:text-red-800 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/80 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors">
-                  Annuler
-                </button>
+              <!-- Actions (3 points) -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                <div class="inline-block relative">
+                  <button (click)="toggleReservationDropdown(res.id, $event)"
+                          type="button"
+                          title="Actions sur la réservation"
+                          class="w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white inline-flex items-center justify-center transition cursor-pointer shadow-xs">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <circle cx="5" cy="12" r="1.75" />
+                      <circle cx="12" cy="12" r="1.75" />
+                      <circle cx="19" cy="12" r="1.75" />
+                    </svg>
+                  </button>
+
+                  <!-- Dropdown Menu -->
+                  <div *ngIf="activeDropdownReservationId === res.id"
+                       (click)="$event.stopPropagation()"
+                       class="absolute right-0 bottom-full mb-1 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 z-40 text-left animate-scale-up">
+                    
+                    <!-- WhatsApp -->
+                    <a *ngIf="res.player_phone || res.guest_phone || res.user?.phone"
+                       [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date)"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       (click)="closeReservationDropdown()"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.92-.457-1.503-.62-2.464-2.155-2.538-2.256-.075-.101-.6-799-.6-1.523 0-.724.379-1.08.513-1.228.134-.149.294-.187.392-.187.099 0 .198.001.284.006.091.004.213-.034.333.254.125.3.428 1.042.465 1.118.038.076.063.165.013.266-.05.1-.075.165-.15.253-.075.088-.158.196-.226.264-.075.076-.153.158-.066.308.087.15.385.636.827 1.028.568.504 1.047.66 1.196.734.15.075.238.063.326-.038.088-.101.376-.438.476-.589.1-.15.2-.126.338-.075.138.05 879.414 1.03.488.15.075.25.113.287.175.038.063.038.363-.106.768z" /></svg>
+                      <span>WhatsApp Joueur</span>
+                    </a>
+
+                    <!-- Appeler -->
+                    <a *ngIf="res.player_phone || res.guest_phone || res.user?.phone"
+                       href="tel:{{ res.player_phone || res.guest_phone || res.user?.phone }}"
+                       (click)="closeReservationDropdown()"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                      <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                      <span>Appeler le joueur</span>
+                    </a>
+
+                    <div *ngIf="res.status === 'confirmed' || res.status === 'pending'" class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+
+                    <!-- Annuler -->
+                    <button *ngIf="res.status === 'confirmed' || res.status === 'pending'"
+                            (click)="cancelReservation(res.id); closeReservationDropdown()"
+                            type="button"
+                            class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                      <span>Annuler la réservation</span>
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </tbody>

@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import Swal from 'sweetalert2';
 
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
@@ -12,7 +14,7 @@ import { formatApiError } from '../../../core/utils/error-formatter';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SkeletonLoaderComponent, EmptyStateComponent],
+  imports: [CommonModule, RouterModule, FormsModule, SkeletonLoaderComponent, EmptyStateComponent],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
@@ -28,9 +30,73 @@ export class DashboardComponent implements OnInit {
   loadingOwners = true;
   adminName = '';
 
+  // Modals state
+  showCreateModal = false;
+  showInviteModal = false;
+
+  // 3-dots actions dropdown state
+  activeDropdownOwnerId: number | null = null;
+
+  toggleOwnerDropdown(ownerId: number, event: Event) {
+    event.stopPropagation();
+    if (this.activeDropdownOwnerId === ownerId) {
+      this.activeDropdownOwnerId = null;
+    } else {
+      this.activeDropdownOwnerId = ownerId;
+    }
+  }
+
+  closeOwnerDropdown() {
+    this.activeDropdownOwnerId = null;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.closeOwnerDropdown();
+  }
+
+  // Create Owner Form Model
+  newOwner = {
+    name: '',
+    email: '',
+    phone: '',
+    business_name: '',
+    password: '',
+    password_confirmation: '',
+    send_email: true,
+    send_whatsapp: true
+  };
+  createError = '';
+  isCreating = false;
+  showCreatePassword = false;
+  createSuccessData: {
+    name: string;
+    email: string;
+    phone: string;
+    business_name: string;
+    temporary_password: string;
+    whatsapp_link: string;
+    whatsapp_message: string;
+    mailto_link: string;
+    login_link: string;
+    email_sent: boolean;
+  } | null = null;
+  createdCredentialsCopied = false;
+
+  // Invite Owner Form Model
+  inviteData = {
+    email: '',
+    business_name: ''
+  };
+  inviteError = '';
+  isInviting = false;
+  inviteResult: { invite_link: string; whatsapp_link: string; mailto_link?: string; email?: string } | null = null;
+  linkCopied = false;
+
   constructor(
     private adminService: AdminService,
     private authService: AuthService,
+    private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -76,184 +142,259 @@ export class DashboardComponent implements OnInit {
   toggleOwnerStatus(owner: any) {
     this.adminService.toggleOwnerStatus(owner.id).subscribe({
       next: (res) => {
-        // Toggle local state
         if (owner.user) {
           owner.user.is_active = !owner.user.is_active;
         }
-        Swal.fire({
-          icon: 'success',
-          title: 'Succès',
-          text: res.message,
-          timer: 2000,
-          showConfirmButton: false
-        });
+        this.toastService.success(res.message || 'Statut mis à jour avec succès.');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastService.error('Impossible de modifier le statut.');
+      }
+    });
+  }
+
+  // --- Modal: Ajouter un Loueur ---
+  openCreateOwnerModal() {
+    this.newOwner = {
+      name: '',
+      email: '',
+      phone: '',
+      business_name: '',
+      password: '',
+      password_confirmation: '',
+      send_email: true,
+      send_whatsapp: true
+    };
+    this.createError = '';
+    this.isCreating = false;
+    this.showCreatePassword = true;
+    this.createSuccessData = null;
+    this.createdCredentialsCopied = false;
+    this.generateTempPassword();
+    this.showCreateModal = true;
+  }
+
+  closeCreateOwnerModal() {
+    this.showCreateModal = false;
+    this.createSuccessData = null;
+  }
+
+  generateTempPassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const numbers = '23456789';
+    const specials = '!#@$';
+    let res = 'Temp';
+    for (let i = 0; i < 2; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+    for (let i = 0; i < 3; i++) res += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    res += specials.charAt(Math.floor(Math.random() * specials.length));
+    this.newOwner.password = res;
+    this.newOwner.password_confirmation = res;
+  }
+
+  buildWhatsAppLink(phone: string, name: string, business: string, email: string, password: string): string {
+    let cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+    if (cleanPhone.length === 9 && ['70', '75', '76', '77', '78', '33'].includes(cleanPhone.substring(0, 2))) {
+      cleanPhone = '221' + cleanPhone;
+    }
+    const loginLink = window.location.origin + '/login';
+    const text = `Bonjour ${name},\n\nVotre compte Loueur Partenaire sur myTerrain a bien été créé pour votre complexe *${business}* !\n\nVoici vos identifiants pour vous connecter :\n📧 Email : ${email}\n🔑 Mot de passe temporaire : ${password}\n🌐 Connexion : ${loginLink}\n\n⚠️ Important : Ce mot de passe est temporaire, vous devrez le modifier dès votre première connexion pour accéder à votre espace partenaire.`;
+    const encoded = encodeURIComponent(text);
+    return cleanPhone ? `https://wa.me/${cleanPhone}?text=${encoded}` : `https://api.whatsapp.com/send?text=${encoded}`;
+  }
+
+  buildMailtoLink(email: string, name: string, business: string, password: string): string {
+    const loginLink = window.location.origin + '/login';
+    const subject = encodeURIComponent(`Vos accès Loueur Partenaire myTerrain (${business})`);
+    const body = encodeURIComponent(
+      `Bonjour ${name},\n\nVotre compte Loueur Partenaire sur myTerrain a bien été créé pour votre complexe ${business} !\n\nVoici vos identifiants pour vous connecter :\nEmail : ${email}\nMot de passe temporaire : ${password}\nLien de connexion : ${loginLink}\n\nImportant : Ce mot de passe est temporaire, vous devrez le modifier dès votre première connexion pour accéder à votre espace partenaire.\n\nCordialement,\nL'équipe myTerrain`
+    );
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  }
+
+  copyCreatedCredentials() {
+    if (!this.createSuccessData) return;
+    const text = `Accès Loueur Partenaire myTerrain\nNom : ${this.createSuccessData.name}\nComplexe : ${this.createSuccessData.business_name}\nEmail : ${this.createSuccessData.email}\nMot de passe temporaire : ${this.createSuccessData.temporary_password}\nLien : ${this.createSuccessData.login_link}\n(Modification de mot de passe obligatoire à la première connexion)`;
+    navigator.clipboard.writeText(text).then(() => {
+      this.createdCredentialsCopied = true;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.createdCredentialsCopied = false;
+        this.cdr.detectChanges();
+      }, 3000);
+    });
+  }
+
+  submitCreateOwner() {
+    if (!this.newOwner.name || !this.newOwner.email || !this.newOwner.business_name || !this.newOwner.password) {
+      this.createError = 'Veuillez remplir tous les champs obligatoires (*).';
+      return;
+    }
+
+    if (this.newOwner.password.length < 8) {
+      this.createError = 'Le mot de passe doit comporter au moins 8 caractères.';
+      return;
+    }
+
+    this.newOwner.password_confirmation = this.newOwner.password;
+    this.isCreating = true;
+    this.createError = '';
+
+    // Déclencher l'ouverture de fenêtre WhatsApp de manière synchrone au clic pour éviter le blocage pop-up du navigateur
+    let waWindow: Window | null = null;
+    if (this.newOwner.send_whatsapp && this.newOwner.phone) {
+      try {
+        waWindow = window.open('about:blank', '_blank');
+      } catch (e) {
+        waWindow = null;
+      }
+    }
+
+    const payload = {
+      name: this.newOwner.name,
+      email: this.newOwner.email,
+      phone: this.newOwner.phone,
+      business_name: this.newOwner.business_name,
+      password: this.newOwner.password,
+      send_email: this.newOwner.send_email
+    };
+
+    this.adminService.createOwner(payload).subscribe({
+      next: (res: any) => {
+        this.isCreating = false;
+        const creds = res.credentials || {};
+        const waLink = creds.whatsapp_link || this.buildWhatsAppLink(
+          this.newOwner.phone,
+          this.newOwner.name,
+          this.newOwner.business_name,
+          this.newOwner.email,
+          this.newOwner.password
+        );
+        const mailtoLink = this.buildMailtoLink(
+          this.newOwner.email,
+          this.newOwner.name,
+          this.newOwner.business_name,
+          this.newOwner.password
+        );
+
+        this.createSuccessData = {
+          name: this.newOwner.name,
+          email: this.newOwner.email,
+          phone: this.newOwner.phone,
+          business_name: this.newOwner.business_name,
+          temporary_password: this.newOwner.password,
+          whatsapp_link: waLink,
+          whatsapp_message: creds.whatsapp_message || '',
+          mailto_link: mailtoLink,
+          login_link: creds.login_link || (window.location.origin + '/login'),
+          email_sent: creds.email_sent !== false
+        };
+
+        this.toastService.success('Le compte loueur a été créé avec succès.');
+        this.loadOwners();
+        this.loadStats();
+
+        // Mettre à jour l'URL de la fenêtre WhatsApp ouverte
+        if (waWindow && waLink) {
+          waWindow.location.href = waLink;
+        }
+
         this.cdr.detectChanges();
       },
       error: (err) => {
-        Swal.fire('Erreur', 'Impossible de modifier le statut.', 'error');
-      }
-    });
-  }
-
-  openCreateOwnerModal() {
-    Swal.fire({
-      title: 'Ajouter un nouveau loueur',
-      html: `
-        <div class="space-y-4 text-left">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Nom Complet</label>
-            <input id="swal-name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-black focus:border-black" placeholder="Jean Dupont">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Adresse Email</label>
-            <input id="swal-email" type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-black focus:border-black" placeholder="jean@example.com">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Téléphone</label>
-            <input id="swal-phone" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-black focus:border-black" placeholder="77 123 45 67">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise / Complexe</label>
-            <input id="swal-business" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-black focus:border-black" placeholder="Complexe Sportif Dakar">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Mot de passe provisoire</label>
-            <input id="swal-password" type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-black focus:border-black" placeholder="********">
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Créer',
-      cancelButtonText: 'Annuler',
-      confirmButtonColor: '#000000',
-      cancelButtonColor: '#6b7280',
-      preConfirm: () => {
-        const name = (document.getElementById('swal-name') as HTMLInputElement).value;
-        const email = (document.getElementById('swal-email') as HTMLInputElement).value;
-        const phone = (document.getElementById('swal-phone') as HTMLInputElement).value;
-        const business_name = (document.getElementById('swal-business') as HTMLInputElement).value;
-        const password = (document.getElementById('swal-password') as HTMLInputElement).value;
-
-        if (!name || !email || !business_name || !password) {
-          Swal.showValidationMessage('Veuillez remplir tous les champs obligatoires.');
-          return false;
+        this.isCreating = false;
+        if (waWindow) {
+          waWindow.close();
         }
-        return { name, email, phone, business_name, password, password_confirmation: password };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.adminService.createOwner(result.value).subscribe({
-          next: (res) => {
-            Swal.fire({ icon: 'success', title: 'Succès', text: 'Le compte a été créé.', timer: 2000, showConfirmButton: false });
-            this.loadOwners();
-            this.loadStats();
-          },
-          error: (err) => {
-            const errorMsg = formatApiError(err);
-            Swal.fire({
-              title: 'Erreur',
-              html: errorMsg,
-              icon: 'error'
-            });
-          }
-        });
+        this.createError = formatApiError(err);
+        this.cdr.detectChanges();
       }
     });
   }
 
+  // --- Modal: Inviter un Loueur par Lien ---
   openInviteOwnerModal() {
-    Swal.fire({
-      title: '📧 Inviter un loueur',
-      html: `
-        <div class="space-y-4 text-left">
-          <p class="text-sm text-gray-500">Le loueur recevra un lien unique pour créer son compte.</p>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email du futur loueur *</label>
-            <input id="swal-invite-email" type="email" class="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 focus:ring-green-500 focus:border-green-500" placeholder="loueur@exemple.com">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nom du complexe *</label>
-            <input id="swal-invite-business" type="text" class="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 focus:ring-green-500 focus:border-green-500" placeholder="Complexe Sportif de Dakar">
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Générer le lien',
-      cancelButtonText: 'Annuler',
-      confirmButtonColor: '#16a34a',
-      cancelButtonColor: '#6b7280',
-      showLoaderOnConfirm: true,
-      preConfirm: () => {
-        const email = (document.getElementById('swal-invite-email') as HTMLInputElement).value;
-        const business_name = (document.getElementById('swal-invite-business') as HTMLInputElement).value;
-        if (!email || !business_name) {
-          Swal.showValidationMessage('Veuillez remplir l\'email et le nom du complexe.');
-          return false;
-        }
-        return new Promise((resolve, reject) => {
-          this.adminService.inviteOwner({ email, business_name }).subscribe({
-            next: (res) => resolve(res),
-            error: (err) => {
-              Swal.showValidationMessage(formatApiError(err));
-              reject();
-            }
-          });
-        });
+    this.inviteData = {
+      email: '',
+      business_name: ''
+    };
+    this.inviteError = '';
+    this.isInviting = false;
+    this.inviteResult = null;
+    this.linkCopied = false;
+    this.showInviteModal = true;
+  }
+
+  closeInviteOwnerModal() {
+    this.showInviteModal = false;
+  }
+
+  submitInviteOwner() {
+    if (!this.inviteData.email || !this.inviteData.business_name) {
+      this.inviteError = "Veuillez renseigner l'email et le nom du complexe.";
+      return;
+    }
+
+    this.isInviting = true;
+    this.inviteError = '';
+
+    this.adminService.inviteOwner(this.inviteData).subscribe({
+      next: (res) => {
+        this.isInviting = false;
+        const inviteMailto = `mailto:${encodeURIComponent(this.inviteData.email)}?subject=${encodeURIComponent("Invitation à rejoindre myTerrain - Espace Loueur")}&body=${encodeURIComponent(
+          `Bonjour,\n\nVous êtes invité à rejoindre la plateforme myTerrain pour gérer vos réservations et vos terrains pour "${this.inviteData.business_name}".\n\nCliquez sur ce lien sécurisé pour finaliser votre inscription :\n${res.invite_link}\n\nCe lien est valable pendant 7 jours.\n\nCordialement,\nL'équipe myTerrain`
+        )}`;
+        this.inviteResult = {
+          invite_link: res.invite_link,
+          whatsapp_link: res.whatsapp_link,
+          mailto_link: inviteMailto,
+          email: this.inviteData.email
+        };
+        this.toastService.success('Lien d\'invitation généré avec succès !');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isInviting = false;
+        this.inviteError = formatApiError(err);
+        this.cdr.detectChanges();
       }
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const res = result.value as any;
-        const inviteLink = res.invite_link;
-        const whatsappLink = res.whatsapp_link;
-        Swal.fire({
-          title: '✅ Lien généré !',
-          html: `
-            <div class="text-left space-y-4">
-              <div class="bg-gray-50 border rounded-lg p-3">
-                <p class="text-xs text-gray-500 mb-1">Lien d'invitation (valable 7 jours)</p>
-                <p class="text-sm font-mono break-all text-green-700">${inviteLink}</p>
-              </div>
-              <div class="flex gap-2 justify-center">
-                <button onclick="navigator.clipboard.writeText('${inviteLink}').then(() => alert('Lien copié !'))"
-                  class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium">
-                  📋 Copier le lien
-                </button>
-                <a href="${whatsappLink}" target="_blank"
-                  class="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-sm font-medium">
-                  💬 Envoyer par WhatsApp
-                </a>
-              </div>
-            </div>
-          `,
-          confirmButtonText: 'Fermer',
-          confirmButtonColor: '#16a34a',
-          width: 600
-        });
-      }
+    });
+  }
+
+  copyInviteLink() {
+    if (!this.inviteResult?.invite_link) return;
+    navigator.clipboard.writeText(this.inviteResult.invite_link).then(() => {
+      this.linkCopied = true;
+      this.toastService.info('Lien copié dans le presse-papier !');
+      setTimeout(() => {
+        this.linkCopied = false;
+        this.cdr.detectChanges();
+      }, 3000);
+      this.cdr.detectChanges();
     });
   }
 
   deleteOwner(ownerId: number) {
     Swal.fire({
       title: 'Êtes-vous sûr ?',
-      text: "La suppression d'un loueur est définitive et supprimera ses terrains.",
+      text: "La suppression d'un loueur est définitive et supprimera également tous ses terrains.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
+      cancelButtonColor: '#64748b',
       confirmButtonText: 'Oui, supprimer !',
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
         this.adminService.deleteOwner(ownerId).subscribe({
           next: () => {
-            Swal.fire('Supprimé!', 'Le loueur a été supprimé.', 'success');
+            this.toastService.success('Le partenaire a été supprimé.');
             this.owners = this.owners.filter(o => o.id !== ownerId);
             this.loadStats();
             this.cdr.detectChanges();
           },
           error: () => {
-            Swal.fire('Erreur', 'Impossible de supprimer ce loueur.', 'error');
+            this.toastService.error('Impossible de supprimer ce loueur.');
           }
         });
       }

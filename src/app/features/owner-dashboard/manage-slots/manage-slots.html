@@ -118,24 +118,24 @@
 
       <!-- Grille des créneaux -->
       <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 transition-colors">
           <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-3">
-            <h3 class="text-base font-bold text-gray-900">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">
               <span *ngIf="viewMode === 'list'">Planning du {{ formatDisplayDate(selectedDate) }}</span>
               <span *ngIf="viewMode === 'calendar'">Semaine en cours</span>
             </h3>
             
             <div class="flex items-center gap-2 overflow-x-auto">
               <!-- View Toggle -->
-              <div class="flex bg-gray-100 rounded-lg p-1 mr-2">
+              <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 mr-2">
                 <button (click)="viewMode = 'list'" 
-                  [class]="viewMode === 'list' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'"
-                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all">
+                  [class]="viewMode === 'list' ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                  class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer">
                   Jour
                 </button>
                 <button (click)="viewMode = 'calendar'"
-                  [class]="viewMode === 'calendar' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'"
-                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all">
+                  [class]="viewMode === 'calendar' ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                  class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer">
                   Semaine
                 </button>
               </div>
@@ -167,115 +167,115 @@
             </div>
 
             <div *ngIf="slots.length === 0 && !isLoading" class="py-16 text-center">
-              <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gray-100 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p class="text-gray-500 font-medium">Aucun créneau pour ce jour</p>
-              <p class="text-gray-400 text-sm mt-1">Ajoutez manuellement ou utilisez la génération automatique</p>
-              <button (click)="openBulkModal()" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-xl hover:bg-green-700 transition-all">
+              <p class="text-gray-600 dark:text-slate-300 font-semibold">Aucun créneau pour ce jour</p>
+              <p class="text-gray-400 dark:text-slate-500 text-sm mt-1">Ajoutez manuellement ou utilisez la génération automatique</p>
+              <button (click)="openBulkModal()" class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-bold rounded-2xl hover:from-emerald-700 hover:to-green-700 shadow-md shadow-emerald-500/20 transition-all cursor-pointer">
                 ⚡ Générer automatiquement
               </button>
             </div>
 
             <div *ngIf="slots.length > 0 && !isLoading" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div *ngFor="let slot of slots"
-                  class="relative group rounded-xl border-2 p-3 transition-all flex flex-col justify-between"
+                  class="relative group rounded-2xl border-2 p-3 transition-all flex flex-col justify-between"
                   [ngClass]="{
-                    'border-green-200 bg-green-50 hover:border-green-400': slot.status === 'available',
-                    'border-red-200 bg-red-50': slot.status === 'reserved',
-                    'border-yellow-200 bg-yellow-50': slot.status === 'pending',
-                    'border-gray-200 bg-gray-50': slot.status === 'blocked'
+                    'border-green-200 bg-green-50/80 hover:border-green-400 dark:bg-emerald-950/20 dark:border-emerald-800/60 dark:hover:border-emerald-600': slot.status === 'available',
+                    'border-red-200 bg-red-50/80 dark:bg-rose-950/20 dark:border-rose-800/60': slot.status === 'reserved',
+                    'border-yellow-200 bg-yellow-50/80 dark:bg-amber-950/20 dark:border-amber-800/60': slot.status === 'pending',
+                    'border-gray-200 bg-gray-50/80 dark:bg-slate-800/40 dark:border-slate-700': slot.status === 'blocked'
                   }">
     
-                  <span class="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                  <span class="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
                     [ngClass]="{
-                      'bg-green-100 text-green-700': slot.status === 'available',
-                      'bg-red-100 text-red-700': slot.status === 'reserved',
-                      'bg-yellow-100 text-yellow-700': slot.status === 'pending',
-                      'bg-gray-200 text-gray-700': slot.status === 'blocked'
+                      'bg-green-100 text-green-700 dark:bg-emerald-900/60 dark:text-emerald-300': slot.status === 'available',
+                      'bg-red-100 text-red-700 dark:bg-rose-900/60 dark:text-rose-300': slot.status === 'reserved',
+                      'bg-yellow-100 text-yellow-700 dark:bg-amber-900/60 dark:text-amber-300': slot.status === 'pending',
+                      'bg-gray-200 text-gray-700 dark:bg-slate-700 dark:text-slate-300': slot.status === 'blocked'
                     }">
                     {{ slot.status === 'available' ? 'Libre' : slot.status === 'reserved' ? 'Réservé' : slot.status === 'blocked' ? 'Bloqué' : 'En attente' }}
                   </span>
     
                   <div class="mt-2 flex items-center justify-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <div class="flex items-baseline gap-1">
-                        <span class="font-bold text-gray-800 text-sm">{{ slot.start_time.substring(0,5) }}</span>
-                        <span class="text-xs text-gray-400 font-medium px-1">-</span>
-                        <span class="font-bold text-gray-800 text-sm">{{ slot.end_time.substring(0,5) }}</span>
+                        <span class="font-bold text-gray-800 dark:text-white text-sm">{{ slot.start_time.substring(0,5) }}</span>
+                        <span class="text-xs text-gray-400 dark:text-slate-500 font-medium px-1">-</span>
+                        <span class="font-bold text-gray-800 dark:text-white text-sm">{{ slot.end_time.substring(0,5) }}</span>
                       </div>
                     </div>
     
                   <div class="flex flex-col gap-1.5 mt-3">
                     <button *ngIf="slot.status === 'available'" (click)="openManualReserve(slot)" title="Réserver (Téléphone)"
-                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-lg text-blue-600 bg-blue-100 hover:bg-blue-200 transition-colors">
+                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-xl text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/60 hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors">
                       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                       Réserver
                     </button>
 
                     <button *ngIf="slot.status === 'available'" (click)="openBlockModal(slot)" title="Bloquer ce créneau"
-                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-lg text-orange-600 bg-orange-100 hover:bg-orange-200 transition-colors">
+                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-xl text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/60 hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors">
                       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                       Bloquer
                     </button>
 
                     <button *ngIf="slot.status === 'blocked'" (click)="toggleSlotStatus(slot)" title="Débloquer"
-                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-lg text-green-600 bg-green-100 hover:bg-green-200 transition-colors">
+                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors">
                       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                       Débloquer
                     </button>
 
                     <button *ngIf="slot.status === 'available'" (click)="openPromoModal(slot)" title="Mettre en Promo"
-                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-lg text-purple-600 bg-purple-100 hover:bg-purple-200 transition-colors">
+                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-xl text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition-colors">
                       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                       Promo
                     </button>
 
                     <button *ngIf="slot.status === 'available' || slot.status === 'blocked'" (click)="deleteSlot(slot.id)" title="Supprimer"
-                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-lg text-red-600 bg-red-100 hover:bg-red-200 transition-colors">
+                      class="w-full flex justify-center items-center gap-1 text-[11px] font-bold py-1.5 rounded-xl text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 hover:bg-rose-200 dark:hover:bg-rose-900/60 transition-colors">
                       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       Supprimer
                     </button>
                   </div>
                   
-                  <p *ngIf="slot.status === 'reserved'" class="mt-2 text-[10px] text-gray-400 text-center">Non modifiable</p>
+                  <p *ngIf="slot.status === 'reserved'" class="mt-2 text-[10px] text-gray-400 dark:text-slate-500 text-center">Non modifiable</p>
                 </div>
             </div>
           </div>
 
           <!-- CALENDAR VIEW -->
           <div *ngIf="viewMode === 'calendar'" class="mt-2 overflow-x-auto">
-            <div class="min-w-[800px] border-l border-t border-gray-100">
+            <div class="min-w-[800px] border-l border-t border-gray-100 dark:border-slate-800">
               
               <!-- En-tête des jours -->
               <div class="flex">
-                <div class="w-16 flex-shrink-0 bg-gray-50 border-r border-b border-gray-100"></div>
-                <div *ngFor="let day of weekDays" class="flex-1 border-r border-b border-gray-100 p-2 text-center bg-gray-50">
-                  <p class="text-xs font-semibold text-gray-500 uppercase">{{ day.shortName }}</p>
-                  <p class="text-sm font-bold text-gray-900">{{ day.label }}</p>
+                <div class="w-16 flex-shrink-0 bg-gray-50 dark:bg-slate-900 border-r border-b border-gray-100 dark:border-slate-800"></div>
+                <div *ngFor="let day of weekDays" class="flex-1 border-r border-b border-gray-100 dark:border-slate-800 p-2 text-center bg-gray-50 dark:bg-slate-900">
+                  <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase">{{ day.shortName }}</p>
+                  <p class="text-sm font-bold text-gray-900 dark:text-white">{{ day.label }}</p>
                 </div>
               </div>
 
               <!-- Grille des heures -->
               <div class="relative flex h-[960px]"> <!-- 16 hours * 60px = 960px -->
                 <!-- Colonne Heures -->
-                <div class="w-16 flex-shrink-0 border-r border-gray-100 bg-white relative">
+                <div class="w-16 flex-shrink-0 border-r border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 relative">
                   <div *ngFor="let h of calendarHours; let i = index" 
-                       class="absolute w-full text-center text-[10px] font-medium text-gray-400"
+                       class="absolute w-full text-center text-[10px] font-medium text-gray-400 dark:text-slate-500"
                        [style.top]="(i * 60) + 'px'" style="margin-top:-6px;">
                     {{ h }}:00
                   </div>
                 </div>
 
                 <!-- Colonnes des jours (avec Créneaux superposés) -->
-                <div *ngFor="let day of weekDays" class="flex-1 border-r border-gray-100 relative bg-white">
+                <div *ngFor="let day of weekDays" class="flex-1 border-r border-gray-100 dark:border-slate-800 relative bg-white dark:bg-slate-950/60">
                   <!-- Lignes de fond (grille) -->
                   <div *ngFor="let h of calendarHours; let i = index"
-                       class="absolute w-full border-t border-gray-100"
+                       class="absolute w-full border-t border-gray-100 dark:border-slate-800/80"
                        [style.top]="(i * 60) + 'px'"></div>
 
                   <!-- Créneaux -->
@@ -284,31 +284,31 @@
                        [style.top]="getSlotTop(slot.start_time)"
                        [style.height]="getSlotHeight(slot.start_time, slot.end_time)"
                        [ngClass]="{
-                          'bg-green-100 border-green-300': slot.status === 'available' && !slot.promo_label,
-                          'bg-purple-100 border-purple-300': slot.status === 'available' && slot.promo_label,
-                          'bg-red-100 border-red-300': slot.status === 'reserved',
-                          'bg-yellow-100 border-yellow-300': slot.status === 'pending',
-                          'bg-gray-100 border-gray-300 opacity-70': slot.status === 'blocked'
+                          'bg-green-100 border-green-300 dark:bg-emerald-950/80 dark:border-emerald-700': slot.status === 'available' && !slot.promo_label,
+                          'bg-purple-100 border-purple-300 dark:bg-purple-950/80 dark:border-purple-700': slot.status === 'available' && slot.promo_label,
+                          'bg-red-100 border-red-300 dark:bg-rose-950/80 dark:border-rose-700': slot.status === 'reserved',
+                          'bg-yellow-100 border-yellow-300 dark:bg-amber-950/80 dark:border-amber-700': slot.status === 'pending',
+                          'bg-gray-100 border-gray-300 dark:bg-slate-800/80 dark:border-slate-700 opacity-70': slot.status === 'blocked'
                        }"
                        (click)="selectedDate = day.date; viewMode = 'list'; loadSlots();">
                        
                        <p class="text-[10px] font-bold leading-tight truncate"
                           [ngClass]="{
-                            'text-green-800': slot.status === 'available' && !slot.promo_label,
-                            'text-purple-800': slot.status === 'available' && slot.promo_label,
-                            'text-red-800': slot.status === 'reserved',
-                            'text-yellow-800': slot.status === 'pending',
-                            'text-gray-600': slot.status === 'blocked'
+                            'text-green-800 dark:text-emerald-300': slot.status === 'available' && !slot.promo_label,
+                            'text-purple-800 dark:text-purple-300': slot.status === 'available' && slot.promo_label,
+                            'text-red-800 dark:text-rose-300': slot.status === 'reserved',
+                            'text-yellow-800 dark:text-amber-300': slot.status === 'pending',
+                            'text-gray-600 dark:text-slate-400': slot.status === 'blocked'
                           }">
                          {{ slot.start_time.substring(0,5) }} - {{ slot.end_time.substring(0,5) }}
                        </p>
                        <p class="text-[9px] font-medium leading-tight truncate"
                           [ngClass]="{
-                            'text-green-600': slot.status === 'available' && !slot.promo_label,
-                            'text-purple-600': slot.status === 'available' && slot.promo_label,
-                            'text-red-600': slot.status === 'reserved',
-                            'text-yellow-600': slot.status === 'pending',
-                            'text-gray-500': slot.status === 'blocked'
+                            'text-green-600 dark:text-emerald-400': slot.status === 'available' && !slot.promo_label,
+                            'text-purple-600 dark:text-purple-400': slot.status === 'available' && slot.promo_label,
+                            'text-red-600 dark:text-rose-400': slot.status === 'reserved',
+                            'text-yellow-600 dark:text-amber-400': slot.status === 'pending',
+                            'text-gray-500 dark:text-slate-400': slot.status === 'blocked'
                           }">
                          {{ slot.status === 'available' ? (slot.promo_label ? 'Promo' : 'Libre') : slot.status === 'reserved' ? 'Réservé' : slot.status === 'pending' ? 'Attente' : 'Bloqué' }}
                        </p>
@@ -324,68 +324,88 @@
 </div>
 
 <!-- Modal Génération Automatique -->
-<div *ngIf="showBulkModal" class="fixed inset-0 z-50 overflow-y-auto">
+<div *ngIf="showBulkModal" class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
   <div class="flex min-h-full items-center justify-center p-4">
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="showBulkModal = false"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900">⚡ Génération automatique</h3>
-          <p class="text-sm text-gray-500 mt-0.5">Créez plusieurs créneaux en un clic</p>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" (click)="showBulkModal = false"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-7 z-10 transition-colors animate-scale-up">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Génération automatique</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Créez plusieurs créneaux récurrents en un clic</p>
+          </div>
         </div>
-        <button (click)="showBulkModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+        <button (click)="showBulkModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
+
       <div class="space-y-4">
+        <!-- Date début & Date fin -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Date de début *</label>
             <input type="date" [(ngModel)]="bulk.startDate"
-              class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Date de fin *</label>
             <input type="date" [(ngModel)]="bulk.endDate"
-              class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
         </div>
+
+        <!-- Heure ouverture & fermeture -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Heure d'ouverture</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Heure d'ouverture *</label>
             <input type="time" [(ngModel)]="bulk.openTime"
-              class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Heure de fermeture</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Heure de fermeture *</label>
             <input type="time" [(ngModel)]="bulk.closeTime"
-              class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
         </div>
+
+        <!-- Durée créneau -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Durée par créneau</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Durée par créneau</label>
           <select [(ngModel)]="bulk.durationMinutes"
-            class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white">
-            <option [value]="30">30 minutes</option>
-            <option [value]="60">1 heure</option>
-            <option [value]="90">1h30</option>
-            <option [value]="120">2 heures</option>
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-colors shadow-sm">
+            <option [value]="30" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">30 minutes</option>
+            <option [value]="60" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">1 heure (Recommandé)</option>
+            <option [value]="90" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">1h30</option>
+            <option [value]="120" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">2 heures</option>
           </select>
         </div>
-        <div class="bg-green-50 border border-green-100 rounded-xl p-3 flex items-center justify-between">
-          <span class="text-sm text-green-700 font-medium">Créneaux à créer (estimé)</span>
-          <span class="text-xl font-bold text-green-800">{{ estimateSlots() }}</span>
+
+        <!-- Estimation des créneaux -->
+        <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl p-4 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Créneaux à générer (estimé)</span>
+          </div>
+          <span class="text-2xl font-extrabold text-emerald-700 dark:text-emerald-400">{{ estimateSlots() }}</span>
         </div>
-        <button (click)="generateBulk()" [disabled]="isBulkGenerating"
-          class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-          <svg *ngIf="isBulkGenerating" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
-          {{ isBulkGenerating ? 'Génération en cours...' : '🚀 Générer les créneaux' }}
-        </button>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button (click)="generateBulk()" [disabled]="isBulkGenerating"
+            class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+            <svg *ngIf="isBulkGenerating" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>{{ isBulkGenerating ? 'Génération en cours...' : 'Générer tous les créneaux' }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -393,42 +413,52 @@
 
 
 
-<!-- Modal R�servation Manuelle -->
-<div *ngIf="showManualReserveModal" class="fixed inset-0 z-50 overflow-y-auto">
+<!-- Modal Réservation Manuelle -->
+<div *ngIf="showManualReserveModal" class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
   <div class="flex min-h-full items-center justify-center p-4">
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="showManualReserveModal = false"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900">?? R�servation Manuelle</h3>
-          <p class="text-sm text-gray-500 mt-0.5">{{ selectedSlotToReserve?.start_time?.substring(0,5) }} - {{ selectedSlotToReserve?.end_time?.substring(0,5) }}</p>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" (click)="showManualReserveModal = false"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-sm p-6 z-10 transition-colors animate-scale-up">
+      <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Réservation Directe</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ selectedSlotToReserve?.start_time?.substring(0,5) }} - {{ selectedSlotToReserve?.end_time?.substring(0,5) }}</p>
+          </div>
         </div>
-        <button (click)="showManualReserveModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+        <button (click)="showManualReserveModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
+
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nom du joueur</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Nom du joueur *</label>
           <input type="text" [(ngModel)]="manualReserve.playerName" placeholder="Ex: Modou Fall"
-            class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-colors shadow-sm">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">T�l�phone</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Téléphone *</label>
           <input type="tel" [(ngModel)]="manualReserve.playerPhone" placeholder="+221 77 000 00 00"
-            class="w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-colors shadow-sm">
         </div>
         
-        <button (click)="confirmManualReserve()" [disabled]="isReserving"
-          class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-          <svg *ngIf="isReserving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
-          {{ isReserving ? 'R�servation...' : 'Confirmer la r�servation' }}
-        </button>
+        <div class="pt-2">
+          <button (click)="confirmManualReserve()" [disabled]="isReserving"
+            class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+            <svg *ngIf="isReserving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ isReserving ? 'Réservation...' : 'Confirmer la réservation' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -436,119 +466,169 @@
 
 
 <!-- Modal Blocage -->
-<div *ngIf="showBlockModal" class="fixed inset-0 z-50 overflow-y-auto">
+<div *ngIf="showBlockModal" class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
   <div class="flex min-h-full items-center justify-center p-4">
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="showBlockModal = false"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900">Bloquer le créneau</h3>
-          <p class="text-sm text-gray-500 mt-0.5">{{ selectedSlotToBlock?.start_time?.substring(0,5) }} - {{ selectedSlotToBlock?.end_time?.substring(0,5) }}</p>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" (click)="showBlockModal = false"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-sm p-6 z-10 transition-colors animate-scale-up">
+      <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Bloquer le créneau</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ selectedSlotToBlock?.start_time?.substring(0,5) }} - {{ selectedSlotToBlock?.end_time?.substring(0,5) }}</p>
+          </div>
         </div>
-        <button (click)="showBlockModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+        <button (click)="showBlockModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
+
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Raison de l'indisponibilité</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Raison de l'indisponibilité</label>
           <div class="grid grid-cols-1 gap-2">
-            <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-orange-50 transition-colors"
-              [ngClass]="{'border-orange-500 bg-orange-50': blockReason === 'Rénovation / Travaux'}">
+            <label class="flex items-center p-3 border rounded-2xl cursor-pointer transition-colors"
+              [ngClass]="blockReason === 'Rénovation / Travaux' ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-orange-50/40 text-slate-700 dark:text-slate-300'">
               <input type="radio" name="reason" [(ngModel)]="blockReason" value="Rénovation / Travaux" class="text-orange-500 focus:ring-orange-500 w-4 h-4">
-              <span class="ml-3 text-sm font-medium text-gray-700">Rénovation / Travaux</span>
+              <span class="ml-3 text-xs font-semibold">Rénovation / Travaux</span>
             </label>
-            <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-orange-50 transition-colors"
-              [ngClass]="{'border-orange-500 bg-orange-50': blockReason === 'Imprévu (Météo, etc.)'}">
+            <label class="flex items-center p-3 border rounded-2xl cursor-pointer transition-colors"
+              [ngClass]="blockReason === 'Imprévu (Météo, etc.)' ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-orange-50/40 text-slate-700 dark:text-slate-300'">
               <input type="radio" name="reason" [(ngModel)]="blockReason" value="Imprévu (Météo, etc.)" class="text-orange-500 focus:ring-orange-500 w-4 h-4">
-              <span class="ml-3 text-sm font-medium text-gray-700">Imprévu (Météo, etc.)</span>
+              <span class="ml-3 text-xs font-semibold">Imprévu (Météo, etc.)</span>
             </label>
-            <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-orange-50 transition-colors"
-              [ngClass]="{'border-orange-500 bg-orange-50': blockReason === 'Fermeture exceptionnelle'}">
+            <label class="flex items-center p-3 border rounded-2xl cursor-pointer transition-colors"
+              [ngClass]="blockReason === 'Fermeture exceptionnelle' ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-orange-50/40 text-slate-700 dark:text-slate-300'">
               <input type="radio" name="reason" [(ngModel)]="blockReason" value="Fermeture exceptionnelle" class="text-orange-500 focus:ring-orange-500 w-4 h-4">
-              <span class="ml-3 text-sm font-medium text-gray-700">Fermeture exceptionnelle</span>
+              <span class="ml-3 text-xs font-semibold">Fermeture exceptionnelle</span>
             </label>
-            <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-orange-50 transition-colors"
-              [ngClass]="{'border-orange-500 bg-orange-50': blockReason === 'Autre'}">
+            <label class="flex items-center p-3 border rounded-2xl cursor-pointer transition-colors"
+              [ngClass]="blockReason === 'Autre' ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-orange-50/40 text-slate-700 dark:text-slate-300'">
               <input type="radio" name="reason" [(ngModel)]="blockReason" value="Autre" class="text-orange-500 focus:ring-orange-500 w-4 h-4">
-              <span class="ml-3 text-sm font-medium text-gray-700">Autre</span>
+              <span class="ml-3 text-xs font-semibold">Autre raison</span>
             </label>
           </div>
           
           <input *ngIf="blockReason === 'Autre'" type="text" [(ngModel)]="blockCustomReason" placeholder="Précisez la raison..."
-            class="mt-3 w-full border border-gray-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+            class="mt-3 w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none shadow-sm">
         </div>
         
-        <button (click)="confirmBlock()" [disabled]="isBlocking"
-          class="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-          <svg *ngIf="isBlocking" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
-          {{ isBlocking ? 'Blocage en cours...' : 'Confirmer le blocage' }}
-        </button>
+        <div class="pt-2">
+          <button (click)="confirmBlock()" [disabled]="isBlocking"
+            class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+            <svg *ngIf="isBlocking" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ isBlocking ? 'Blocage en cours...' : 'Confirmer le blocage' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal Block Range -->
-  <div *ngIf="showBlockRangeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" (click)="closeBlockRangeModal()"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-gray-900">Fermer une plage horaire</h3>
-        <button (click)="closeBlockRangeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+<!-- Modal Block Range -->
+<div *ngIf="showBlockRangeModal" class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" (click)="closeBlockRangeModal()"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-sm p-6 z-10 transition-colors animate-scale-up">
+      <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Fermer une plage horaire</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Bloquer plusieurs heures consécutives</p>
+          </div>
+        </div>
+        <button (click)="closeBlockRangeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
+
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">De</label>
-            <input type="time" [(ngModel)]="blockRangeData.startTime" class="w-full border rounded-xl p-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">De</label>
+            <input type="time" [(ngModel)]="blockRangeData.startTime"
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-2.5 px-3.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500 [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">À</label>
-            <input type="time" [(ngModel)]="blockRangeData.endTime" class="w-full border rounded-xl p-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">À</label>
+            <input type="time" [(ngModel)]="blockRangeData.endTime"
+              class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-2.5 px-3.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500 [color-scheme:light] dark:[color-scheme:dark] shadow-sm">
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Raison</label>
-          <input type="text" [(ngModel)]="blockRangeData.reason" class="w-full border rounded-xl p-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Raison du blocage</label>
+          <input type="text" [(ngModel)]="blockRangeData.reason" placeholder="Ex: Entretien pelouse"
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500 shadow-sm">
         </div>
-        <button (click)="applyBlockRange()" class="w-full bg-orange-600 text-white rounded-xl p-3 font-bold hover:bg-orange-700">Bloquer la plage</button>
+        <div class="pt-2">
+          <button (click)="applyBlockRange()"
+            class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-500/20 transition-all cursor-pointer active:scale-98">
+            Bloquer la plage horaire
+          </button>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal Promo -->
-  <div *ngIf="showPromoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" (click)="closePromoModal()"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-gray-900">Mettre en Promo</h3>
-        <button (click)="closePromoModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+<!-- Modal Promo -->
+<div *ngIf="showPromoModal" class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" (click)="closePromoModal()"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-sm p-6 z-10 transition-colors animate-scale-up">
+      <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Mettre en Promo</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Offre spéciale sur ce créneau</p>
+          </div>
+        </div>
+        <button (click)="closePromoModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
+
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Étiquette (ex: Promo -50%)</label>
-          <input type="text" [(ngModel)]="promoData.promo_label" class="w-full border rounded-xl p-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Étiquette promo</label>
+          <input type="text" [(ngModel)]="promoData.promo_label" placeholder="Ex: Happy Hour -30%"
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau Prix (FCFA)</label>
-          <input type="number" [(ngModel)]="promoData.promo_price" class="w-full border rounded-xl p-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Nouveau Prix (FCFA) *</label>
+          <input type="number" [(ngModel)]="promoData.promo_price" placeholder="Ex: 15000"
+            class="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-3.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
         </div>
-        <button (click)="applyPromo()" class="w-full bg-purple-600 text-white rounded-xl p-3 font-bold hover:bg-purple-700">Appliquer Promo</button>
+        <div class="pt-2">
+          <button (click)="applyPromo()"
+            class="w-full py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-purple-500/20 transition-all cursor-pointer active:scale-98">
+            Appliquer la Promotion
+          </button>
+        </div>
       </div>
     </div>
   </div>
-
 </div>

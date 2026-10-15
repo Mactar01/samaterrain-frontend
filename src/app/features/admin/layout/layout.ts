@@ -13,7 +13,9 @@ import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-to
 })
 export class LayoutComponent implements OnInit {
   adminName = '';
+  adminEmail = '';
   mobileMenuOpen = false;
+  showUserDropdown = false;
 
   constructor(
     private authService: AuthService,
@@ -24,6 +26,7 @@ export class LayoutComponent implements OnInit {
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
     this.adminName = user ? user.name : 'Administrateur';
+    this.adminEmail = user ? user.email : '';
   }
 
   toggleMobileMenu() {
@@ -32,6 +35,14 @@ export class LayoutComponent implements OnInit {
 
   closeMobileMenu() {
     this.mobileMenuOpen = false;
+  }
+
+  toggleUserDropdown() {
+    this.showUserDropdown = !this.showUserDropdown;
+  }
+
+  closeUserDropdown() {
+    this.showUserDropdown = false;
   }
 
   logout() {

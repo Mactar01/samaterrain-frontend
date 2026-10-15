@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, map, catchError } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { User, UserRole, AuthResponse } from '../models/user.model';
@@ -16,11 +16,54 @@ export class AuthService {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
-        this.currentUserSubject.next(JSON.parse(savedUser));
+        const parsed = this.normalizeUser(JSON.parse(savedUser));
+        if (parsed.is_active === false) {
+          this.clearSession();
+        } else {
+          this.currentUserSubject.next(parsed);
+        }
       } catch (e) {
         localStorage.removeItem('user');
       }
     }
+    if (this.getToken()) {
+      this.fetchCurrentUser().subscribe();
+    }
+  }
+
+  getAvatarUrl(avatar?: string | null): string | null {
+    if (!avatar) return null;
+    if (avatar.startsWith('data:image')) return avatar;
+
+    const backendOrigin = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
+
+    // Replace dead trycloudflare tunnel URLs or other obsolete tunnel hosts
+    if (avatar.includes('trycloudflare.com') || avatar.includes('ngrok') || avatar.includes('loca.lt')) {
+      avatar = avatar.replace(/^https?:\/\/[^\/]+/, backendOrigin);
+    }
+
+    // Relative storage paths
+    if (avatar.startsWith('/storage')) {
+      return `${backendOrigin}${avatar}`;
+    }
+    if (avatar.startsWith('storage/')) {
+      return `${backendOrigin}/${avatar}`;
+    }
+
+    // If host is localhost or 127.0.0.1 on port 8000, ensure it matches environment.apiUrl
+    if (avatar.startsWith('http://localhost:8000') || avatar.startsWith('http://127.0.0.1:8000')) {
+      return avatar.replace(/^http:\/\/(localhost|127\.0\.0\.1):8000/, backendOrigin);
+    }
+
+    return avatar;
+  }
+
+  private normalizeUser(user: User): User {
+    if (!user) return user;
+    if (user.avatar) {
+      user.avatar = this.getAvatarUrl(user.avatar) || undefined;
+    }
+    return user;
   }
 
   get currentUser(): Observable<User | null> {
@@ -32,7 +75,7 @@ export class AuthService {
       const savedUser = localStorage.getItem('user');
       if (savedUser) {
         try {
-          const parsed = JSON.parse(savedUser);
+          const parsed = this.normalizeUser(JSON.parse(savedUser));
           this.currentUserSubject.next(parsed);
           return parsed;
         } catch {
@@ -62,15 +105,46 @@ export class AuthService {
     return allowed.includes(currentRole);
   }
 
+  isBlocked(): boolean {
+    return this.currentUserValue?.is_active === false;
+  }
+
+  fetchCurrentUser(): Observable<User | null> {
+    const token = this.getToken();
+    if (!token) {
+      return of(null);
+    }
+    return this.http.get<{ user: User }>(`${this.apiUrl}/me`).pipe(
+      map(res => this.normalizeUser(res.user)),
+      tap(user => {
+        if (user) {
+          if (user.is_active === false) {
+            this.clearSession();
+            return;
+          }
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+      }),
+      catchError(err => {
+        if (err.status === 401 || err.status === 403) {
+          this.clearSession();
+        }
+        return of(this.currentUserSubject.value);
+      })
+    );
+  }
+
   login(credentials: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
       headers: { 'Bypass-Tunnel-Reminder': 'true' }
     }).pipe(
       tap(response => {
         if (response && response.token) {
+          const user = this.normalizeUser(response.user);
           localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
         }
       })
     );
@@ -83,21 +157,38 @@ export class AuthService {
     });
   }
 
+  saveSession(token: string, user: User) {
+    const normalized = this.normalizeUser(user);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(normalized));
+    this.currentUserSubject.next(normalized);
+  }
+
   updateProfile(data: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/profile`, data).pipe(
       tap(response => {
         if (response && response.user) {
-          localStorage.setItem('user', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          const user = this.normalizeUser(response.user);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
         }
       })
     );
   }
 
-  private clearSession() {
+  getAdminContact(): Observable<{ name: string; email: string; phone: string }> {
+    return this.http.get<{ name: string; email: string; phone: string }>(`${this.apiUrl}/admin-contact`).pipe(
+      catchError(() => of({
+        name: 'Super Administrateur myTerrain',
+        email: 'admin@myterrain.sn',
+        phone: '+221770000000'
+      }))
+    );
+  }
+
+  clearSession() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
   }
 }

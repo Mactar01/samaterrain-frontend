@@ -1,12 +1,14 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FieldService } from '../../../core/services/field.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { ThemeService } from '../../../core/services/theme.service';
+import { OwnerBranding, DEFAULT_OWNER_BRANDING, BRAND_COLOR_PRESETS, BackgroundStyle, LogoPosition } from '../../../core/models/branding.model';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { BaseChartDirective } from 'ng2-charts';
@@ -38,12 +40,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   notifications: any[] = [];
   unreadCount = 0;
   activeTab = 'fields';
+  showUserDropdown = false;
 
   isLoadingFields = true;
   isLoadingStats = true;
 
   // Owner Dashboard Stats
   ownerStats: any = null;
+
+  // Branding & White-label State
+  branding: OwnerBranding = { ...DEFAULT_OWNER_BRANDING };
+  brandPresets = BRAND_COLOR_PRESETS;
+  isSavingBranding = false;
 
   // Chart configuration
   public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
@@ -61,8 +69,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private http: HttpClient,
     private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef
+    public themeService: ThemeService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
+
+  goToCreateField() {
+    this.router.navigate(['/dashboard/fields/new']);
+  }
+
+  get avatarUrl(): string | null {
+    return this.authService.getAvatarUrl(this.user?.avatar);
+  }
 
   ngOnInit() {
     this.authService.currentUser.subscribe(u => {
@@ -70,8 +88,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (this.user?.role === 'owner') {
         this.loadOwnerData();
         this.loadOwnerStats();
+        this.themeService.initBranding(this.user.id);
+        this.branding = { ...this.themeService.currentBranding() };
       }
     });
+
+    this.authService.fetchCurrentUser().subscribe();
 
     this.loadNotifications();
     this.notifInterval = setInterval(() => {
@@ -81,6 +103,118 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   setTab(tab: string) {
     this.activeTab = tab;
+  }
+
+  // --- Loueur White-Label Branding Handlers ---
+
+  setLogoPosition(pos: LogoPosition) {
+    this.branding.logoPosition = pos;
+  }
+
+  selectPresetColor(color: string) {
+    this.branding.primaryColor = color;
+  }
+
+  setBackgroundStyle(style: BackgroundStyle) {
+    this.branding.bgStyle = style;
+  }
+
+  onLogoFileSelected(event: any) {
+    const file = event.target?.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        this.toastService.warning('Le fichier est trop volumineux (max 2 Mo).');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.branding.logoUrl = e.target.result;
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  private compressImage(file: File, maxWidth: number, maxHeight: number, quality: number = 0.85): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target.result);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  onCustomBgSelected(event: any) {
+    const file = event.target?.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        this.toastService.warning('Le fichier d\'arrière-plan est trop volumineux (max 15 Mo).');
+        return;
+      }
+      this.compressImage(file, 1600, 600, 0.82).then(base64Data => {
+        this.branding.customBgUrl = base64Data;
+        this.branding.coverUrl = base64Data;
+        this.branding.bgStyle = 'stadium';
+        this.cdr.detectChanges();
+      }).catch(() => {
+        this.toastService.error('Erreur lors du traitement de l\'image.');
+      });
+    }
+  }
+
+  removeCustomBg() {
+    this.branding.customBgUrl = undefined;
+    this.branding.coverUrl = undefined;
+    if (this.branding.bgStyle === 'stadium') {
+      this.branding.bgStyle = 'clean';
+    }
+    this.cdr.detectChanges();
+  }
+
+  removeLogo() {
+    this.branding.logoUrl = undefined;
+  }
+
+  saveBranding() {
+    this.isSavingBranding = true;
+    this.themeService.saveBranding(this.branding, this.user?.id);
+    setTimeout(() => {
+      this.isSavingBranding = false;
+      this.toastService.success('Vos préférences de personnalisation ont été enregistrées avec succès !');
+      this.cdr.detectChanges();
+    }, 400);
+  }
+
+  resetBranding() {
+    this.themeService.resetBranding(this.user?.id);
+    this.branding = { ...DEFAULT_OWNER_BRANDING };
+    this.toastService.info('La personnalisation a été réinitialisée au thème par défaut.');
+    this.cdr.detectChanges();
   }
 
   formatFieldType(type?: string): string {
@@ -98,7 +232,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   formatPrice(price: any): string {
     if (!price) return '0';
-    return price.toString().split('.')[0];
+    const num = Math.round(Number(price) || 0);
+    return num.toLocaleString('fr-FR');
+  }
+
+  activeDropdownFieldId: number | null = null;
+
+  toggleFieldDropdown(fieldId: number, event: Event) {
+    event.stopPropagation();
+    if (this.activeDropdownFieldId === fieldId) {
+      this.activeDropdownFieldId = null;
+    } else {
+      this.activeDropdownFieldId = fieldId;
+    }
+  }
+
+  closeFieldDropdown() {
+    this.activeDropdownFieldId = null;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.closeFieldDropdown();
   }
 
   loadOwnerData() {
@@ -182,60 +337,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  exportToCSV() {
-    if (!this.ownerStats) return;
-
-    let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += '=== RAPPORT FINANCIER MYTERRAIN ===\n\n';
-    csvContent += 'Moyen de paiement,Revenus (FCFA)\n';
-
-    let total = 0;
-    if (this.ownerStats.revenue_by_method) {
-      this.ownerStats.revenue_by_method.forEach((m: any) => {
-        csvContent += `${m.method},${m.total}\n`;
-        total += Number(m.total);
-      });
-    }
-    csvContent += `TOTAL,${total}\n\n`;
-
-    csvContent += '=== REVENUS PAR TERRAIN ===\n';
-    csvContent += 'Terrain,Revenus (FCFA)\n';
-    if (this.ownerStats.revenue_by_field) {
-      this.ownerStats.revenue_by_field.forEach((f: any) => {
-        csvContent += `${f.name},${f.revenue}\n`;
-      });
-    }
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Export_Comptable_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    this.toastService.success('Export comptable téléchargé avec succès');
-  }
-
   loadNotifications() {
-    this.http.get<any>(`${environment.apiUrl}/notifications`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/owner/notifications`).subscribe({
       next: (data) => {
-        const newUnreadCount = data.unread_count || 0;
-        if (newUnreadCount > this.unreadCount && this.unreadCount !== 0) {
-          const latestNotif = data.notifications?.data?.[0];
-          if (latestNotif) {
-            this.toastService.info(latestNotif.data.message || 'Nouvelle réservation', 'Nouvelle notification');
-          }
-        }
-        this.notifications = data.notifications?.data || [];
-        this.unreadCount = newUnreadCount;
+        this.notifications = data.notifications || [];
+        this.unreadCount = data.unread_count || 0;
+        this.cdr.detectChanges();
       },
       error: () => {}
     });
   }
 
   markAsRead(id: string) {
-    this.http.patch(`${environment.apiUrl}/notifications/${id}/read`, {}).subscribe({
-      next: () => this.loadNotifications()
+    this.http.post(`${environment.apiUrl}/owner/notifications/${id}/read`, {}).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter(n => n.id !== id);
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  exportToCSV() {
+    window.open(`${environment.apiUrl}/owner/stats/export`, '_blank');
+  }
+
+  deleteField(id: number) {
+    this.confirmationService.confirm({
+      title: 'Supprimer ce terrain ?',
+      text: 'Cette action est irréversible et supprimera les créneaux associés.',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#ef4444'
+    }).then((confirmed) => {
+      if (confirmed) {
+        this.fieldService.deleteField(id).subscribe({
+          next: () => {
+            this.fields = this.fields.filter(f => f.id !== id);
+            this.toastService.success('Terrain supprimé avec succès');
+            this.loadOwnerStats();
+            this.cdr.detectChanges();
+          },
+          error: () => this.toastService.error('Erreur lors de la suppression')
+        });
+      }
     });
   }
 
@@ -243,29 +388,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
-  async editField(field: any) {
+  async editField(field: Field) {
     const { value: formValues } = await Swal.fire({
-      title: 'Modifier les informations',
+      title: 'Modifier le terrain',
       html: `
         <div class="text-left px-1">
           <div class="mb-4 relative">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nom du terrain</label>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nom du terrain</label>
             <div class="relative">
-              <input id="swal-input1" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm outline-none" placeholder="Ex: Terrain Synthétique A" value="${field.name}">
+              <input id="swal-input1" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Terrain Synthétique A" value="${field.name}">
             </div>
           </div>
 
           <div class="mb-4 relative">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Adresse exacte</label>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Adresse exacte</label>
             <div class="relative">
-              <input id="swal-input2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm outline-none" placeholder="Ex: 45 rue de la Paix" value="${field.address || ''}">
+              <input id="swal-input2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: 45 rue de la Paix" value="${field.address || ''}">
             </div>
           </div>
 
           <div class="mb-5 relative">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Prix par heure</label>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Prix par heure</label>
             <div class="relative">
-              <input id="swal-input3" type="number" class="w-full pl-3 pr-12 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm outline-none" placeholder="10000" value="${field.price_per_hour}">
+              <input id="swal-input3" type="number" class="w-full pl-3 pr-12 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="10000" value="${field.price_per_hour}">
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <span class="text-gray-500 text-sm font-medium">FCFA</span>
               </div>
@@ -273,8 +418,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           </div>
 
           <div class="mt-2">
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Photo du terrain <span class="text-xs text-gray-400 font-normal">(Optionnel)</span></label>
-            <label for="swal-file" class="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-green-50 hover:border-green-400 transition-colors cursor-pointer group text-center">
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Photo du terrain <span class="text-xs text-gray-400 font-normal">(Optionnel)</span></label>
+            <label for="swal-file" class="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-4 bg-gray-50 dark:bg-slate-800 hover:bg-green-50 dark:hover:bg-slate-700 hover:border-green-400 transition-colors cursor-pointer group text-center">
               <span class="text-sm font-medium text-green-600 group-hover:text-green-700">Sélectionner une photo</span>
               <p id="file-name" class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">PNG, JPG jusqu'à 2MB</p>
               <input id="swal-file" type="file" class="sr-only" accept="image/*" onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : 'PNG, JPG jusqu\'à 2MB'">
@@ -284,9 +429,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       `,
       customClass: {
         popup: 'rounded-2xl',
-        title: 'text-xl text-slate-800 font-bold',
+        title: 'text-xl text-slate-800 dark:text-white font-bold',
         confirmButton: '!bg-green-600 hover:!bg-green-700 !rounded-xl !px-6 !py-2.5 !font-semibold transition-colors',
-        cancelButton: '!bg-slate-100 hover:!bg-slate-200 !text-slate-700 !rounded-xl !px-6 !py-2.5 !font-semibold transition-colors'
+        cancelButton: '!bg-slate-100 dark:!bg-slate-800 hover:!bg-slate-200 dark:hover:!bg-slate-700 !text-slate-700 dark:!text-slate-300 !rounded-xl !px-6 !py-2.5 !font-semibold transition-colors'
       },
       focusConfirm: false,
       showCancelButton: true,
@@ -317,6 +462,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
         error: () => this.toastService.error('Erreur lors de la modification')
       });
     }
+  }
+
+  getUserInitial(): string {
+    return this.user?.name ? this.user.name.charAt(0).toUpperCase() : 'U';
+  }
+
+  toggleUserDropdown() {
+    this.showUserDropdown = !this.showUserDropdown;
+  }
+
+  closeUserDropdown() {
+    this.showUserDropdown = false;
   }
 
   ngOnDestroy() {

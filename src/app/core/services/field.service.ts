@@ -19,6 +19,10 @@ export class FieldService {
     return this.http.post(`${this.apiUrl}/fields`, fieldData, { responseType: 'text' });
   }
 
+  deleteField(fieldId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/fields/${fieldId}`);
+  }
+
   getSlots(fieldId: number, date: string): Observable<TimeSlot[]> {
     return this.http.get<TimeSlot[]>(`${this.apiUrl}/fields/${fieldId}/slots?date=${date}`);
   }

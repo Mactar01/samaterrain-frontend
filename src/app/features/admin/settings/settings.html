@@ -1,27 +1,34 @@
-<div class="max-w-7xl mx-auto py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-colors">
   <div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-black tracking-tight">Paramètres Globaux</h1>
-    <p class="mt-2 text-sm text-neutral-600">Configuration de myTerrain.</p>
+    <h1 class="text-3xl font-extrabold text-black dark:text-white tracking-tight">Paramètres Globaux</h1>
+    <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Configuration générale de la plateforme myTerrain.</p>
   </div>
 
-  <div class="bg-white border border-neutral-200 rounded-lg shadow-sm">
-    <div class="p-6 border-b border-neutral-200">
-      <h3 class="text-lg font-bold">Commission de la plateforme</h3>
-      <p class="text-sm text-neutral-500 mt-1">Définissez le pourcentage prélevé sur chaque réservation.</p>
+  <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm divide-y divide-neutral-100 dark:divide-neutral-800 transition-colors">
+    <!-- Commission Setting -->
+    <div class="p-6">
+      <h3 class="text-base font-bold text-black dark:text-white">Commission de la plateforme</h3>
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Définissez le pourcentage prélevé automatiquement sur chaque réservation.</p>
       
-      <div class="mt-4 flex items-center">
-        <input type="number" value="10" class="border border-neutral-300 rounded-md p-2 w-24 text-center focus:ring-black focus:border-black">
-        <span class="ml-2 font-bold">%</span>
-        <button class="ml-4 bg-black text-white px-4 py-2 rounded shadow hover:bg-neutral-800 text-sm">Enregistrer</button>
+      <div class="mt-4 flex items-center gap-3">
+        <div class="relative w-32">
+          <input type="number" value="10" 
+            class="w-full border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 rounded-xl px-3 py-2 text-center text-sm font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white">
+          <span class="absolute right-3 top-2 text-sm font-bold text-neutral-400">%</span>
+        </div>
+        <button class="bg-black dark:bg-white text-white dark:text-black px-5 py-2 rounded-xl shadow-sm hover:bg-neutral-800 dark:hover:bg-neutral-200 text-sm font-bold transition cursor-pointer">
+          Enregistrer
+        </button>
       </div>
     </div>
     
+    <!-- Maintenance Mode -->
     <div class="p-6">
-      <h3 class="text-lg font-bold text-red-600">Mode Maintenance</h3>
-      <p class="text-sm text-neutral-500 mt-1">Activez ceci pour empêcher temporairement les réservations (pour mise à jour).</p>
+      <h3 class="text-base font-bold text-red-600 dark:text-red-400">Mode Maintenance</h3>
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Activez ce mode pour suspendre temporairement les réservations lors des mises à jour système.</p>
       
       <div class="mt-4">
-        <button class="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded shadow-sm hover:bg-red-100 text-sm font-semibold">
+        <button class="bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/60 px-5 py-2.5 rounded-xl shadow-sm hover:bg-red-100 dark:hover:bg-red-900/50 text-sm font-bold transition cursor-pointer">
           Activer le mode maintenance
         </button>
       </div>

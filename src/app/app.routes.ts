@@ -4,10 +4,9 @@ import { roleGuard } from './core/guards/role.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
-  // Public auth routes (guest guarded so logged-in users are redirected to their dashboard)
+  // Public auth routes
   {
     path: 'login',
-    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
@@ -16,6 +15,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/owner-register/owner-register').then(
         (m) => m.OwnerRegisterComponent
+      ),
+  },
+  {
+    path: 'update-password',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/auth/update-password/update-password.component').then(
+        (m) => m.UpdatePasswordComponent
       ),
   },
 

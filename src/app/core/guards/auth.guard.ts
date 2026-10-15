@@ -7,6 +7,12 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
+    if (authService.isBlocked()) {
+      authService.clearSession();
+      return router.createUrlTree(['/login'], {
+        queryParams: { error: 'blocked' }
+      });
+    }
     return true;
   }
 

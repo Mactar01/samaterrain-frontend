@@ -12,8 +12,18 @@ export const roleGuard = (allowedRoles: UserRole[]): CanActivateFn => {
       return router.createUrlTree(['/login']);
     }
 
+    if (authService.isBlocked()) {
+      authService.clearSession();
+      return router.createUrlTree(['/login'], {
+        queryParams: { error: 'blocked' }
+      });
+    }
+
     const currentRole = authService.getUserRole();
     if (currentRole && allowedRoles.includes(currentRole)) {
+      if (currentRole === 'owner' && authService.currentUserValue?.must_change_password) {
+        return router.createUrlTree(['/update-password']);
+      }
       return true;
     }
 

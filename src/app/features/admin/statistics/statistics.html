@@ -1,22 +1,22 @@
-<div class="max-w-7xl mx-auto py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-colors">
   <div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-black tracking-tight">Statistiques</h1>
-    <p class="mt-2 text-sm text-neutral-600">Analyses détaillées de l'utilisation de la plateforme.</p>
+    <h1 class="text-3xl font-extrabold text-black dark:text-white tracking-tight">Statistiques</h1>
+    <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Analyses détaillées de l'utilisation et de la fréquentation de la plateforme.</p>
   </div>
 
   <div *ngIf="loading" class="flex justify-center py-20">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
   </div>
 
-  <div *ngIf="!loading && error" class="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
+  <div *ngIf="!loading && error" class="bg-red-50 dark:bg-red-950/40 p-4 rounded-2xl border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm">
     Une erreur est survenue lors du chargement des statistiques.
   </div>
 
   <div *ngIf="!loading && !error" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     
     <!-- Evolution des revenus -->
-    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm p-6">
-      <h3 class="text-lg font-bold text-black mb-4">Évolution des revenus (6 derniers mois)</h3>
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm p-6 transition-colors">
+      <h3 class="text-base font-bold text-black dark:text-white mb-4">Évolution des revenus (6 derniers mois)</h3>
       <div class="relative h-80">
         <canvas baseChart
           [data]="lineChartData"
@@ -27,8 +27,8 @@
     </div>
 
     <!-- Répartition des réservations -->
-    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm p-6">
-      <h3 class="text-lg font-bold text-black mb-4">Statut des réservations</h3>
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm p-6 transition-colors">
+      <h3 class="text-base font-bold text-black dark:text-white mb-4">Statut des réservations</h3>
       <div class="relative h-80">
         <canvas baseChart
           [data]="pieChartData"

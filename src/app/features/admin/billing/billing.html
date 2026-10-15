@@ -1,14 +1,14 @@
-<div class="max-w-7xl mx-auto py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-colors">
   <div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-black tracking-tight">Facturation & Gains</h1>
-    <p class="mt-2 text-sm text-neutral-600">Suivi financier de la plateforme myTerrain.</p>
+    <h1 class="text-3xl font-extrabold text-black dark:text-white tracking-tight">Facturation & Gains</h1>
+    <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Suivi financier et encaissements de la plateforme myTerrain.</p>
   </div>
 
   <div *ngIf="loading" class="flex justify-center py-20">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
   </div>
 
-  <div *ngIf="!loading && error" class="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
+  <div *ngIf="!loading && error" class="bg-red-50 dark:bg-red-950/40 p-4 rounded-2xl border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm">
     Une erreur est survenue lors du chargement des données de facturation.
   </div>
 
@@ -17,83 +17,119 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
       
       <!-- Chiffre d'affaires global -->
-      <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 flex items-center">
-        <div class="rounded-full p-4 bg-blue-50 text-blue-600 mr-4">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between transition-colors relative overflow-hidden group hover:border-blue-500/40">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider truncate">
+            CA Global (Plateforme)
+          </span>
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
         </div>
-        <div>
-          <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide">CA Global (App)</h2>
-          <p class="text-3xl font-bold text-black">{{ billingData.global_revenue | currency:'XOF':'symbol':'1.0-0':'fr-FR' }}</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl lg:text-3xl font-black text-neutral-900 dark:text-white tracking-tight truncate tabular-nums" [title]="formatFCFA(billingData.global_revenue)">
+            {{ formatFCFA(billingData.global_revenue) }}
+          </p>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-neutral-500 dark:text-neutral-400 truncate">
+            <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+            <span class="truncate">Volume brut des réservations</span>
+          </div>
         </div>
       </div>
 
       <!-- Commission myTerrain -->
-      <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 flex items-center relative overflow-hidden">
-        <div class="absolute right-0 top-0 h-full w-2 bg-green-500"></div>
-        <div class="rounded-full p-4 bg-green-50 text-green-600 mr-4">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+      <div class="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between transition-colors relative overflow-hidden group hover:border-green-500/40">
+        <div class="absolute right-0 top-0 h-1.5 w-full bg-gradient-to-r from-emerald-500 to-green-600"></div>
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider truncate">
+            Commissions Nettes
+          </span>
+          <div class="w-10 h-10 rounded-2xl bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </div>
         </div>
-        <div>
-          <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide">Commissions Nettes</h2>
-          <p class="text-3xl font-bold text-black">{{ billingData.total_commission | currency:'XOF':'symbol':'1.0-0':'fr-FR' }}</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl lg:text-3xl font-black text-green-600 dark:text-green-400 tracking-tight truncate tabular-nums" [title]="formatFCFA(billingData.total_commission)">
+            {{ formatFCFA(billingData.total_commission) }}
+          </p>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-neutral-500 dark:text-neutral-400 truncate">
+            <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+            <span class="truncate">Revenu net plateforme (10%)</span>
+          </div>
         </div>
       </div>
 
-      <!-- Dettes Loueurs -->
-      <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 flex items-center relative overflow-hidden">
-        <div class="absolute right-0 top-0 h-full w-2 bg-yellow-500"></div>
-        <div class="rounded-full p-4 bg-yellow-50 text-yellow-600 mr-4">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+      <!-- Reversements Loueurs -->
+      <div class="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between transition-colors relative overflow-hidden group hover:border-amber-500/40">
+        <div class="absolute right-0 top-0 h-1.5 w-full bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider truncate">
+            Reversements Dûs (Loueurs)
+          </span>
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+          </div>
         </div>
-        <div>
-          <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide">Reversements (Dûs)</h2>
-          <p class="text-3xl font-bold text-black">{{ billingData.pending_payouts | currency:'XOF':'symbol':'1.0-0':'fr-FR' }}</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl lg:text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight truncate tabular-nums" [title]="formatFCFA(billingData.pending_payouts)">
+            {{ formatFCFA(billingData.pending_payouts) }}
+          </p>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-neutral-500 dark:text-neutral-400 truncate">
+            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+            <span class="truncate">À reverser aux partenaires</span>
+          </div>
         </div>
       </div>
 
     </div>
 
     <!-- Recent Transactions Table -->
-    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm">
-      <div class="px-6 py-5 border-b border-neutral-200 bg-neutral-50 rounded-t-lg">
-        <h3 class="text-lg leading-6 font-bold text-black">Dernières Transactions (PayDunya)</h3>
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
+      <div class="px-6 py-5 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-black dark:text-white">Dernières Transactions (PayDunya)</h3>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Historique des encaissements et réservations confirmées en direct.</p>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300">
+          {{ billingData.recent_transactions.length }} transaction(s)
+        </span>
       </div>
       
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-neutral-200">
-          <thead class="bg-white">
+        <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
+          <thead class="bg-neutral-50 dark:bg-neutral-800/50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Date & Heure</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Client / Terrain</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Montant</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Méthode</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Statut</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Date & Heure</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Client / Terrain</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Montant</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Méthode</th>
+              <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Statut</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-neutral-100">
-            <tr *ngFor="let txn of billingData.recent_transactions" class="hover:bg-neutral-50 transition">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+          <tbody class="bg-white dark:bg-neutral-900 divide-y divide-neutral-100 dark:divide-neutral-800">
+            <tr *ngFor="let txn of billingData.recent_transactions" class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-200">
                 {{ txn.created_at | date:'dd MMM yyyy, HH:mm' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-black">{{ txn.reservation?.user?.name }}</div>
-                <div class="text-sm text-neutral-500">Terrain : {{ txn.reservation?.field?.name }} ({{ txn.reservation?.field?.owner?.business_name }})</div>
+                <div class="text-sm font-bold text-black dark:text-white">{{ txn.reservation?.user?.name }}</div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400">Terrain : {{ txn.reservation?.field?.name }} ({{ txn.reservation?.field?.owner?.business_name }})</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-black">
-                {{ txn.amount | currency:'XOF':'symbol':'1.0-0':'fr-FR' }}
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-neutral-900 dark:text-white tabular-nums">
+                {{ formatFCFA(txn.amount) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 capitalize">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-400 capitalize">
                 {{ txn.method.replace('_', ' ') }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStatusClass(txn.status)">
+                <span [class]="'px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStatusClass(txn.status)">
                   {{ txn.status === 'completed' ? 'Réussi' : (txn.status === 'pending' ? 'En attente' : (txn.status === 'failed' ? 'Échoué' : txn.status)) }}
                 </span>
               </td>
             </tr>
             
             <tr *ngIf="billingData.recent_transactions.length === 0">
-              <td colspan="5" class="px-6 py-10 text-center text-sm text-neutral-500">
+              <td colspan="5" class="px-6 py-10 text-center text-sm text-neutral-500 dark:text-neutral-400">
                 Aucune transaction récente trouvée.
               </td>
             </tr>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,26 @@ export class ReservationsComponent implements OnInit {
   searchTerm = '';
   selectedStatus: 'all' | 'confirmed' | 'pending' | 'cancelled' = 'all';
 
+  activeDropdownReservationId: number | null = null;
+
+  toggleReservationDropdown(resId: number, event: Event) {
+    event.stopPropagation();
+    if (this.activeDropdownReservationId === resId) {
+      this.activeDropdownReservationId = null;
+    } else {
+      this.activeDropdownReservationId = resId;
+    }
+  }
+
+  closeReservationDropdown() {
+    this.activeDropdownReservationId = null;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.closeReservationDropdown();
+  }
+
   ngOnInit() {
     this.loadReservations();
   }
@@ -47,17 +67,57 @@ export class ReservationsComponent implements OnInit {
     });
   }
 
+  // Dynamic status counters
+  get countAll(): number {
+    return this.reservations.length;
+  }
+
+  get countConfirmed(): number {
+    return this.reservations.filter(r => {
+      const s = (r.status || '').toLowerCase().trim();
+      return s === 'confirmed' || s === 'completed';
+    }).length;
+  }
+
+  get countPending(): number {
+    return this.reservations.filter(r => (r.status || '').toLowerCase().trim() === 'pending').length;
+  }
+
+  get countCancelled(): number {
+    return this.reservations.filter(r => {
+      const s = (r.status || '').toLowerCase().trim();
+      return s === 'cancelled' || s === 'canceled';
+    }).length;
+  }
+
+  setStatusFilter(status: 'all' | 'confirmed' | 'pending' | 'cancelled') {
+    this.selectedStatus = status;
+    this.applyFilters();
+  }
+
   applyFilters() {
     let result = [...this.reservations];
 
     // Status filter
     if (this.selectedStatus !== 'all') {
-      result = result.filter(r => r.status === this.selectedStatus);
+      result = result.filter(r => {
+        const s = (r.status || '').toLowerCase().trim();
+        if (this.selectedStatus === 'confirmed') {
+          return s === 'confirmed' || s === 'completed';
+        }
+        if (this.selectedStatus === 'pending') {
+          return s === 'pending';
+        }
+        if (this.selectedStatus === 'cancelled') {
+          return s === 'cancelled' || s === 'canceled';
+        }
+        return s === this.selectedStatus;
+      });
     }
 
     // Search filter
     if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
+      const term = this.searchTerm.toLowerCase().trim();
       result = result.filter(r => {
         const playerName = (r.player_name || (r as any).guest_name || r.user?.name || '').toLowerCase();
         const playerPhone = (r.player_phone || (r as any).guest_phone || r.user?.phone || '').toLowerCase();
@@ -67,6 +127,29 @@ export class ReservationsComponent implements OnInit {
     }
 
     this.filteredReservations = result;
+  }
+
+  getStatusLabel(status?: string): string {
+    const s = (status || '').toLowerCase().trim();
+    if (s === 'confirmed') return 'Confirmé';
+    if (s === 'completed') return 'Terminé';
+    if (s === 'pending') return 'En attente';
+    if (s === 'cancelled' || s === 'canceled') return 'Annulé';
+    return status || 'Inconnu';
+  }
+
+  getStatusClass(status?: string): string {
+    const s = (status || '').toLowerCase().trim();
+    if (s === 'confirmed' || s === 'completed') {
+      return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60';
+    }
+    if (s === 'pending') {
+      return 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60';
+    }
+    if (s === 'cancelled' || s === 'canceled') {
+      return 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60';
+    }
+    return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
   }
 
   onFilterChange() {

@@ -16,18 +16,12 @@ import { CommonModule } from '@angular/common';
         <div class="w-32 h-8 bg-gray-300 rounded"></div>
       </div>
     } @else if (type === 'card') {
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
-        <div class="w-full h-44 bg-gray-200"></div>
-        <div class="p-5 space-y-3">
-          <div class="flex justify-between items-center">
-            <div class="w-36 h-6 bg-gray-300 rounded"></div>
-            <div class="w-16 h-6 bg-gray-200 rounded-full"></div>
-          </div>
-          <div class="w-48 h-4 bg-gray-200 rounded"></div>
-          <div class="pt-3 border-t border-gray-100 flex justify-between">
-            <div class="w-20 h-4 bg-gray-200 rounded"></div>
-            <div class="w-24 h-4 bg-gray-200 rounded"></div>
-          </div>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden animate-pulse">
+        <div class="w-full h-36 sm:h-40 bg-gray-200 dark:bg-slate-800"></div>
+        <div class="p-3 sm:p-3.5 flex items-center justify-between gap-2.5 sm:gap-3">
+          <div class="w-28 sm:w-36 h-4 bg-gray-200 dark:bg-slate-800 rounded"></div>
+          <div class="w-20 sm:w-24 h-4 bg-gray-200 dark:bg-slate-800 rounded"></div>
+          <div class="w-8 h-8 bg-gray-200 dark:bg-slate-800 rounded-xl ml-5 sm:ml-7"></div>
         </div>
       </div>
     } @else if (type === 'table-row') {
