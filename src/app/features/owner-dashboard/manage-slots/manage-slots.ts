@@ -226,7 +226,8 @@ export class ManageSlotsComponent implements OnInit {
       this.confirmationService.toast("L'heure de fin ne peut pas être identique à l'heure de début.", 'warning');
       return;
     }
-    if (this.newSlot.end_time !== '00:00' && this.newSlot.end_time < this.newSlot.start_time) {
+    const isNightCrossing = this.newSlot.end_time === '00:00' || (this.newSlot.start_time >= '18:00' && this.newSlot.end_time <= '06:00');
+    if (!isNightCrossing && this.newSlot.end_time < this.newSlot.start_time) {
       this.confirmationService.toast("L'heure de fin doit être postérieure à l'heure de début.", 'warning');
       return;
     }
