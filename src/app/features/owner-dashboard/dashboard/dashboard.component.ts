@@ -230,6 +230,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return types[type] || type;
   }
 
+  getFieldPhoto(field: Field): string {
+    if (field.photo_url) return field.photo_url;
+    if (field.photo) {
+      if (field.photo.startsWith('http://') || field.photo.startsWith('https://')) {
+        return field.photo;
+      }
+      const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
+      const cleanPath = field.photo.startsWith('/') ? field.photo : '/' + field.photo;
+      return `${baseUrl}/storage${cleanPath}`;
+    }
+    const primaryImg = (field as any).primary_image || (field as any).primaryImage;
+    if (primaryImg?.url) {
+      if (primaryImg.url.startsWith('http')) return primaryImg.url;
+      const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
+      return `${baseUrl}${primaryImg.url.startsWith('/') ? '' : '/'}${primaryImg.url}`;
+    }
+    return 'https://images.unsplash.com/photo-1575361204481-4d3b6707ea20?q=80&w=1000&auto=format&fit=crop';
+  }
+
+  getImageUrl(url?: string): string {
+    if (!url) return 'https://images.unsplash.com/photo-1575361204481-4d3b6707ea20?q=80&w=1000&auto=format&fit=crop';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
+    const clean = url.startsWith('/') ? url : '/' + url;
+    return `${baseUrl}${clean}`;
+  }
+
   formatPrice(price: any): string {
     if (!price) return '0';
     const num = Math.round(Number(price) || 0);
@@ -389,6 +416,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async editField(field: Field) {
+    const existingImages: any[] = (field.images && field.images.length > 0)
+      ? field.images
+      : (field.photo ? [{ id: 0, url: this.getFieldPhoto(field), is_primary: true }] : []);
+
+    let existingHtml = '';
+    if (existingImages.length > 0) {
+      existingHtml = `
+        <div class="mb-3">
+          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Photos actuelles (${existingImages.length}) :</p>
+          <div id="swal-existing-grid" class="flex gap-2 overflow-x-auto py-1">
+            ${existingImages.map((img) => `
+              <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800" id="existing-img-card-${img.id}">
+                <img src="${this.getImageUrl(img.url)}" class="w-full h-full object-cover">
+                ${img.id > 0 ? `
+                  <button type="button" class="swal-delete-existing absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-600/90 text-white flex items-center justify-center text-[10px] font-bold hover:bg-red-700 cursor-pointer shadow" data-id="${img.id}" title="Supprimer cette photo">✕</button>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let selectedFiles: File[] = [];
+
     const { value: formValues } = await Swal.fire({
       title: 'Modifier le terrain',
       html: `
@@ -407,7 +459,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             </div>
           </div>
 
-          <div class="mb-5 relative">
+          <div class="mb-4 relative">
             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Prix par heure</label>
             <div class="relative">
               <input id="swal-input3" type="number" class="w-full pl-3 pr-12 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="10000" value="${field.price_per_hour}">
@@ -418,20 +470,119 @@ export class DashboardComponent implements OnInit, OnDestroy {
           </div>
 
           <div class="mt-2">
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Photo du terrain <span class="text-xs text-gray-400 font-normal">(Optionnel)</span></label>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Photos du terrain <span class="text-xs text-gray-400 font-normal">(Multi-sélection acceptée)</span></label>
+            
+            ${existingHtml}
+
+            <!-- Aperçu instantané des nouvelles photos sélectionnées -->
+            <div id="swal-preview-container" class="hidden mb-3 p-2.5 bg-green-50 dark:bg-emerald-950/40 border border-green-200 dark:border-emerald-800 rounded-xl animate-fade-in">
+              <div class="flex items-center justify-between mb-2">
+                <span id="swal-files-count" class="text-xs font-bold text-green-700 dark:text-emerald-300 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  <span>Nouvelle(s) photo(s)</span>
+                </span>
+                <button id="swal-clear-all" type="button" class="text-[11px] text-red-500 hover:text-red-700 font-bold cursor-pointer">Tout retirer</button>
+              </div>
+              <div id="swal-previews-grid" class="grid grid-cols-4 gap-2"></div>
+            </div>
+
             <label for="swal-file" class="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-4 bg-gray-50 dark:bg-slate-800 hover:bg-green-50 dark:hover:bg-slate-700 hover:border-green-400 transition-colors cursor-pointer group text-center">
-              <span class="text-sm font-medium text-green-600 group-hover:text-green-700">Sélectionner une photo</span>
-              <p id="file-name" class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">PNG, JPG jusqu'à 2MB</p>
-              <input id="swal-file" type="file" class="sr-only" accept="image/*" onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : 'PNG, JPG jusqu\'à 2MB'">
+              <svg class="w-7 h-7 text-gray-400 group-hover:text-green-600 mb-1 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span id="swal-select-text" class="text-sm font-semibold text-green-600 group-hover:text-green-700">+ Ajouter une ou plusieurs photos</span>
+              <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WEBP jusqu'à 5 Mo chacune</p>
+              <input id="swal-file" type="file" multiple class="sr-only" accept="image/*">
             </label>
           </div>
         </div>
       `,
       customClass: {
-        popup: 'rounded-2xl',
+        popup: 'rounded-2xl max-w-lg',
         title: 'text-xl text-slate-800 dark:text-white font-bold',
         confirmButton: '!bg-green-600 hover:!bg-green-700 !rounded-xl !px-6 !py-2.5 !font-semibold transition-colors',
         cancelButton: '!bg-slate-100 dark:!bg-slate-800 hover:!bg-slate-200 dark:hover:!bg-slate-700 !text-slate-700 dark:!text-slate-300 !rounded-xl !px-6 !py-2.5 !font-semibold transition-colors'
+      },
+      didOpen: () => {
+        const fileInput = document.getElementById('swal-file') as HTMLInputElement;
+        const previewContainer = document.getElementById('swal-preview-container') as HTMLElement;
+        const previewsGrid = document.getElementById('swal-previews-grid') as HTMLElement;
+        const filesCount = document.getElementById('swal-files-count') as HTMLElement;
+        const clearAllBtn = document.getElementById('swal-clear-all') as HTMLElement;
+        const selectText = document.getElementById('swal-select-text') as HTMLElement;
+
+        const updateGrid = () => {
+          if (selectedFiles.length === 0) {
+            previewContainer?.classList.add('hidden');
+            if (previewsGrid) previewsGrid.innerHTML = '';
+            if (selectText) selectText.textContent = '+ Ajouter une ou plusieurs photos';
+            return;
+          }
+
+          previewContainer?.classList.remove('hidden');
+          if (filesCount) {
+            filesCount.innerHTML = `<span>✓ ${selectedFiles.length} nouvelle(s) photo(s)</span>`;
+          }
+          if (selectText) {
+            selectText.textContent = '+ Ajouter d\'autres photos';
+          }
+          if (previewsGrid) {
+            previewsGrid.innerHTML = '';
+            selectedFiles.forEach((file, idx) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const card = document.createElement('div');
+                card.className = 'relative w-full h-16 rounded-xl overflow-hidden border border-green-300 dark:border-emerald-700 group shrink-0';
+                card.innerHTML = `
+                  <img src="${e.target?.result}" class="w-full h-full object-cover">
+                  <button type="button" class="swal-remove-single absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold hover:bg-red-700 cursor-pointer shadow" data-idx="${idx}">✕</button>
+                `;
+                card.querySelector('.swal-remove-single')?.addEventListener('click', (ev) => {
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  selectedFiles.splice(idx, 1);
+                  updateGrid();
+                });
+                previewsGrid.appendChild(card);
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+        };
+
+        fileInput?.addEventListener('change', () => {
+          if (fileInput.files) {
+            const files = Array.from(fileInput.files);
+            selectedFiles = [...selectedFiles, ...files];
+            fileInput.value = '';
+            updateGrid();
+          }
+        });
+
+        clearAllBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          selectedFiles = [];
+          if (fileInput) fileInput.value = '';
+          updateGrid();
+        });
+
+        // Suppression d'images existantes
+        document.querySelectorAll('.swal-delete-existing').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const imgId = Number((btn as HTMLElement).getAttribute('data-id'));
+            if (imgId) {
+              this.fieldService.deleteFieldImage(field.id, imgId).subscribe({
+                next: () => {
+                  document.getElementById(`existing-img-card-${imgId}`)?.remove();
+                  this.toastService.success('Photo supprimée');
+                  this.loadOwnerData();
+                },
+                error: () => this.toastService.error('Erreur lors de la suppression')
+              });
+            }
+          });
+        });
       },
       focusConfirm: false,
       showCancelButton: true,
@@ -439,15 +590,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Annuler',
       confirmButtonColor: '#16a34a',
       preConfirm: () => {
-        const fileInput = document.getElementById('swal-file') as HTMLInputElement;
-        const file = fileInput?.files?.[0];
         const data: any = {
           name: (document.getElementById('swal-input1') as HTMLInputElement).value,
           address: (document.getElementById('swal-input2') as HTMLInputElement).value,
           price_per_hour: (document.getElementById('swal-input3') as HTMLInputElement).value
         };
-        if (file) {
-          data.photo = file;
+        if (selectedFiles.length > 0) {
+          data.photos = selectedFiles;
+          data.photo = selectedFiles[0];
         }
         return data;
       }
@@ -456,7 +606,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (formValues) {
       this.fieldService.updateField(field.id, formValues).subscribe({
         next: () => {
-          this.toastService.success('Terrain mis à jour !');
+          this.toastService.success('Terrain mis à jour avec succès !');
           this.loadOwnerData();
         },
         error: () => this.toastService.error('Erreur lors de la modification')

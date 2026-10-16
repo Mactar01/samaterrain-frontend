@@ -22,6 +22,14 @@ export interface TimeSlot {
   };
 }
 
+export interface FieldImageItem {
+  id: number;
+  field_id?: number;
+  url: string;
+  is_primary?: boolean;
+  sort_order?: number;
+}
+
 export interface Field {
   id: number;
   name: string;
@@ -36,7 +44,7 @@ export interface Field {
   photo?: string;
   photo_url?: string;
   image_url?: string;
-  images?: string[];
+  images?: FieldImageItem[];
   is_active?: boolean;
   features?: string[];
   owner_id?: number;

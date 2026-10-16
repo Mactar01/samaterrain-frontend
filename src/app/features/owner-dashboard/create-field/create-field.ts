@@ -29,19 +29,27 @@ export class CreateFieldComponent {
     is_active: true
   };
 
-  selectedFile: File | null = null;
-  imagePreview: string | null = null;
+  selectedFiles: File[] = [];
+  imagePreviews: string[] = [];
   isSubmitting = false;
   errorMessage = '';
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = (e: any) => this.imagePreview = e.target.result;
-      reader.readAsDataURL(file);
+  onFilesSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        this.selectedFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e: any) => this.imagePreviews.push(e.target.result);
+        reader.readAsDataURL(file);
+      }
     }
+  }
+
+  removeFile(index: number) {
+    this.selectedFiles.splice(index, 1);
+    this.imagePreviews.splice(index, 1);
   }
 
   onSubmit() {
@@ -59,8 +67,11 @@ export class CreateFieldComponent {
       formData.append(key, value);
     });
     
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+    if (this.selectedFiles.length > 0) {
+      this.selectedFiles.forEach(file => {
+        formData.append('images[]', file);
+      });
+      formData.append('image', this.selectedFiles[0]);
     }
     
     this.fieldService.createField(formData).subscribe({
