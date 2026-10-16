@@ -64,6 +64,17 @@ export class ManageSlotsComponent implements OnInit {
 
   newSlot = { start_time: '18:00', end_time: '19:00' };
 
+  // Actions menu
+  openSlotActionsId: number | null = null;
+
+  toggleSlotActions(slotId: number) {
+    this.openSlotActionsId = this.openSlotActionsId === slotId ? null : slotId;
+  }
+
+  closeSlotActions() {
+    this.openSlotActionsId = null;
+  }
+
   bulk = {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
@@ -253,6 +264,7 @@ export class ManageSlotsComponent implements OnInit {
   }
 
   async deleteSlot(slotId: number) {
+    this.closeSlotActions();
     const confirmed = await this.confirmationService.confirm({
         title: 'Supprimer le créneau ?',
         text: 'Ce créneau sera retiré de la disponibilité.',
@@ -290,6 +302,7 @@ export class ManageSlotsComponent implements OnInit {
 
   // === Promo Methods ===
   openPromoModal(slot: any) {
+    this.closeSlotActions();
     this.selectedSlotForPromo = slot;
     this.promoData.promo_price = slot.price;
     this.showPromoModal = true;
@@ -416,6 +429,7 @@ export class ManageSlotsComponent implements OnInit {
   }
 
   toggleSlotStatus(slot: any) {
+    this.closeSlotActions();
     if (slot.status === 'reserved') return;
     
     // Si on veut débloquer, on le fait directement sans modal
@@ -432,6 +446,7 @@ export class ManageSlotsComponent implements OnInit {
   }
 
   openBlockModal(slot: any) {
+    this.closeSlotActions();
     this.selectedSlotToBlock = slot;
     this.blockReason = 'Rénovation / Travaux';
     this.blockCustomReason = '';
@@ -461,6 +476,7 @@ export class ManageSlotsComponent implements OnInit {
   }
 
   openManualReserve(slot: any) {
+    this.closeSlotActions();
     this.selectedSlotToReserve = slot;
     this.manualReserve = { playerName: '', playerPhone: '' };
     this.showManualReserveModal = true;

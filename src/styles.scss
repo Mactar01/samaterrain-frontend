@@ -253,13 +253,26 @@ input[type="datetime-local"] {
 }
 
 /* =========================================================================
-   SWEETALERT2 DARK MODE HARMONIZATION
+   SWEETALERT2 MODERN HARMONIZATION (LIGHT & DARK)
    ========================================================================= */
+.swal2-container {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+.swal2-container.swal2-backdrop-show {
+  background: rgba(15, 23, 42, 0.65) !important;
+}
+
+.swal2-popup {
+  font-family: inherit !important;
+  border-radius: 1.5rem !important;
+}
+
 .dark .swal2-popup {
   background: #0f172a !important;
   color: #f8fafc !important;
   border: 1px solid #1e293b !important;
-  border-radius: 1.5rem !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
 }
 
