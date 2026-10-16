@@ -263,6 +263,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return num.toLocaleString('fr-FR');
   }
 
+  getFieldDisplayLocation(field: Field): string {
+    if (!field) return 'Dakar, Sénégal';
+    const parts: string[] = [];
+    if (field.address && field.address.trim()) {
+      parts.push(field.address.trim());
+    }
+    if (field.city && field.city.trim()) {
+      const cityTrimmed = field.city.trim();
+      if (!field.address || !field.address.toLowerCase().includes(cityTrimmed.toLowerCase())) {
+        parts.push(cityTrimmed);
+      }
+    }
+    if (parts.length > 0) {
+      return parts.join(', ');
+    }
+    return field.location || 'Dakar, Sénégal';
+  }
+
   activeDropdownFieldId: number | null = null;
 
   toggleFieldDropdown(fieldId: number, event: Event) {
@@ -452,10 +470,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             </div>
           </div>
 
-          <div class="mb-4 relative">
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Adresse exacte</label>
-            <div class="relative">
-              <input id="swal-input2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: 45 rue de la Paix" value="${field.address || ''}">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Ville</label>
+              <input id="swal-input-city" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Dakar" value="${field.city || ''}">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Adresse exacte</label>
+              <input id="swal-input2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Sacré Cœur 3" value="${field.address || ''}">
             </div>
           </div>
 
@@ -592,6 +614,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       preConfirm: () => {
         const data: any = {
           name: (document.getElementById('swal-input1') as HTMLInputElement).value,
+          city: (document.getElementById('swal-input-city') as HTMLInputElement)?.value || '',
           address: (document.getElementById('swal-input2') as HTMLInputElement).value,
           price_per_hour: (document.getElementById('swal-input3') as HTMLInputElement).value
         };
