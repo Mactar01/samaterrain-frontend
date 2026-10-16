@@ -819,29 +819,52 @@
             <div *ngFor="let field of fields"
                  class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col relative h-full">
               
-              <!-- Image Banner du terrain (hauteur optimisée) -->
-              <div class="h-36 sm:h-40 rounded-t-2xl sm:rounded-t-3xl bg-slate-800 relative overflow-hidden flex-shrink-0">
-                <img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
-                     [src]="getFieldPhoto(field)" alt="Terrain">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+              <!-- Image Banner du terrain avec défilement automatique toutes les 2 secondes -->
+              <div class="h-36 sm:h-40 rounded-t-2xl sm:rounded-t-3xl bg-slate-800 relative overflow-hidden flex-shrink-0 group/banner">
+                
+                <!-- Photos avec transition fluide si plusieurs photos -->
+                <ng-container *ngIf="getFieldPhotos(field) as photos">
+                  <div *ngIf="photos.length > 1; else singlePhoto">
+                    <img *ngFor="let photoUrl of photos; let imgIdx = index"
+                         [src]="photoUrl"
+                         alt="Terrain"
+                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out group-hover:scale-105"
+                         [class.opacity-100]="getCurrentPhotoIndex(field) === imgIdx"
+                         [class.opacity-0]="getCurrentPhotoIndex(field) !== imgIdx"
+                         [class.pointer-events-none]="getCurrentPhotoIndex(field) !== imgIdx">
+                  </div>
+                  <ng-template #singlePhoto>
+                    <img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+                         [src]="getFieldPhoto(field)" alt="Terrain">
+                  </ng-template>
+                </ng-container>
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none"></div>
                 
                 <!-- Badge Type de sport (Haut Gauche) -->
-                <div class="absolute top-3 left-3">
+                <div class="absolute top-3 left-3 pointer-events-none">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 text-slate-900 dark:text-white shadow-sm backdrop-blur-md border border-white/20">
                     {{ formatFieldType(field.type) }}
                   </span>
                 </div>
 
-                <!-- Badge Nombre de photos (Haut Droite) -->
-                <div *ngIf="field.images && field.images.length > 1" class="absolute top-3 right-3">
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/60 text-white shadow-sm backdrop-blur-md border border-white/20">
-                    <svg class="w-3 h-3 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    {{ field.images.length }}
+                <!-- Badge Défilement Photos (Haut Droite) : 1/N avec indicateur de changement -->
+                <div *ngIf="field.images && field.images.length > 1" class="absolute top-3 right-3 pointer-events-none">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/65 text-white shadow-sm backdrop-blur-md border border-white/20">
+                    <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>{{ getCurrentPhotoIndex(field) + 1 }}/{{ field.images.length }}</span>
                   </span>
                 </div>
 
-                <!-- Nom du terrain sur l'image (jusqu'à 2 lignes au lieu d'être coupé trop tôt) -->
-                <div class="absolute bottom-2.5 left-3.5 right-3.5">
+                <!-- Points indicateurs (Dots) en bas à droite du banner -->
+                <div *ngIf="field.images && field.images.length > 1" class="absolute bottom-2.5 right-3.5 flex items-center gap-1 z-10 pointer-events-none">
+                  <span *ngFor="let dot of field.images; let dIdx = index"
+                        class="h-1 rounded-full transition-all duration-300"
+                        [ngClass]="getCurrentPhotoIndex(field) === dIdx ? 'w-3 bg-emerald-400' : 'w-1 bg-white/40'"></span>
+                </div>
+
+                <!-- Nom du terrain sur l'image -->
+                <div class="absolute bottom-2.5 left-3.5 right-16 pointer-events-none">
                   <h3 class="text-base sm:text-lg font-black text-white drop-shadow-md line-clamp-2 leading-tight">{{ field.name }}</h3>
                 </div>
               </div>

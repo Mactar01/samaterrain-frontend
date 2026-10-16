@@ -257,6 +257,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return `${baseUrl}${clean}`;
   }
 
+  fieldPhotoIndex: { [fieldId: number]: number } = {};
+  private photoCarouselInterval: any = null;
+
+  startPhotoCarousel() {
+    if (this.photoCarouselInterval) {
+      clearInterval(this.photoCarouselInterval);
+    }
+    this.photoCarouselInterval = setInterval(() => {
+      if (!this.fields || this.fields.length === 0) return;
+      let hasChanges = false;
+      for (const field of this.fields) {
+        const photos = this.getFieldPhotos(field);
+        if (photos.length > 1) {
+          const currentIdx = this.fieldPhotoIndex[field.id] || 0;
+          this.fieldPhotoIndex[field.id] = (currentIdx + 1) % photos.length;
+          hasChanges = true;
+        }
+      }
+      if (hasChanges) {
+        this.cdr.detectChanges();
+      }
+    }, 2000);
+  }
+
+  getFieldPhotos(field: Field): string[] {
+    if (!field) return [];
+    if (field.images && field.images.length > 0) {
+      return field.images.map(img => this.getImageUrl(img.url));
+    }
+    const single = this.getFieldPhoto(field);
+    return single ? [single] : [];
+  }
+
+  getCurrentPhotoIndex(field: Field): number {
+    const photos = this.getFieldPhotos(field);
+    if (photos.length <= 1) return 0;
+    return (this.fieldPhotoIndex[field.id] || 0) % photos.length;
+  }
+
   formatPrice(price: any): string {
     if (!price) return '0';
     const num = Math.round(Number(price) || 0);
@@ -307,6 +346,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.fields = data || [];
         this.isLoadingFields = false;
+        this.startPhotoCarousel();
         this.cdr.detectChanges();
       },
       error: () => {
@@ -652,6 +692,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.notifInterval) {
       clearInterval(this.notifInterval);
+    }
+    if (this.photoCarouselInterval) {
+      clearInterval(this.photoCarouselInterval);
     }
   }
 }
