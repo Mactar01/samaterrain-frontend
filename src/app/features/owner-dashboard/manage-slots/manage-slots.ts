@@ -89,7 +89,8 @@ export class ManageSlotsComponent implements OnInit {
   };
 
   viewMode: 'list' | 'calendar' = 'list';
-  calendarHours = Array.from({length: 16}, (_, i) => i + 8); // 8:00 to 23:00
+  // De 08h00 à 02h00 du matin (19 heures)
+  calendarHours = Array.from({length: 19}, (_, i) => ((i + 8) % 24).toString().padStart(2, '0'));
 
   get availableCount() { return this.slots.filter(s => s.status === 'available').length; }
   get reservedCount() { return this.slots.filter(s => s.status === 'reserved').length; }
@@ -97,20 +98,37 @@ export class ManageSlotsComponent implements OnInit {
   // Calendar Helpers
   getSlotTop(time: string): string {
     if (!time) return '0px';
-    const [h, m] = time.split(':').map(Number);
+    let [h, m] = time.split(':').map(Number);
+    // Les créneaux de fin de nuit (00h, 01h, 02h, etc.) se placent après 23h
+    if (h < 6) {
+      h += 24;
+    }
     const top = ((h - 8) * 60) + m;
-    return `${top}px`;
+    return `${Math.max(0, top)}px`;
   }
 
   getSlotHeight(start: string, end: string): string {
     if (!start || !end) return '60px';
-    const [h1, m1] = start.split(':').map(Number);
+    let [h1, m1] = start.split(':').map(Number);
     let [h2, m2] = end.split(':').map(Number);
-    if (h2 === 0 && h1 > 0) {
-      h2 = 24;
-    }
+    if (h1 < 6) h1 += 24;
+    if (h2 < 6 || h2 === 0) h2 += 24;
+    if (h2 < h1) h2 += 24;
     const dur = ((h2 - h1) * 60) + (m2 - m1);
     return `${Math.max(30, dur)}px`;
+  }
+
+  sortSlotsChronologically(slots: any[]): any[] {
+    if (!slots) return [];
+    return [...slots].sort((a, b) => {
+      const getWeight = (time: string) => {
+        if (!time) return 0;
+        let [h, m] = time.split(':').map(Number);
+        if (h < 6) h += 24;
+        return h * 60 + m;
+      };
+      return getWeight(a.start_time) - getWeight(b.start_time);
+    });
   }
 
 
@@ -187,8 +205,9 @@ export class ManageSlotsComponent implements OnInit {
     this.isLoading = true;
     this.fieldService.getSlots(this.fieldId, this.selectedDate).subscribe({
       next: (data: any) => {
-        this.slots = data;
-        this.slotsByDate[this.selectedDate] = data;
+        const sorted = this.sortSlotsChronologically(data || []);
+        this.slots = sorted;
+        this.slotsByDate[this.selectedDate] = sorted;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -346,11 +365,13 @@ export class ManageSlotsComponent implements OnInit {
   estimateSlots(): number {
     if (!this.bulk.startDate || !this.bulk.endDate || !this.bulk.openTime || !this.bulk.closeTime) return 0;
     const [oh, om] = this.bulk.openTime.split(':').map(Number);
-    let [ch, cm] = this.bulk.closeTime.split(':').map(Number);
-    if (ch === 0 && oh > 0) {
-      ch = 24;
+    const [ch, cm] = this.bulk.closeTime.split(':').map(Number);
+    let openTotal = (oh * 60) + om;
+    let closeTotal = (ch * 60) + cm;
+    if (closeTotal <= openTotal) {
+      closeTotal += 24 * 60;
     }
-    const totalMins = (ch * 60 + cm) - (oh * 60 + om);
+    const totalMins = closeTotal - openTotal;
     if (totalMins <= 0) return 0;
     const slotsPerDay = Math.floor(totalMins / this.bulk.durationMinutes);
     const start = new Date(this.bulk.startDate);

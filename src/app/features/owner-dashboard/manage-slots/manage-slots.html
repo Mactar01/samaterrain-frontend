@@ -260,8 +260,8 @@
                 </div>
               </div>
 
-              <!-- Grille des heures -->
-              <div class="relative flex h-[960px]"> <!-- 16 hours * 60px = 960px -->
+              <!-- Grille des heures (adaptée dynamiquement aux heures de jour et de nuit) -->
+              <div class="relative flex" [style.height]="(calendarHours.length * 60) + 'px'">
                 <!-- Colonne Heures -->
                 <div class="w-16 flex-shrink-0 border-r border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 relative">
                   <div *ngFor="let h of calendarHours; let i = index" 
