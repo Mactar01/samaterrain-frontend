@@ -6,7 +6,8 @@ import {
   TeamResponse,
   PermissionsMatrixResponse,
   MyPermissionsResponse,
-  TeamMember
+  TeamMember,
+  CollaboratorAdditionalInfo
 } from '../models/owner-team.model';
 
 @Injectable({
@@ -48,6 +49,7 @@ export class OwnerTeamService {
     role: string;
     permissions?: string[];
     password?: string;
+    additional_info?: CollaboratorAdditionalInfo;
   }): Observable<{ message: string; collaborator: TeamMember }> {
     return this.http.post<{ message: string; collaborator: TeamMember }>(
       `${this.apiUrl}/owner/team`,
@@ -115,6 +117,48 @@ export class OwnerTeamService {
   deleteCustomRole(roleId: string): Observable<{ message: string; roles: any[] }> {
     return this.http.delete<{ message: string; roles: any[] }>(
       `${this.apiUrl}/owner/team/custom-roles/${roleId}`
+    );
+  }
+
+  /**
+   * Mettre à jour les informations complémentaires d'un collaborateur (par le gérant)
+   */
+  updateAdditionalInfo(
+    id: number,
+    additional_info: CollaboratorAdditionalInfo
+  ): Observable<{ message: string; additional_info: CollaboratorAdditionalInfo }> {
+    return this.http.put<{ message: string; additional_info: CollaboratorAdditionalInfo }>(
+      `${this.apiUrl}/owner/team/${id}/additional-info`,
+      { additional_info }
+    );
+  }
+
+  /**
+   * Consulter ses propres informations complémentaires (par le collaborateur connecté)
+   */
+  getMyCollaboratorProfile(): Observable<{
+    user: { id: number; name: string; email: string; phone: string };
+    additional_info: CollaboratorAdditionalInfo | null;
+    role: string;
+    role_label: string;
+  }> {
+    return this.http.get<{
+      user: { id: number; name: string; email: string; phone: string };
+      additional_info: CollaboratorAdditionalInfo | null;
+      role: string;
+      role_label: string;
+    }>(`${this.apiUrl}/owner/me/collaborator-profile`);
+  }
+
+  /**
+   * Mettre à jour ses propres informations complémentaires (par le collaborateur connecté)
+   */
+  updateMyCollaboratorProfile(
+    additional_info: CollaboratorAdditionalInfo
+  ): Observable<{ message: string; additional_info: CollaboratorAdditionalInfo }> {
+    return this.http.put<{ message: string; additional_info: CollaboratorAdditionalInfo }>(
+      `${this.apiUrl}/owner/me/collaborator-profile`,
+      { additional_info }
     );
   }
 }

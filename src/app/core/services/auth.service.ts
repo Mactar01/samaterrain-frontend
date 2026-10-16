@@ -108,29 +108,67 @@ export class AuthService {
   hasPermission(permission: string): boolean {
     const user = this.currentUserValue;
     if (!user) return false;
-    // Super admin a tous les droits
+
+    // 1. Super admin plateforme a tous les droits
     if (user.role === 'admin') {
       return true;
     }
-    // Si c'est explicitement un collaborateur invité non titulaire
+
+    // 2. Compte titulaire fondateur du complexe (owner_master)
+    if (user.owner?.is_primary === true) {
+      return true;
+    }
+
+    // 3. Collaborateur d'un complexe : vérification stricte de ses permissions
     if (user.owner && user.owner.is_primary === false) {
       const perms = user.owner.permissions;
       return Array.isArray(perms) ? perms.includes(permission) : false;
     }
-    // Tout propriétaire loueur (owner) ou compte titulaire a tous les droits par défaut
-    if (user.role === 'owner' || user.owner?.is_primary === true) {
-      return true;
-    }
+
+    // 4. Par sécurité : si permissions sont explicitement définies sur owner
     const perms = user.owner?.permissions;
-    if (Array.isArray(perms)) {
+    if (Array.isArray(perms) && perms.length > 0) {
       return perms.includes(permission);
     }
+
+    // 5. Fail-closed (comme Eyassur) : sans droit explicite, accès refusé
     return false;
   }
 
   hasAnyPermission(permissions: string[]): boolean {
     if (!permissions || permissions.length === 0) return true;
     return permissions.some(p => this.hasPermission(p));
+  }
+
+  hasAllPermissions(permissions: string[]): boolean {
+    if (!permissions || permissions.length === 0) return true;
+    return permissions.every(p => this.hasPermission(p));
+  }
+
+  getUserRoleLabel(user: User | null = this.currentUserValue): string {
+    if (!user) return 'Utilisateur';
+    if (user.role === 'admin') return 'Super Administrateur';
+    if (user.role === 'player') return 'Joueur';
+    if (user.role === 'owner') {
+      if (user.owner?.role_label) return user.owner.role_label;
+      if (user.owner?.is_primary) return 'Gérant Propriétaire (Principal)';
+      const role = user.owner?.role;
+      switch (role) {
+        case 'manager':
+          return 'Administrateur Complexe';
+        case 'receptionist':
+          return 'Accueil / Réceptionniste';
+        case 'field_staff':
+          return 'Responsable Terrain';
+        case 'accountant':
+          return 'Comptable / Gestionnaire';
+        case 'custom':
+          return 'Rôle Sur-Mesure';
+        default:
+          return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Collaborateur';
+      }
+    }
+    return user.role;
   }
 
   isBlocked(): boolean {

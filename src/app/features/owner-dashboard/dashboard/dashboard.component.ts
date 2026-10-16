@@ -87,21 +87,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   goToCreateField() {
+    if (!this.canAccess('fields:manage')) return;
     this.router.navigate(['/dashboard/fields/new']);
   }
 
   goToSlots(fieldId?: number) {
+    if (!this.canAccess('slots:manage')) return;
     if (fieldId) {
       this.router.navigate(['/dashboard/fields', fieldId, 'slots']);
     } else if (this.fields && this.fields.length > 0) {
       this.router.navigate(['/dashboard/fields', this.fields[0].id, 'slots']);
-    } else {
+    } else if (this.canAccess('fields:manage')) {
       this.setTab('fields');
     }
   }
 
   get avatarUrl(): string | null {
     return this.authService.getAvatarUrl(this.user?.avatar);
+  }
+
+  getUserRoleLabel(): string {
+    return this.authService.getUserRoleLabel(this.user);
   }
 
   ngOnInit() {
@@ -124,6 +130,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   setTab(tab: string) {
+    if (tab === 'fields' && !this.canAccess('fields:manage')) return;
+    if (tab === 'stats' && !this.canAccess('accounting:view')) return;
+    if (tab === 'branding' && !this.canAccess('settings:manage')) return;
     this.activeTab = tab;
   }
 
@@ -216,13 +225,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       rights: ['accounting:view']
     },
     {
-      title: 'Gestion Utilisateurs',
+      title: 'Gestion Utilisateurs (Teams)',
       type: 'team',
-      link: '/dashboard/settings',
-      queryParams: { tab: 'team' },
+      link: '/dashboard/team',
       icon: 'ph ph-users-three',
-      bgClass: 'bg-indigo-50 dark:bg-indigo-950/60',
-      textClass: 'text-indigo-600 dark:text-indigo-400',
+      bgClass: 'bg-slate-100 dark:bg-slate-800',
+      textClass: 'text-slate-700 dark:text-slate-300',
       rights: ['team:manage']
     },
     {

@@ -1,0 +1,1383 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6 lg:p-8 space-y-6">
+
+  <!-- ===================================================================== -->
+  <!-- HEADER & BREADCRUMB -->
+  <!-- ===================================================================== -->
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      
+      <!-- Titre & Contexte -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-3">
+          <a routerLink="/dashboard" 
+             class="inline-flex items-center justify-center w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60 transition shadow-xs"
+             title="Retour au tableau de bord">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </a>
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <a routerLink="/dashboard" class="hover:text-slate-800 dark:hover:text-slate-200 transition">Espace Partenaire</a>
+            <span>/</span>
+            <span class="text-slate-900 dark:text-white font-bold">Teams & Rôles</span>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shrink-0"
+               [style.backgroundColor]="branding.primaryColor">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Gestion Utilisateur & Rôles
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Pilotez l'équipe de <strong class="text-slate-800 dark:text-slate-200">{{ businessName || branding.businessName || 'votre complexe' }}</strong>, attribuez les profils et personnalisez les autorisations d'accès.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Rapides -->
+      <div class="flex flex-wrap items-center gap-3">
+        <app-dark-mode-toggle></app-dark-mode-toggle>
+        <app-notification-bell></app-notification-bell>
+
+        <button
+          type="button"
+          (click)="openCreateRoleModal()"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition shadow-xs cursor-pointer active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          <span>Créer un Rôle</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="openAddMemberModal()"
+          class="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-white text-xs sm:text-sm font-bold transition shadow-md cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          <span>+ Nouveau Collaborateur</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Navigation par Sous-Onglets (Teams) -->
+    <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-2">
+      
+      <!-- Sous-Onglet 1: Profils / Collaborateurs -->
+      <button
+        type="button"
+        (click)="setTab('members')"
+        [ngClass]="activeTab === 'members'
+          ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white font-bold shadow-xs'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 font-medium'"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <span>Profils & Collaborateurs</span>
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+          {{ teamMembers.length }}
+        </span>
+      </button>
+
+      <!-- Sous-Onglet 2: Rôles du Complexe -->
+      <button
+        type="button"
+        (click)="setTab('roles')"
+        [ngClass]="activeTab === 'roles'
+          ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white font-bold shadow-xs'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 font-medium'"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        <span>Rôles du Complexe</span>
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+          {{ allRoles.length }}
+        </span>
+      </button>
+
+      <!-- Sous-Onglet 3: Catalogue des Droits -->
+      <button
+        type="button"
+        (click)="setTab('permissions')"
+        [ngClass]="activeTab === 'permissions'
+          ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white font-bold shadow-xs'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 font-medium'"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span>Catalogue des Droits</span>
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+          {{ availablePermissions.length }}
+        </span>
+      </button>
+
+      <!-- Sous-Onglet 4: Assigner des Droits -->
+      <button
+        type="button"
+        (click)="setTab('assign')"
+        [ngClass]="activeTab === 'assign'
+          ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white font-bold shadow-xs'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 font-medium'"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        <span>Assigner des Droits</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Squelette de chargement -->
+  <div *ngIf="isLoading" class="space-y-4">
+    <div class="h-16 bg-white dark:bg-slate-900 rounded-3xl animate-pulse"></div>
+    <div class="h-96 bg-white dark:bg-slate-900 rounded-3xl animate-pulse"></div>
+  </div>
+
+  <div *ngIf="!isLoading" class="space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- ONGLET 1 : PROFILS & COLLABORATEURS (MEMBRES ACTIFS ÉPURÉ SANS RAINBOW) -->
+    <!-- ===================================================================== -->
+    <div *ngIf="activeTab === 'members'" class="space-y-6 animate-fade-in">
+
+      <!-- Métriques de synthèse sobres (2 couleurs max + ardoise) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Collaborateurs</p>
+            <p class="text-lg font-black text-slate-900 dark:text-white">{{ totalMembersCount }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Comptes Actifs</p>
+            <p class="text-lg font-black text-slate-900 dark:text-white">{{ activeMembersCount }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Dossiers à Compléter</p>
+            <p class="text-lg font-black text-slate-900 dark:text-white">{{ incompleteProfilesCount }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Rôles Attribués</p>
+            <p class="text-lg font-black text-slate-900 dark:text-white">{{ allRoles.length }}</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barre de Recherche & Filtres -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        
+        <div class="relative w-full sm:w-80">
+          <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchMemberQuery"
+            placeholder="Rechercher par nom, email, CNI, poste..."
+            class="w-full pl-9 pr-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400">
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <label class="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">Filtrer :</label>
+          <select
+            [(ngModel)]="memberStatusFilter"
+            class="px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+            <option value="all">Tous les membres ({{ teamMembers.length }})</option>
+            <option value="active">Comptes actifs uniquement ({{ activeMembersCount }})</option>
+            <option value="inactive">Comptes suspendus ({{ teamMembers.length - activeMembersCount }})</option>
+            <option value="incomplete">Dossiers à compléter ({{ incompleteProfilesCount }})</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- TABLEAU DES MEMBRES ACTIFS (ÉPURÉ, 2 COULEURS BRANDING + NEUTRE)    -->
+      <!-- =================================================================== -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            
+            <thead class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+              <tr>
+                <th scope="col" class="py-4 px-5">Collaborateur & Contact</th>
+                <th scope="col" class="py-4 px-5">Poste & Pièce d'Identité</th>
+                <th scope="col" class="py-4 px-5">Contact d'Urgence & Adresse</th>
+                <th scope="col" class="py-4 px-5">Rôle & Droits Actifs</th>
+                <th scope="col" class="py-4 px-5">Dossier & Ancienneté</th>
+                <th scope="col" class="py-4 px-5 text-right">Statut & Actions</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+              
+              <tr *ngFor="let member of filteredMembers" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                
+                <!-- Colonne 1: Collaborateur & Contact -->
+                <td class="py-4 px-5 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 select-none border border-slate-200 dark:border-slate-700 shadow-xs"
+                         [ngClass]="member.is_primary ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'"
+                         [style.backgroundColor]="member.is_primary ? branding.primaryColor : null">
+                      <span *ngIf="member.is_primary">👑</span>
+                      <span *ngIf="!member.is_primary">{{ member.name.charAt(0) | uppercase }}</span>
+                    </div>
+
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-900 dark:text-white text-sm">{{ member.name }}</span>
+                        <span *ngIf="member.is_primary"
+                              class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          Titulaire
+                        </span>
+                      </div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <span>{{ member.email }}</span>
+                        <span *ngIf="member.phone">• {{ member.phone }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Colonne 2: Poste & Pièce d'Identité -->
+                <td class="py-4 px-5 whitespace-nowrap">
+                  <div class="space-y-1">
+                    <p class="font-bold text-slate-800 dark:text-slate-200 text-xs">
+                      {{ member.additional_info?.job_title || member.role_label }}
+                    </p>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] text-slate-400 font-medium">CNI/Pass :</span>
+                      <span *ngIf="member.additional_info?.cni_number"
+                            class="font-mono text-[11px] font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                        {{ member.additional_info?.cni_number }}
+                      </span>
+                      <span *ngIf="!member.additional_info?.cni_number" class="text-[11px] text-slate-400 italic">
+                        Non renseigné
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Colonne 3: Contact d'Urgence & Adresse -->
+                <td class="py-4 px-5">
+                  <div class="space-y-1 max-w-[200px]">
+                    <div *ngIf="member.additional_info?.emergency_contact_name || member.additional_info?.emergency_contact_phone" class="text-xs">
+                      <span class="font-semibold text-slate-700 dark:text-slate-300 truncate block">
+                        {{ member.additional_info?.emergency_contact_name || 'Contact urgence' }}
+                      </span>
+                      <span class="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                        {{ member.additional_info?.emergency_contact_phone || '-' }}
+                      </span>
+                    </div>
+                    <div *ngIf="!member.additional_info?.emergency_contact_name && !member.additional_info?.emergency_contact_phone" class="text-[11px] text-slate-400 italic">
+                      Aucun contact d'urgence
+                    </div>
+                    <div *ngIf="member.additional_info?.address" class="text-[10px] text-slate-400 truncate">
+                      📍 {{ member.additional_info?.address }}
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Colonne 4: Rôle & Droits Actifs -->
+                <td class="py-4 px-5 whitespace-nowrap">
+                  <div class="space-y-1.5">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span>{{ member.role_label }}</span>
+                    </span>
+
+                    <div>
+                      <button
+                        type="button"
+                        (click)="openPermissionsModal(member)"
+                        class="text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline decoration-dotted transition cursor-pointer">
+                        {{ member.is_primary ? 'Tous les droits (Admin)' : (member.permissions.length || 0) + ' droit(s) actif(s)' }}
+                      </button>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Colonne 5: Dossier & Ancienneté -->
+                <td class="py-4 px-5 whitespace-nowrap">
+                  <div class="space-y-1">
+                    <!-- Statut du dossier -->
+                    <div *ngIf="isProfileCompleted(member)" class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500"></span>
+                      <span>Dossier complet</span>
+                    </div>
+                    
+                    <div *ngIf="!isProfileCompleted(member)" class="flex items-center gap-1.5">
+                      <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        À compléter
+                      </span>
+                      <button
+                        *ngIf="!member.is_primary"
+                        type="button"
+                        (click)="openAdditionalInfoModal(member)"
+                        class="text-[11px] font-bold hover:underline cursor-pointer"
+                        [style.color]="branding.primaryColor">
+                        Compléter
+                      </button>
+                    </div>
+
+                    <p class="text-[10px] text-slate-400">
+                      Depuis le {{ member.created_at }}
+                    </p>
+                  </div>
+                </td>
+
+                <!-- Colonne 6: Statut & Actions -->
+                <td class="py-4 px-5 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    
+                    <!-- Toggle Actif / Inactif -->
+                    <button
+                      *ngIf="!member.is_primary"
+                      type="button"
+                      (click)="toggleMemberStatus(member)"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                      [ngClass]="member.is_active ? 'bg-slate-900 dark:bg-slate-700' : 'bg-slate-200 dark:bg-slate-800'"
+                      [title]="member.is_active ? 'Suspendre l\'accès' : 'Activer l\'accès'">
+                      <span
+                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                        [ngClass]="member.is_active ? 'translate-x-4' : 'translate-x-0'"></span>
+                    </button>
+
+                    <!-- Bouton Fiche & Infos Complémentaires -->
+                    <button
+                      *ngIf="!member.is_primary"
+                      type="button"
+                      (click)="openAdditionalInfoModal(member)"
+                      title="Gérer la fiche & informations complémentaires"
+                      class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                      </svg>
+                    </button>
+
+                    <!-- Bouton Modifier Rôle & Droits -->
+                    <button
+                      *ngIf="!member.is_primary"
+                      type="button"
+                      (click)="openEditMemberModal(member)"
+                      title="Modifier le rôle ou les droits"
+                      class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+
+                    <!-- Bouton Retirer -->
+                    <button
+                      *ngIf="!member.is_primary"
+                      type="button"
+                      (click)="removeMember(member)"
+                      title="Retirer du complexe"
+                      class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+
+                    <span *ngIf="member.is_primary" class="text-[11px] text-slate-400 italic pr-2">
+                      Compte Maître
+                    </span>
+
+                  </div>
+                </td>
+
+              </tr>
+
+              <tr *ngIf="filteredMembers.length === 0">
+                <td colspan="6" class="py-12 text-center text-slate-400">
+                  <div class="max-w-xs mx-auto space-y-2">
+                    <svg class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p class="font-bold text-slate-700 dark:text-slate-300 text-sm">Aucun collaborateur trouvé</p>
+                    <p class="text-xs text-slate-400">Modifiez vos critères de recherche ou ajoutez un nouveau collaborateur.</p>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- ONGLET 2 : RÔLES DU COMPLEXE                                          -->
+    <!-- ===================================================================== -->
+    <div *ngIf="activeTab === 'roles'" class="space-y-6 animate-fade-in">
+      
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">Rôles système & personnalisés</h2>
+          <p class="text-xs text-slate-500">Chaque collaborateur hérite des droits configurés pour son rôle.</p>
+        </div>
+        <button
+          type="button"
+          (click)="openCreateRoleModal()"
+          class="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold text-white transition cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          + Nouveau Rôle
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div *ngFor="let role of allRoles"
+             class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+          
+          <div class="space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                {{ role.label }}
+              </span>
+              <span class="text-[11px] font-semibold text-slate-400">
+                {{ getMembersCountForRole(role.role) }} membre(s)
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              {{ role.description }}
+            </p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400">Permissions actives :</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ role.permissions.length }} droit(s)</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1">
+              <button
+                type="button"
+                (click)="switchToAssignRole(role.role)"
+                class="flex-1 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-xs font-bold text-slate-700 dark:text-slate-200 transition text-center cursor-pointer">
+                Gérer les droits
+              </button>
+
+              <button
+                *ngIf="role.is_custom"
+                type="button"
+                (click)="openEditRoleModal(role)"
+                title="Modifier l'intitulé"
+                class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+
+              <button
+                *ngIf="role.is_custom"
+                type="button"
+                (click)="deleteRole(role.role, role.label)"
+                title="Supprimer ce rôle"
+                class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- ONGLET 3 : CATALOGUE DES DROITS                                       -->
+    <!-- ===================================================================== -->
+    <div *ngIf="activeTab === 'permissions'" class="space-y-6 animate-fade-in">
+      
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="relative w-full sm:w-80">
+          <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchCataloguePermissions"
+            placeholder="Rechercher une permission ou clé..."
+            class="w-full pl-9 pr-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <label class="text-xs text-slate-400 shrink-0">Module :</label>
+          <select
+            [(ngModel)]="permissionGroupFilter"
+            class="px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+            <option value="all">Tous les modules</option>
+            <option *ngFor="let g of permissionGroups" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let perm of cataloguePermissions"
+             class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-3">
+          
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                {{ perm.group }}
+              </span>
+              <code class="text-[11px] font-mono text-slate-400">{{ perm.key }}</code>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm pt-1">{{ perm.label }}</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ perm.description }}</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block mb-1.5">Rôles détenteurs :</span>
+            <div class="flex flex-wrap gap-1">
+              <span *ngFor="let roleLabel of getRolesWithPermission(perm.key)"
+                    class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                {{ roleLabel }}
+              </span>
+              <span *ngIf="getRolesWithPermission(perm.key).length === 0" class="text-[10px] text-slate-400 italic">
+                Aucun rôle assigné
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- ONGLET 4 : ASSIGNER DES DROITS (INSPIRÉ EYASSUR)                      -->
+    <!-- ===================================================================== -->
+    <div *ngIf="activeTab === 'assign'" class="space-y-6 animate-fade-in">
+      
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Sélectionnez le rôle à configurer</h3>
+          <p class="text-xs text-slate-500">Cochez ou décochez les droits que vous souhaitez attribuer à ce rôle.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            *ngFor="let role of allRoles"
+            type="button"
+            (click)="selectRole(role.role)"
+            [ngClass]="selectedRoleId === role.role
+              ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white font-bold shadow-xs'
+              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'"
+            class="px-4 py-2 rounded-2xl text-xs transition cursor-pointer">
+            {{ role.label }}
+            <span class="ml-1 text-[10px] opacity-70">({{ role.permissions.length }})</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Zone de gestion des permissions pour le rôle sélectionné -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>Droits attribués à : </span>
+              <span class="px-2.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs">
+                {{ selectedRole?.label }}
+              </span>
+            </h4>
+            <p class="text-xs text-slate-500 mt-0.5">{{ selectedRole?.description }}</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              (click)="unassignAllRolePermissions()"
+              class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition cursor-pointer">
+              Tout décocher
+            </button>
+
+            <button
+              type="button"
+              (click)="saveRoleRights()"
+              [disabled]="isSavingRoleRights"
+              class="px-5 py-2 rounded-2xl text-white text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95"
+              [style.backgroundColor]="branding.primaryColor">
+              {{ isSavingRoleRights ? 'Enregistrement...' : 'Enregistrer les droits' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Recherche rapide de permission -->
+        <div class="relative w-full sm:w-96">
+          <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchAllPermissions"
+            placeholder="Filtrer les permissions à cocher..."
+            class="w-full pl-9 pr-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+        </div>
+
+        <!-- Liste des droits avec Cases à Cocher -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div
+            *ngFor="let perm of filteredAvailablePermissions"
+            (click)="togglePermission(perm.key)"
+            class="p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none"
+            [ngClass]="isCheckedPermission(perm.key)
+              ? 'border-slate-900 dark:border-slate-400 bg-slate-50 dark:bg-slate-800/70 shadow-xs'
+              : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'">
+            
+            <input
+              type="checkbox"
+              [checked]="isCheckedPermission(perm.key)"
+              (click)="$event.stopPropagation()"
+              (change)="togglePermission(perm.key)"
+              class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400 cursor-pointer">
+
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs text-slate-900 dark:text-white">{{ perm.label }}</span>
+                <span class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                  {{ perm.group }}
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{{ perm.description }}</p>
+              <code class="text-[10px] font-mono text-slate-400 block pt-0.5">{{ perm.key }}</code>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 1 : NOUVEAU COLLABORATEUR (STEPPER 2 ÉTAPES UNIFIÉ)                 -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showAddMemberModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-scale-in">
+      
+      <!-- En-tête de la modale avec Stepper -->
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shrink-0 shadow-sm"
+                 [style.backgroundColor]="branding.primaryColor">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-black text-slate-900 dark:text-white">
+                Nouveau Collaborateur
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                {{ addMemberStep === 1 ? 'Étape 1 : Identifiants & Attribution de rôle' : 'Étape 2 : Dossier & Informations complémentaires' }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeAddMemberModal()"
+            class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+            ✕
+          </button>
+        </div>
+
+        <!-- Indicateur de Progression / Stepper -->
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <!-- Step 1 pill -->
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border transition-all"
+               [ngClass]="addMemberStep === 1
+                 ? 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 shadow-xs'
+                 : 'border-slate-100 dark:border-slate-800/50 opacity-60'">
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                  [ngClass]="addMemberStep === 1 ? 'text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'"
+                  [style.backgroundColor]="addMemberStep === 1 ? branding.primaryColor : ''">
+              1
+            </span>
+            <div class="overflow-hidden">
+              <p class="text-xs font-bold text-slate-900 dark:text-white truncate">Compte & Rôle</p>
+              <p class="text-[10px] text-slate-400 truncate">Nom, email, profil</p>
+            </div>
+          </div>
+
+          <!-- Step 2 pill -->
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border transition-all"
+               [ngClass]="addMemberStep === 2
+                 ? 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 shadow-xs'
+                 : 'border-slate-100 dark:border-slate-800/50 opacity-60'">
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                  [ngClass]="addMemberStep === 2 ? 'text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'"
+                  [style.backgroundColor]="addMemberStep === 2 ? branding.primaryColor : ''">
+              2
+            </span>
+            <div class="overflow-hidden">
+              <p class="text-xs font-bold text-slate-900 dark:text-white truncate">Fiche administrative</p>
+              <p class="text-[10px] text-slate-400 truncate">Poste, CNI, contact</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps : ÉTAPE 1 (Compte & Rôle) -->
+      <div *ngIf="addMemberStep === 1" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto animate-fade-in">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Nom complet du collaborateur *
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="newMember.name"
+            placeholder="Ex : Moussa Diop"
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Adresse Email (Connexion) *
+            </label>
+            <input
+              type="email"
+              [(ngModel)]="newMember.email"
+              placeholder="moussa@example.com"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Téléphone direct
+            </label>
+            <input
+              type="tel"
+              [(ngModel)]="newMember.phone"
+              placeholder="+221 77 000 00 00"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Rôle attribué au complexe *
+          </label>
+          <select
+            [(ngModel)]="newMember.role"
+            (change)="onNewMemberRoleChange(newMember.role)"
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
+            <option *ngFor="let role of allRoles" [value]="role.role">
+              {{ role.label }} ({{ role.permissions.length }} droit(s))
+            </option>
+            <option value="custom">Rôle sur-mesure (Sélection libre des permissions)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Mot de passe provisoire
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="newMember.password"
+            placeholder="Laisser vide pour mot de passe par défaut"
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1">Par défaut : <code class="font-bold">Pass1234!</code> (l'utilisateur sera invité à le modifier)</p>
+        </div>
+      </div>
+
+      <!-- Corps : ÉTAPE 2 (Fiche & Informations Complémentaires) -->
+      <div *ngIf="addMemberStep === 2" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto animate-fade-in">
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2.5">
+          <span class="text-base">📋</span>
+          <div>
+            <p class="font-bold text-slate-800 dark:text-slate-200">Dossier administratif de {{ newMember.name || 'nouveau collaborateur' }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Ces informations sont facultatives à la création et pourront être complétées ultérieurement.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Intitulé de poste / Fonction -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Intitulé de poste / Fonction
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.job_title"
+              placeholder="Ex : Responsable des réservations, Réceptionniste..."
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+
+          <!-- Numéro CNI / Passeport -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Numéro CNI / Passeport
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.cni_number"
+              placeholder="Ex : 1 751 1990 00123"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Date de prise de fonction -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Date de prise de fonction
+            </label>
+            <input
+              type="date"
+              [(ngModel)]="additionalInfoForm.hire_date"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+
+          <!-- Adresse de résidence -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Adresse de résidence / Ville
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.address"
+              placeholder="Ex : Sacré-Cœur 3, Dakar"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Contact d'Urgence -->
+        <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Contact en cas d'urgence
+          </label>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <input
+                type="text"
+                [(ngModel)]="additionalInfoForm.emergency_contact_name"
+                placeholder="Nom du proche / Lien (ex: Épouse, Père)"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none">
+            </div>
+            <div>
+              <input
+                type="tel"
+                [(ngModel)]="additionalInfoForm.emergency_contact_phone"
+                placeholder="Téléphone d'urgence"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Observations Internes -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Observations internes / Type de contrat
+          </label>
+          <textarea
+            [(ngModel)]="additionalInfoForm.notes"
+            rows="2"
+            placeholder="Ex : CDI temps plein, shift du matin, tenue fournie..."
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Pied de modale : BOUTONS RETOUR & SUIVANT DYNAMIQUES -->
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between gap-3">
+        
+        <!-- Pied pour Étape 1 -->
+        <ng-container *ngIf="addMemberStep === 1">
+          <button
+            type="button"
+            (click)="closeAddMemberModal()"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+            Annuler
+          </button>
+
+          <button
+            type="button"
+            (click)="nextAddMemberStep()"
+            [disabled]="!newMember.name || !newMember.email"
+            class="flex items-center gap-2 px-6 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95"
+            [style.backgroundColor]="branding.primaryColor">
+            <span>Suivant →</span>
+          </button>
+        </ng-container>
+
+        <!-- Pied pour Étape 2 -->
+        <ng-container *ngIf="addMemberStep === 2">
+          <!-- BOUTON RETOUR : Permet de revenir à l'étape 1 -->
+          <button
+            type="button"
+            (click)="prevAddMemberStep()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer shadow-xs active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>← Retour</span>
+          </button>
+
+          <div class="flex items-center gap-2.5">
+            <button
+              type="button"
+              (click)="submitNewMember(false)"
+              [disabled]="isSavingMember"
+              class="px-4 py-2.5 rounded-2xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition cursor-pointer">
+              Passer cette étape
+            </button>
+
+            <button
+              type="button"
+              (click)="submitNewMember(true)"
+              [disabled]="isSavingMember"
+              class="flex items-center gap-2 px-6 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95"
+              [style.backgroundColor]="branding.primaryColor">
+              <svg *ngIf="isSavingMember" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isSavingMember ? 'Création...' : 'Finaliser la création ✓' }}</span>
+            </button>
+          </div>
+        </ng-container>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 2 : FICHE COLLABORATEUR EXISTANT (CONSULTATION & ÉDITION)           -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showAdditionalInfoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-scale-in">
+      
+      <!-- En-tête de la modale -->
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shrink-0"
+               [style.backgroundColor]="branding.primaryColor">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-black text-slate-900 dark:text-white">
+              Fiche & Informations Complémentaires
+            </h3>
+            <p class="text-xs text-slate-500">
+              Dossier collaborateur de <strong class="text-slate-800 dark:text-slate-200">{{ selectedMemberForInfo?.name }}</strong>
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeAdditionalInfoModal()"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Intitulé de poste / Fonction -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Intitulé de poste / Fonction
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.job_title"
+              placeholder="Ex : Caissier principal, Hôte d'accueil..."
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+
+          <!-- Numéro CNI / Passeport -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Numéro CNI / Passeport
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.cni_number"
+              placeholder="Ex : 1 751 1990 00123"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Date de prise de fonction / embauche -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Date de prise de fonction
+            </label>
+            <input
+              type="date"
+              [(ngModel)]="additionalInfoForm.hire_date"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+
+          <!-- Adresse de résidence -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Adresse de résidence / Ville
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="additionalInfoForm.address"
+              placeholder="Ex : Sacré-Cœur 3, Dakar"
+              class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Contact d'Urgence -->
+        <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Contact en cas d'urgence
+          </label>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <input
+                type="text"
+                [(ngModel)]="additionalInfoForm.emergency_contact_name"
+                placeholder="Nom du proche / Lien (ex: Père)"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none">
+            </div>
+            <div>
+              <input
+                type="tel"
+                [(ngModel)]="additionalInfoForm.emergency_contact_phone"
+                placeholder="Téléphone d'urgence"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Internes / Type de Contrat -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Observations internes / Type de contrat
+          </label>
+          <textarea
+            [(ngModel)]="additionalInfoForm.notes"
+            rows="3"
+            placeholder="Ex : CDI temps plein, shift du matin, tenue fournie..."
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Pied de modale -->
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="closeAdditionalInfoModal()"
+          class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Fermer
+        </button>
+
+        <button
+          type="button"
+          (click)="saveAdditionalInfo()"
+          [disabled]="isSavingAdditionalInfo"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingAdditionalInfo ? 'Enregistrement...' : 'Enregistrer la fiche' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 3 : MODIFIER LE RÔLE & LES DROITS                                  -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showEditMemberModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-scale-in">
+      
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shrink-0"
+               [style.backgroundColor]="branding.primaryColor">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-black text-slate-900 dark:text-white">Modifier le Profil d'Accès</h3>
+            <p class="text-xs text-slate-500">{{ selectedMember?.name }} ({{ selectedMember?.email }})</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeEditMemberModal()"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Rôle du Complexe
+          </label>
+          <select
+            [(ngModel)]="editMemberForm.role"
+            (change)="onEditMemberRoleChange(editMemberForm.role)"
+            class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
+            <option *ngFor="let role of allRoles" [value]="role.role">
+              {{ role.label }} ({{ role.permissions.length }} droit(s))
+            </option>
+            <option value="custom">Rôle sur-mesure (Permissions personnalisées)</option>
+          </select>
+        </div>
+
+        <!-- Permissions en mode Rôle Custom -->
+        <div *ngIf="editMemberForm.role === 'custom'" class="space-y-2 pt-2">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Sélectionnez les permissions spécifiques :
+          </label>
+          
+          <div class="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+            <label *ngFor="let perm of availablePermissions" class="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-800 cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="isEditMemberPermissionSelected(perm.key)"
+                (change)="toggleEditMemberPermission(perm.key)"
+                class="rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+              <div class="leading-tight">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ perm.label }}</span>
+                <span class="text-[10px] text-slate-400 block">{{ perm.group }}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+          <div>
+            <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Statut du compte</p>
+            <p class="text-[11px] text-slate-400">Suspendre ou réactiver l'accès au complexe</p>
+          </div>
+          <button
+            type="button"
+            (click)="editMemberForm.is_active = !editMemberForm.is_active"
+            class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            [ngClass]="editMemberForm.is_active ? 'bg-slate-900 dark:bg-slate-700' : 'bg-slate-200 dark:bg-slate-800'">
+            <span
+              class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+              [ngClass]="editMemberForm.is_active ? 'translate-x-4' : 'translate-x-0'"></span>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="closeEditMemberModal()"
+          class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Annuler
+        </button>
+
+        <button
+          type="button"
+          (click)="saveEditMember()"
+          [disabled]="isSavingMember"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingMember ? 'Enregistrement...' : 'Enregistrer les droits' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 4 : CRÉER UN RÔLE PERSONNALISÉ                                     -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showCreateRoleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-scale-in">
+      
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="text-base font-black text-slate-900 dark:text-white">Créer un Nouveau Rôle</h3>
+        <button type="button" (click)="closeCreateRoleModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nom du rôle *</label>
+          <input type="text" [(ngModel)]="newRole.name" placeholder="Ex : Superviseur Soirée" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Description</label>
+          <input type="text" [(ngModel)]="newRole.description" placeholder="Description du périmètre" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Permissions assignées *</label>
+          <div class="max-h-52 overflow-y-auto space-y-1.5 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+            <label *ngFor="let perm of availablePermissions" class="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-800 cursor-pointer">
+              <input type="checkbox" [checked]="newRole.permissions.includes(perm.key)" (change)="toggleNewRolePermission(perm.key)" class="rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+              <div class="leading-tight">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ perm.label }}</span>
+                <span class="text-[10px] text-slate-400 block">{{ perm.group }}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-end gap-3">
+        <button type="button" (click)="closeCreateRoleModal()" class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">Annuler</button>
+        <button type="button" (click)="saveCustomRole()" [disabled]="isSavingNewRole || !newRole.name || newRole.permissions.length === 0" class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95" [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingNewRole ? 'Création...' : 'Créer le rôle' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 5 : MODIFIER UN RÔLE PERSONNALISÉ                                  -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showEditRoleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-scale-in">
+      
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="text-base font-black text-slate-900 dark:text-white">Modifier le Rôle Personnalisé</h3>
+        <button type="button" (click)="closeEditRoleModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nom du rôle *</label>
+          <input type="text" [(ngModel)]="editRoleForm.name" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Description</label>
+          <input type="text" [(ngModel)]="editRoleForm.description" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Permissions assignées *</label>
+          <div class="max-h-52 overflow-y-auto space-y-1.5 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+            <label *ngFor="let perm of availablePermissions" class="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-800 cursor-pointer">
+              <input type="checkbox" [checked]="editRoleForm.permissions.includes(perm.key)" (change)="toggleEditRolePermission(perm.key)" class="rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+              <div class="leading-tight">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ perm.label }}</span>
+                <span class="text-[10px] text-slate-400 block">{{ perm.group }}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-end gap-3">
+        <button type="button" (click)="closeEditRoleModal()" class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">Annuler</button>
+        <button type="button" (click)="saveUpdatedCustomRole()" [disabled]="isSavingEditRole || !editRoleForm.name" class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer disabled:opacity-50 active:scale-95" [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingEditRole ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE 6 : VOIR LE DÉTAIL DES PERMISSIONS D'UN COLLABORATEUR              -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showPermissionsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-scale-in">
+      
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-black text-slate-900 dark:text-white">Droits & Accès Accordés</h3>
+          <p class="text-xs text-slate-500">{{ memberForPermissionsView?.name }} • {{ memberForPermissionsView?.role_label }}</p>
+        </div>
+        <button type="button" (click)="closePermissionsModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-6 max-h-[60vh] overflow-y-auto space-y-3">
+        <div *ngIf="memberForPermissionsView?.is_primary" class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300">
+          👑 <strong>Compte Maître Titulaire :</strong> Accès total et irrévocable à l'ensemble des modules, réglages stratégiques et opérations financières de ce complexe.
+        </div>
+
+        <div *ngIf="!memberForPermissionsView?.is_primary" class="space-y-2">
+          <div *ngFor="let permKey of memberForPermissionsView?.permissions" class="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-start gap-2.5">
+            <span class="text-slate-400 text-sm mt-0.5">✓</span>
+            <div>
+              <p class="text-xs font-bold text-slate-900 dark:text-white">{{ getPermissionDetail(permKey)?.label || permKey }}</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ getPermissionDetail(permKey)?.description }}</p>
+              <span class="text-[9px] font-mono text-slate-400 block pt-0.5">{{ permKey }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="(memberForPermissionsView?.permissions?.length || 0) === 0" class="text-center py-6 text-slate-400 text-xs">
+            Aucun droit actif pour ce profil.
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex justify-end">
+        <button type="button" (click)="closePermissionsModal()" class="px-5 py-2 rounded-2xl text-xs font-bold bg-slate-900 text-white dark:bg-slate-700 dark:text-white cursor-pointer">Fermer</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

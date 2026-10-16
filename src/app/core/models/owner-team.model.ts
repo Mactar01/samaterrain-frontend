@@ -23,6 +23,18 @@ export interface CustomRole {
   created_at?: string;
 }
 
+export interface CollaboratorAdditionalInfo {
+  cni_number?: string;
+  address?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  job_title?: string;
+  hire_date?: string;
+  notes?: string;
+  profile_completed?: boolean;
+  completed_at?: string;
+}
+
 export interface TeamMember {
   id: number;
   user_id: number;
@@ -35,6 +47,7 @@ export interface TeamMember {
   is_active: boolean;
   is_primary: boolean;
   created_at: string;
+  additional_info?: CollaboratorAdditionalInfo | null;
 }
 
 export interface TeamResponse {

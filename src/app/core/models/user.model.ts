@@ -17,6 +17,7 @@ export interface User {
     is_verified?: boolean;
     is_primary?: boolean;
     role?: string;
+    role_label?: string;
     permissions?: string[];
   };
 }

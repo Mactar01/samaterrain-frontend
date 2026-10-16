@@ -1,18 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { OwnerTeamService } from '../../../core/services/owner-team.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
 import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 import { formatApiError } from '../../../core/utils/error-formatter';
+import { CollaboratorAdditionalInfo } from '../../../core/models/owner-team.model';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, DarkModeToggleComponent, NotificationBellComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, DarkModeToggleComponent, NotificationBellComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
@@ -41,9 +43,51 @@ export class ProfileComponent implements OnInit {
     return branding.coverUrl || branding.customBgUrl || null;
   }
 
+  get roleLabel(): string {
+    return this.authService.getUserRoleLabel(this.user);
+  }
+
+  get isPrimaryOwner(): boolean {
+    return this.user?.owner?.is_primary === true;
+  }
+
+  get userRoleKey(): string {
+    return this.user?.owner?.role || (this.isPrimaryOwner ? 'owner_master' : 'collaborator');
+  }
+
+  get userPermissions(): string[] {
+    return this.user?.owner?.permissions || [];
+  }
+
+  getPermissionLabel(perm: string): string {
+    const labels: Record<string, string> = {
+      'fields:manage': 'Gestion des Terrains',
+      'slots:manage': 'Créneaux & Tarifs',
+      'reservations:manage': 'Réservations & Encaissements',
+      'accounting:view': 'Comptabilité & Export CSV',
+      'settings:manage': 'Paramétrage Stratégique',
+      'team:manage': 'Gestion de l\'Équipe (Teams)'
+    };
+    return labels[perm] || perm;
+  }
+
+  collaboratorInfo: CollaboratorAdditionalInfo = {
+    cni_number: '',
+    address: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
+    job_title: '',
+    hire_date: '',
+    notes: '',
+    profile_completed: false
+  };
+  isLoadingCollabInfo = false;
+  isSavingCollabInfo = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private teamService: OwnerTeamService,
     private confirmationService: ConfirmationService,
     private router: Router,
     public themeService: ThemeService
@@ -67,6 +111,10 @@ export class ProfileComponent implements OnInit {
           phone: user.phone || ''
         });
         this.themeService.initBranding(user.id);
+
+        if (!this.isPrimaryOwner) {
+          this.loadCollaboratorInfo();
+        }
       }
     });
 
@@ -286,6 +334,39 @@ export class ProfileComponent implements OnInit {
         this.isLoading = false;
         const errMsg = formatApiError(err);
         this.confirmationService.error(errMsg);
+      }
+    });
+  }
+
+  loadCollaboratorInfo(): void {
+    this.isLoadingCollabInfo = true;
+    this.teamService.getMyCollaboratorProfile().subscribe({
+      next: (res) => {
+        this.isLoadingCollabInfo = false;
+        if (res?.additional_info) {
+          this.collaboratorInfo = { ...this.collaboratorInfo, ...res.additional_info };
+        }
+        if (!this.collaboratorInfo.job_title && res?.role_label) {
+          this.collaboratorInfo.job_title = res.role_label;
+        }
+      },
+      error: () => {
+        this.isLoadingCollabInfo = false;
+      }
+    });
+  }
+
+  saveCollaboratorInfo(): void {
+    this.isSavingCollabInfo = true;
+    this.teamService.updateMyCollaboratorProfile(this.collaboratorInfo).subscribe({
+      next: (res) => {
+        this.isSavingCollabInfo = false;
+        this.collaboratorInfo = res.additional_info;
+        this.confirmationService.success(res.message, 'Fiche mise à jour');
+      },
+      error: (err) => {
+        this.isSavingCollabInfo = false;
+        this.confirmationService.error(err?.error?.message || 'Erreur lors de l\'enregistrement.', 'Erreur');
       }
     });
   }

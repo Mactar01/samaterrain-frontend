@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   // Public auth routes
@@ -40,6 +41,7 @@ export const routes: Routes = [
       },
       {
         path: 'fields/new',
+        canActivate: [permissionGuard('fields:manage')],
         loadComponent: () =>
           import('./features/owner-dashboard/create-field/create-field').then(
             (m) => m.CreateFieldComponent
@@ -47,6 +49,7 @@ export const routes: Routes = [
       },
       {
         path: 'fields/:id/slots',
+        canActivate: [permissionGuard('slots:manage')],
         loadComponent: () =>
           import('./features/owner-dashboard/manage-slots/manage-slots').then(
             (m) => m.ManageSlotsComponent
@@ -54,6 +57,7 @@ export const routes: Routes = [
       },
       {
         path: 'reservations',
+        canActivate: [permissionGuard('reservations:manage')],
         loadComponent: () =>
           import(
             './features/owner-dashboard/reservations/reservations.component'
@@ -68,9 +72,18 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
+        canActivate: [permissionGuard(['settings:manage', 'accounting:view'])],
         loadComponent: () =>
           import('./features/owner-dashboard/settings/settings.component').then(
             (m) => m.OwnerSettingsComponent
+          ),
+      },
+      {
+        path: 'team',
+        canActivate: [permissionGuard('team:manage')],
+        loadComponent: () =>
+          import('./features/owner-dashboard/team/team.component').then(
+            (m) => m.OwnerTeamComponent
           ),
       },
     ],
