@@ -9,11 +9,12 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { Reservation } from '../../../core/models/reservation.model';
 
 import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-reservations',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SkeletonLoaderComponent, EmptyStateComponent, DarkModeToggleComponent],
+  imports: [CommonModule, RouterModule, FormsModule, SkeletonLoaderComponent, EmptyStateComponent, DarkModeToggleComponent, NotificationBellComponent],
   providers: [DatePipe],
   templateUrl: './reservations.component.html'
 })

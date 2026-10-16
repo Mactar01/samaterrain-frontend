@@ -19,6 +19,7 @@ import { Field } from '../../../core/models/field.model';
 import { User } from '../../../core/models/user.model';
 
 import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +31,8 @@ import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-to
     BaseChartDirective,
     SkeletonLoaderComponent,
     EmptyStateComponent,
-    DarkModeToggleComponent
+    DarkModeToggleComponent,
+    NotificationBellComponent
   ],
   templateUrl: './dashboard.component.html'
 })

@@ -8,6 +8,7 @@ import { formatApiError } from '../../../core/utils/error-formatter';
 import { forkJoin } from 'rxjs';
 
 import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 
 interface WeekDay {
   date: string;      // YYYY-MM-DD
@@ -19,7 +20,7 @@ interface WeekDay {
 @Component({
   selector: 'app-manage-slots',
   standalone: true,
-  imports: [CommonModule, FormsModule, DarkModeToggleComponent],
+  imports: [CommonModule, FormsModule, DarkModeToggleComponent, NotificationBellComponent],
   templateUrl: './manage-slots.html'
 })
 export class ManageSlotsComponent implements OnInit {

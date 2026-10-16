@@ -6,12 +6,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { DarkModeToggleComponent } from '../../../shared/components/dark-mode-toggle/dark-mode-toggle.component';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 import { formatApiError } from '../../../core/utils/error-formatter';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, DarkModeToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, DarkModeToggleComponent, NotificationBellComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
