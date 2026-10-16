@@ -6,10 +6,21 @@ export interface PermissionDefinition {
 }
 
 export interface RoleDefinition {
-  role: 'manager' | 'receptionist' | 'field_staff' | 'accountant' | 'custom';
+  role: string;
   label: string;
   description: string;
   permissions: string[];
+  is_system?: boolean;
+  is_custom?: boolean;
+}
+
+export interface CustomRole {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+  is_system?: boolean;
+  created_at?: string;
 }
 
 export interface TeamMember {
@@ -18,7 +29,7 @@ export interface TeamMember {
   name: string;
   email: string;
   phone: string;
-  role: 'owner_master' | 'manager' | 'receptionist' | 'field_staff' | 'accountant' | 'custom';
+  role: string;
   role_label: string;
   permissions: string[];
   is_active: boolean;
@@ -38,6 +49,18 @@ export interface TeamResponse {
 export interface PermissionsMatrixResponse {
   available_permissions: PermissionDefinition[];
   default_roles: RoleDefinition[];
+  custom_roles?: CustomRole[];
+}
+
+export interface AssignRoleRightsPayload {
+  role_id: string;
+  permissions: string[];
+}
+
+export interface CreateCustomRolePayload {
+  name: string;
+  description?: string;
+  permissions: string[];
 }
 
 export interface MyPermissionsResponse {

@@ -17,8 +17,11 @@ import {
 import {
   TeamMember,
   PermissionDefinition,
-  RoleDefinition
+  RoleDefinition,
+  CustomRole,
+  PermissionsMatrixResponse
 } from '../../../core/models/owner-team.model';
+import { OwnerBranding, DEFAULT_OWNER_BRANDING } from '../../../core/models/branding.model';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -37,6 +40,10 @@ export class OwnerSettingsComponent implements OnInit {
   user: User | null = null;
   businessName = '';
   commissionRate = 10;
+
+  get branding(): OwnerBranding {
+    return this.themeService.currentBranding();
+  }
 
   activeTab: 'whatsapp_sms' | 'subscriptions' | 'matchmaking' | 'loyalty' | 'accounting' | 'team' = 'whatsapp_sms';
 
@@ -70,7 +77,34 @@ export class OwnerSettingsComponent implements OnInit {
   teamMembers: TeamMember[] = [];
   availablePermissions: PermissionDefinition[] = [];
   defaultRoles: RoleDefinition[] = [];
+  customRoles: CustomRole[] = [];
+  allRoles: { role: string; label: string; description: string; permissions: string[]; is_system?: boolean; is_custom?: boolean }[] = [];
   isLoadingTeam = false;
+
+  teamSubTab: 'members' | 'roles' | 'permissions' | 'assign' = 'members';
+  selectedRoleId: string = 'manager';
+  checkedPermissionKeys: Set<string> = new Set();
+  searchAllPermissions: string = '';
+  searchRolePermissions: string = '';
+  searchCataloguePermissions: string = '';
+  permissionGroupFilter: string = 'all';
+  isSavingRoleRights: boolean = false;
+  showCreateRoleModal: boolean = false;
+  isSavingNewRole: boolean = false;
+  newRole = {
+    name: '',
+    description: '',
+    permissions: [] as string[]
+  };
+
+  showEditRoleModal: boolean = false;
+  isSavingEditRole: boolean = false;
+  editRoleForm = {
+    id: '',
+    name: '',
+    description: '',
+    permissions: [] as string[]
+  };
 
   showAddMemberModal = false;
   showEditMemberModal = false;
@@ -120,8 +154,13 @@ export class OwnerSettingsComponent implements OnInit {
     // Écoute des queryParams pour ouvrir directement l'onglet demandé (ex: ?tab=team ou ?tab=users)
     this.route.queryParams.subscribe((params) => {
       const tabParam = params['tab'];
+      const subParam = params['sub'];
+
       if (tabParam === 'team' || tabParam === 'users') {
         this.activeTab = 'team';
+        if (subParam && ['members', 'roles', 'permissions', 'assign'].includes(subParam)) {
+          this.teamSubTab = subParam as 'members' | 'roles' | 'permissions' | 'assign';
+        }
       } else if (tabParam === 'accounting') {
         this.activeTab = 'accounting';
       } else if (tabParam === 'subscriptions') {
@@ -268,7 +307,7 @@ export class OwnerSettingsComponent implements OnInit {
     this.teamService.getPermissionsMatrix().subscribe({
       next: (matrix) => {
         this.availablePermissions = matrix.available_permissions;
-        this.defaultRoles = matrix.default_roles;
+        this.buildAllRoles(matrix);
         this.onNewMemberRoleChange(this.newMember.role);
 
         this.teamService.getTeamMembers().subscribe({
@@ -292,6 +331,299 @@ export class OwnerSettingsComponent implements OnInit {
     });
   }
 
+  buildAllRoles(matrix: PermissionsMatrixResponse): void {
+    this.defaultRoles = matrix.default_roles;
+    this.customRoles = matrix.custom_roles || [];
+
+    const mappedDefaults = this.defaultRoles.map((dr) => ({
+      ...dr,
+      is_custom: false
+    }));
+
+    const mappedCustom = this.customRoles.map((cr) => ({
+      role: cr.id,
+      label: cr.name,
+      description: cr.description || 'Rôle personnalisé du complexe',
+      permissions: cr.permissions || [],
+      is_system: false,
+      is_custom: true
+    }));
+
+    this.allRoles = [...mappedDefaults, ...mappedCustom];
+
+    if (!this.selectedRoleId || !this.allRoles.some((r) => r.role === this.selectedRoleId)) {
+      this.selectedRoleId = this.allRoles[0]?.role || 'manager';
+    }
+    this.selectRole(this.selectedRoleId);
+  }
+
+  selectRole(roleId: string): void {
+    this.selectedRoleId = roleId;
+    const role = this.allRoles.find((r) => r.role === roleId);
+    this.checkedPermissionKeys = new Set(role?.permissions || []);
+  }
+
+  get selectedRole(): { role: string; label: string; description: string; permissions: string[]; is_system?: boolean; is_custom?: boolean } | undefined {
+    return this.allRoles.find((r) => r.role === this.selectedRoleId);
+  }
+
+  isCheckedPermission(key: string): boolean {
+    return this.checkedPermissionKeys.has(key);
+  }
+
+  togglePermission(key: string): void {
+    const s = new Set(this.checkedPermissionKeys);
+    if (s.has(key)) {
+      s.delete(key);
+    } else {
+      s.add(key);
+    }
+    this.checkedPermissionKeys = s;
+  }
+
+  toggleAllPermissions(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      const all = new Set(this.filteredAvailablePermissions.map((p) => p.key));
+      this.checkedPermissionKeys = all;
+    } else {
+      this.checkedPermissionKeys = new Set();
+    }
+  }
+
+  unassignAllRolePermissions(): void {
+    this.checkedPermissionKeys = new Set();
+  }
+
+  get allChecked(): boolean {
+    const list = this.filteredAvailablePermissions;
+    return list.length > 0 && list.every((p) => this.isCheckedPermission(p.key));
+  }
+
+  get someChecked(): boolean {
+    const list = this.filteredAvailablePermissions;
+    return list.some((p) => this.isCheckedPermission(p.key)) && !this.allChecked;
+  }
+
+  get filteredAvailablePermissions(): PermissionDefinition[] {
+    const q = this.searchAllPermissions.toLowerCase().trim();
+    if (!q) return this.availablePermissions;
+    return this.availablePermissions.filter(
+      (p) =>
+        p.label.toLowerCase().includes(q) ||
+        p.key.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.group.toLowerCase().includes(q)
+    );
+  }
+
+  get filteredRolePermissions(): PermissionDefinition[] {
+    const q = this.searchRolePermissions.toLowerCase().trim();
+    const assigned = this.availablePermissions.filter((p) => this.isCheckedPermission(p.key));
+    if (!q) return assigned;
+    return assigned.filter(
+      (p) =>
+        p.label.toLowerCase().includes(q) ||
+        p.key.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q)
+    );
+  }
+
+  saveRoleRights(): void {
+    if (!this.selectedRoleId) return;
+
+    this.isSavingRoleRights = true;
+    const permissions = Array.from(this.checkedPermissionKeys);
+
+    this.teamService
+      .assignRoleRights({
+        role_id: this.selectedRoleId,
+        permissions
+      })
+      .subscribe({
+        next: (res) => {
+          this.isSavingRoleRights = false;
+          const role = this.allRoles.find((r) => r.role === this.selectedRoleId);
+          if (role) {
+            role.permissions = permissions;
+          }
+          this.confirmationService.success(res.message, 'Droits enregistrés !');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isSavingRoleRights = false;
+          this.confirmationService.error(
+            err?.error?.message || 'Erreur lors de l\'enregistrement des droits.',
+            'Erreur'
+          );
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  openCreateRoleModal(): void {
+    this.newRole = {
+      name: '',
+      description: '',
+      permissions: []
+    };
+    this.showCreateRoleModal = true;
+  }
+
+  closeCreateRoleModal(): void {
+    this.showCreateRoleModal = false;
+  }
+
+  toggleNewRolePermission(permKey: string): void {
+    const idx = this.newRole.permissions.indexOf(permKey);
+    if (idx > -1) {
+      this.newRole.permissions.splice(idx, 1);
+    } else {
+      this.newRole.permissions.push(permKey);
+    }
+  }
+
+  saveCustomRole(): void {
+    if (!this.newRole.name.trim()) {
+      this.confirmationService.error('Veuillez renseigner un nom pour le rôle.', 'Nom requis');
+      return;
+    }
+    if (this.newRole.permissions.length === 0) {
+      this.confirmationService.error('Veuillez sélectionner au moins un droit.', 'Droits requis');
+      return;
+    }
+
+    this.isSavingNewRole = true;
+    this.teamService.createCustomRole(this.newRole).subscribe({
+      next: (res) => {
+        this.isSavingNewRole = false;
+        this.closeCreateRoleModal();
+        this.loadTeam();
+        this.confirmationService.success(res.message, 'Rôle créé !');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSavingNewRole = false;
+        this.confirmationService.error(err?.error?.message || 'Erreur lors de la création du rôle.', 'Erreur');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  async deleteRole(roleId: string, roleName: string): Promise<void> {
+    const confirmed = await this.confirmationService.confirm({
+      title: `Supprimer le rôle "${roleName}" ?`,
+      text: `Êtes-vous sûr de vouloir supprimer ce rôle personnalisé ?`,
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+      icon: 'warning'
+    });
+
+    if (confirmed) {
+      this.teamService.deleteCustomRole(roleId).subscribe({
+        next: (res) => {
+          this.loadTeam();
+          this.confirmationService.success('Le rôle a été supprimé.', 'Rôle supprimé');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.confirmationService.error(err?.error?.message || 'Erreur lors de la suppression.', 'Erreur');
+        }
+      });
+    }
+  }
+
+  openEditRoleModal(role: any): void {
+    this.editRoleForm = {
+      id: role.role,
+      name: role.label,
+      description: role.description || '',
+      permissions: [...role.permissions]
+    };
+    this.showEditRoleModal = true;
+  }
+
+  closeEditRoleModal(): void {
+    this.showEditRoleModal = false;
+  }
+
+  toggleEditRolePermission(permKey: string): void {
+    const idx = this.editRoleForm.permissions.indexOf(permKey);
+    if (idx > -1) {
+      this.editRoleForm.permissions.splice(idx, 1);
+    } else {
+      this.editRoleForm.permissions.push(permKey);
+    }
+  }
+
+  saveUpdatedCustomRole(): void {
+    if (!this.editRoleForm.name.trim()) {
+      this.confirmationService.error('Veuillez renseigner un nom pour le rôle.', 'Nom requis');
+      return;
+    }
+    this.isSavingEditRole = true;
+    this.teamService
+      .updateCustomRole(this.editRoleForm.id, {
+        name: this.editRoleForm.name,
+        description: this.editRoleForm.description,
+        permissions: this.editRoleForm.permissions
+      })
+      .subscribe({
+        next: (res) => {
+          this.isSavingEditRole = false;
+          this.closeEditRoleModal();
+          this.loadTeam();
+          this.confirmationService.success(res.message, 'Rôle mis à jour !');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isSavingEditRole = false;
+          this.confirmationService.error(
+            err?.error?.message || 'Erreur lors de la mise à jour du rôle.',
+            'Erreur'
+          );
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  getMembersCountForRole(roleKey: string): number {
+    return this.teamMembers.filter((m) => m.role === roleKey).length;
+  }
+
+  getRolesWithPermission(permKey: string): string[] {
+    return this.allRoles.filter((r) => r.permissions.includes(permKey)).map((r) => r.label);
+  }
+
+  switchToAssignRole(roleKey: string): void {
+    this.selectRole(roleKey);
+    this.teamSubTab = 'assign';
+  }
+
+  get cataloguePermissions(): PermissionDefinition[] {
+    let list = this.availablePermissions;
+    if (this.permissionGroupFilter !== 'all') {
+      list = list.filter((p) => p.group?.toLowerCase().includes(this.permissionGroupFilter.toLowerCase()));
+    }
+    const q = this.searchCataloguePermissions.toLowerCase().trim();
+    if (!q) return list;
+    return list.filter(
+      (p) =>
+        p.label.toLowerCase().includes(q) ||
+        p.key.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.group.toLowerCase().includes(q)
+    );
+  }
+
+  get permissionGroups(): string[] {
+    const groups = new Set<string>();
+    this.availablePermissions.forEach((p) => {
+      if (p.group) groups.add(p.group);
+    });
+    return Array.from(groups);
+  }
+
   openAddMemberModal(): void {
     this.newMember = {
       name: '',
@@ -312,7 +644,7 @@ export class OwnerSettingsComponent implements OnInit {
   onNewMemberRoleChange(role: string): void {
     this.newMember.role = role;
     if (role !== 'custom') {
-      const found = this.defaultRoles.find((r) => r.role === role);
+      const found = this.allRoles.find((r) => r.role === role);
       this.newMember.permissions = found ? [...found.permissions] : [];
     }
   }
@@ -374,7 +706,7 @@ export class OwnerSettingsComponent implements OnInit {
   onEditMemberRoleChange(role: string): void {
     this.editMemberForm.role = role;
     if (role !== 'custom') {
-      const found = this.defaultRoles.find((r) => r.role === role);
+      const found = this.allRoles.find((r) => r.role === role);
       this.editMemberForm.permissions = found ? [...found.permissions] : [];
     }
   }

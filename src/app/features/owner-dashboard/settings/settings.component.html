@@ -930,171 +930,691 @@
       <!-- ===================================================================== -->
       <div *ngIf="activeTab === 'team'" class="space-y-6 animate-fade-in">
         
-        <!-- Header & Action Inviter -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Header & Sous-onglets de navigation -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2.5">
               <h3 class="text-lg font-bold text-slate-900 dark:text-white">Gestion Utilisateurs & Rôles</h3>
-              <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                    [style.backgroundColor]="branding.primaryColor + '18'"
+                    [style.color]="branding.primaryColor">
                 Sécurité & RBAC
               </span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Déléguez la gestion de vos terrains à vos employés (réceptionnistes, responsables terrain, comptables) avec des droits d'accès strictement contrôlés.
+              Gérez les collaborateurs de votre complexe et configurez sur-mesure les droits d'accès pour chaque rôle.
             </p>
           </div>
 
-          <button
-            type="button"
-            (click)="openAddMemberModal()"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 transition shadow-sm cursor-pointer whitespace-nowrap shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            <span>+ Ajouter un Collaborateur</span>
-          </button>
+          <!-- Boutons de 4 sous-onglets (Profils, Rôles, Droits, Assigner Droit) -->
+          <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl shrink-0 self-start md:self-auto">
+            <button
+              type="button"
+              (click)="teamSubTab = 'members'"
+              [ngClass]="teamSubTab === 'members'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+              class="px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Profils ({{ teamMembers.length }})</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="teamSubTab = 'roles'"
+              [ngClass]="teamSubTab === 'roles'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+              class="px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Rôles ({{ allRoles.length }})</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="teamSubTab = 'permissions'"
+              [ngClass]="teamSubTab === 'permissions'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+              class="px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+              <span>Droits ({{ availablePermissions.length }})</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="teamSubTab = 'assign'"
+              [ngClass]="teamSubTab === 'assign'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+              class="px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Assigner Droit</span>
+            </button>
+          </div>
         </div>
 
         <!-- Chargement de l'équipe -->
         <div *ngIf="isLoadingTeam" class="p-12 text-center">
-          <svg class="animate-spin w-8 h-8 text-emerald-600 mx-auto" fill="none" viewBox="0 0 24 24">
+          <svg class="animate-spin w-8 h-8 mx-auto" [style.color]="branding.primaryColor" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
           </svg>
-          <p class="text-xs text-slate-500 mt-2">Chargement des membres de votre équipe...</p>
+          <p class="text-xs text-slate-500 mt-2">Chargement des membres de votre équipe et des droits...</p>
         </div>
 
-        <!-- Liste des membres de l'équipe -->
-        <div *ngIf="!isLoadingTeam" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
-          
-          <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <div>
-              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Membres Actifs ({{ teamMembers.length }})</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Les collaborateurs se connectent avec leur email personnel et accèdent uniquement aux écrans autorisés.</p>
+        <div *ngIf="!isLoadingTeam">
+
+          <!-- =================================================================== -->
+          <!-- SOUS-ONGLET 1 : COMPTES COLLABORATEURS -->
+          <!-- =================================================================== -->
+          <div *ngIf="teamSubTab === 'members'" class="space-y-6 animate-fade-in">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white">Membres Actifs ({{ teamMembers.length }})</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Les collaborateurs se connectent avec leur email et accèdent uniquement aux écrans autorisés.</p>
+              </div>
+
+              <button
+                type="button"
+                (click)="openAddMemberModal()"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer whitespace-nowrap self-start sm:self-auto active:scale-95"
+                [style.backgroundColor]="branding.primaryColor">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                <span>+ Ajouter un Collaborateur</span>
+              </button>
             </div>
-          </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-800">
-                <tr>
-                  <th class="py-3.5 px-4 font-bold">Collaborateur</th>
-                  <th class="py-3.5 px-4 font-bold">Rôle Attribué</th>
-                  <th class="py-3.5 px-4 font-bold">Droits & Accès</th>
-                  <th class="py-3.5 px-4 font-bold text-center">Statut</th>
-                  <th class="py-3.5 px-4 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
-                <tr *ngFor="let member of teamMembers" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
-                  
-                  <!-- Collaborateur info -->
-                  <td class="py-4 px-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 shadow-xs"
-                           [ngClass]="member.is_primary ? 'bg-amber-500 text-slate-900' : 'bg-slate-800 text-white dark:bg-slate-700'">
-                        {{ member.name.charAt(0) | uppercase }}
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{{ member.name }}</p>
-                          <span *ngIf="member.is_primary" class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400">
-                            Titulaire
-                          </span>
+            <!-- Table des membres -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-800">
+                    <tr>
+                      <th class="py-3.5 px-4 font-bold">Collaborateur</th>
+                      <th class="py-3.5 px-4 font-bold">Rôle Attribué</th>
+                      <th class="py-3.5 px-4 font-bold">Droits & Accès</th>
+                      <th class="py-3.5 px-4 font-bold text-center">Statut</th>
+                      <th class="py-3.5 px-4 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    <tr *ngFor="let member of teamMembers" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+                      
+                      <!-- Collaborateur info -->
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-3">
+                          <div class="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 shadow-xs"
+                               [ngClass]="member.is_primary ? 'bg-amber-500 text-slate-900' : 'bg-slate-800 text-white dark:bg-slate-700'">
+                            {{ member.name.charAt(0) | uppercase }}
+                          </div>
+                          <div>
+                            <div class="flex items-center gap-1.5">
+                              <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{{ member.name }}</p>
+                              <span *ngIf="member.is_primary" class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                                Titulaire
+                              </span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ member.email }} • <span class="font-mono">{{ member.phone }}</span></p>
+                          </div>
                         </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ member.email }} • <span class="font-mono">{{ member.phone }}</span></p>
-                      </div>
-                    </div>
-                  </td>
+                      </td>
 
-                  <!-- Rôle badge -->
-                  <td class="py-4 px-4">
-                    <span [ngClass]="getRoleBadgeClass(member.role)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold">
-                      <span *ngIf="member.role === 'owner_master'">👑</span>
-                      <span *ngIf="member.role === 'manager'">👔</span>
-                      <span *ngIf="member.role === 'receptionist'">🛎️</span>
-                      <span *ngIf="member.role === 'field_staff'">⚽</span>
-                      <span *ngIf="member.role === 'accountant'">💼</span>
-                      <span *ngIf="member.role === 'custom'">⚙️</span>
-                      <span>{{ member.role_label }}</span>
-                    </span>
-                  </td>
-
-                  <!-- Droits / Permissions summary -->
-                  <td class="py-4 px-4">
-                    <div class="flex flex-wrap gap-1 max-w-xs">
-                      <span *ngIf="member.is_primary || member.role === 'manager'" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
-                        Accès Total Illimité
-                      </span>
-                      <ng-container *ngIf="!member.is_primary && member.role !== 'manager'">
-                        <span *ngFor="let p of member.permissions" class="px-1.5 py-0.5 rounded-lg text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
-                          {{ p }}
+                      <!-- Rôle badge -->
+                      <td class="py-4 px-4">
+                        <span [ngClass]="getRoleBadgeClass(member.role)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold">
+                          <span *ngIf="member.role === 'owner_master'">👑</span>
+                          <span *ngIf="member.role === 'manager'">👔</span>
+                          <span *ngIf="member.role === 'receptionist'">🛎️</span>
+                          <span *ngIf="member.role === 'field_staff'">⚽</span>
+                          <span *ngIf="member.role === 'accountant'">💼</span>
+                          <span *ngIf="member.role === 'custom' || member.role.startsWith('custom_')">⚙️</span>
+                          <span>{{ member.role_label }}</span>
                         </span>
-                      </ng-container>
-                    </div>
-                  </td>
+                      </td>
 
-                  <!-- Statut Actif / Suspendu -->
-                  <td class="py-4 px-4 text-center">
-                    <span *ngIf="member.is_primary" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                      Actif permanent
+                      <!-- Droits / Permissions summary -->
+                      <td class="py-4 px-4">
+                        <div class="flex flex-wrap gap-1 max-w-xs">
+                          <span *ngIf="member.is_primary || member.role === 'owner_master'" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                            Propriétaire Titulaire
+                          </span>
+                          <span *ngIf="!member.is_primary && member.role === 'manager'" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                            Accès Administrateur
+                          </span>
+                          <ng-container *ngIf="!member.is_primary && member.role !== 'manager'">
+                            <span *ngFor="let p of member.permissions | slice:0:4" class="px-1.5 py-0.5 rounded-lg text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
+                              {{ p }}
+                            </span>
+                            <span *ngIf="member.permissions.length > 4" class="px-1.5 py-0.5 rounded-lg text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                              +{{ member.permissions.length - 4 }}
+                            </span>
+                          </ng-container>
+                        </div>
+                      </td>
+
+                      <!-- Statut Actif / Suspendu -->
+                      <td class="py-4 px-4 text-center">
+                        <span *ngIf="member.is_primary" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Actif permanent
+                        </span>
+                        <button
+                          *ngIf="!member.is_primary"
+                          type="button"
+                          (click)="toggleMemberStatus(member)"
+                          [title]="member.is_active ? 'Cliquer pour suspendre' : 'Cliquer pour activer'"
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition cursor-pointer"
+                          [ngClass]="member.is_active 
+                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25' 
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'">
+                          <span class="w-1.5 h-1.5 rounded-full" [ngClass]="member.is_active ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                          <span>{{ member.is_active ? 'Actif' : 'Suspendu' }}</span>
+                        </button>
+                      </td>
+
+                      <!-- Actions -->
+                      <td class="py-4 px-4 text-right">
+                        <div *ngIf="member.is_primary" class="text-[11px] text-slate-400 italic">
+                          Compte Maître
+                        </div>
+                        <div *ngIf="!member.is_primary" class="flex items-center justify-end gap-1.5">
+                          <!-- Modifier Droits -->
+                          <button
+                            type="button"
+                            (click)="openEditMemberModal(member)"
+                            class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                            title="Modifier le rôle et les droits">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          </button>
+
+                          <!-- Retirer -->
+                          <button
+                            type="button"
+                            (click)="removeMember(member)"
+                            class="p-1.5 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                            title="Retirer du complexe">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        </div>
+                      </td>
+
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- =================================================================== -->
+          <!-- SOUS-ONGLET 2 : RÔLES (CRUD COMPLET & APERÇU SYSTÈME / SUR-MESURE) -->
+          <!-- =================================================================== -->
+          <div *ngIf="teamSubTab === 'roles'" class="space-y-6 animate-fade-in">
+            
+            <!-- Header Rôles & Bouton Nouveau Rôle -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Rôles & Niveaux d'Accès</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full font-bold"
+                        [style.backgroundColor]="branding.primaryColor + '18'"
+                        [style.color]="branding.primaryColor">
+                    {{ allRoles.length }} rôles configurés
+                  </span>
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  Définissez la hiérarchie de votre équipe avec les rôles standards du système ou vos propres rôles personnalisés.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                (click)="openCreateRoleModal()"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white transition shadow-sm cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                [style.backgroundColor]="branding.primaryColor">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>+ Nouveau Rôle Personnalisé</span>
+              </button>
+            </div>
+
+            <!-- Grille des cartes de rôles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div
+                *ngFor="let r of allRoles"
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+                
+                <div class="space-y-3">
+                  <!-- Header Carte: Badge Rôle & Badge Type (Système vs Sur-mesure) -->
+                  <div class="flex items-center justify-between gap-2">
+                    <span [ngClass]="getRoleBadgeClass(r.role)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold">
+                      <span *ngIf="r.role === 'owner_master'">👑</span>
+                      <span *ngIf="r.role === 'manager'">👔</span>
+                      <span *ngIf="r.role === 'receptionist'">🛎️</span>
+                      <span *ngIf="r.role === 'field_staff'">⚽</span>
+                      <span *ngIf="r.role === 'accountant'">💼</span>
+                      <span *ngIf="r.is_custom">⚙️</span>
+                      <span>{{ r.label }}</span>
                     </span>
+
+                    <span
+                      class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full"
+                      [style.backgroundColor]="r.is_custom ? (branding.primaryColor + '18') : undefined"
+                      [style.color]="r.is_custom ? branding.primaryColor : undefined"
+                      [ngClass]="!r.is_custom ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' : ''">
+                      {{ r.is_custom ? 'Sur-mesure' : 'Système' }}
+                    </span>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-xs text-slate-500 dark:text-slate-400 min-h-[36px]">
+                    {{ r.description }}
+                  </p>
+
+                  <!-- Compteurs / Stats -->
+                  <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-2xl text-center">
+                      <p class="text-[10px] text-slate-400 font-medium">Collaborateurs</p>
+                      <p class="text-sm font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
+                        {{ getMembersCountForRole(r.role) }}
+                      </p>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-2xl text-center">
+                      <p class="text-[10px] text-slate-400 font-medium">Droits accordés</p>
+                      <p class="text-sm font-extrabold mt-0.5" [style.color]="branding.primaryColor">
+                        {{ r.permissions.length }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Aperçu des droits (Chips) -->
+                  <div class="space-y-1.5">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Droits inclus :</p>
+                    <div class="flex flex-wrap gap-1">
+                      <span
+                        *ngFor="let p of r.permissions | slice:0:3"
+                        class="px-2 py-0.5 rounded-lg text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        {{ p }}
+                      </span>
+                      <span *ngIf="r.permissions.length > 3" class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        +{{ r.permissions.length - 3 }} autres
+                      </span>
+                      <span *ngIf="r.permissions.length === 0" class="text-[11px] text-slate-400 italic">
+                        Aucun droit attribué pour le moment
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions du rôle -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    (click)="switchToAssignRole(r.role)"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer"
+                    [style.backgroundColor]="branding.primaryColor + '15'"
+                    [style.color]="branding.primaryColor">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>Configurer Droits</span>
+                  </button>
+
+                  <div *ngIf="r.is_custom" class="flex items-center gap-1">
                     <button
-                      *ngIf="!member.is_primary"
                       type="button"
-                      (click)="toggleMemberStatus(member)"
-                      [title]="member.is_active ? 'Cliquer pour suspendre' : 'Cliquer pour activer'"
-                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition cursor-pointer"
-                      [ngClass]="member.is_active 
-                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25' 
-                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'">
-                      <span class="w-1.5 h-1.5 rounded-full" [ngClass]="member.is_active ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                      <span>{{ member.is_active ? 'Actif' : 'Suspendu' }}</span>
+                      (click)="openEditRoleModal(r)"
+                      class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                      title="Modifier l'intitulé et les droits">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </button>
-                  </td>
 
-                  <!-- Actions -->
-                  <td class="py-4 px-4 text-right">
-                    <div *ngIf="member.is_primary" class="text-[11px] text-slate-400 italic">
-                      Compte Maître
-                    </div>
-                    <div *ngIf="!member.is_primary" class="flex items-center justify-end gap-1.5">
-                      <!-- Bouton Modifier Droits -->
-                      <button
-                        type="button"
-                        (click)="openEditMemberModal(member)"
-                        class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                        title="Modifier le rôle et les droits">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                      </button>
+                    <button
+                      type="button"
+                      (click)="deleteRole(r.role, r.label)"
+                      class="p-2 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                      title="Supprimer ce rôle personnalisé">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                </div>
 
-                      <!-- Bouton Retirer -->
-                      <button
-                        type="button"
-                        (click)="removeMember(member)"
-                        class="p-1.5 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
-                        title="Retirer du complexe">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
-                    </div>
-                  </td>
+              </div>
+            </div>
 
-                </tr>
-              </tbody>
-            </table>
           </div>
 
-        </div>
+          <!-- =================================================================== -->
+          <!-- SOUS-ONGLET 3 : DROITS & PERMISSIONS (CATALOGUE EXHAUSTIF) -->
+          <!-- =================================================================== -->
+          <div *ngIf="teamSubTab === 'permissions'" class="space-y-6 animate-fade-in">
+            
+            <!-- Header & Recherche Catalogue Droits -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Catalogue des Droits & Permissions</span>
+                  <span class="text-xs px-2.5 py-0.5 rounded-full font-bold"
+                        [style.backgroundColor]="(branding.secondaryColor || branding.primaryColor) + '18'"
+                        [style.color]="branding.secondaryColor || branding.primaryColor">
+                    {{ availablePermissions.length }} droits système
+                  </span>
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Inventaire exhaustif des permissions du complexe et visualisez en temps réel les rôles qui détiennent chaque droit.
+                </p>
+              </div>
 
-        <!-- Description pédagogique des rôles -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div *ngFor="let r of defaultRoles" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 space-y-2">
-            <span [ngClass]="getRoleBadgeClass(r.role)" class="px-2 py-0.5 rounded-lg text-[10px] font-bold">
-              {{ r.label }}
-            </span>
-            <p class="text-xs text-slate-500 dark:text-slate-400">{{ r.description }}</p>
+              <!-- Champ de recherche -->
+              <div class="relative w-full md:w-80">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input
+                  type="text"
+                  [(ngModel)]="searchCataloguePermissions"
+                  placeholder="Rechercher un droit (terrain, compta, match)..."
+                  class="w-full pl-9 pr-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-400" />
+              </div>
+            </div>
+
+            <!-- Filtres par groupe / catégorie -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                (click)="permissionGroupFilter = 'all'"
+                [style.backgroundColor]="permissionGroupFilter === 'all' ? branding.primaryColor : undefined"
+                [ngClass]="permissionGroupFilter === 'all'
+                  ? 'text-white font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'"
+                class="px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer">
+                Tous ({{ availablePermissions.length }})
+              </button>
+
+              <button
+                *ngFor="let grp of permissionGroups"
+                type="button"
+                (click)="permissionGroupFilter = grp"
+                [style.backgroundColor]="permissionGroupFilter === grp ? branding.primaryColor : undefined"
+                [ngClass]="permissionGroupFilter === grp
+                  ? 'text-white font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'"
+                class="px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer">
+                {{ grp }}
+              </button>
+            </div>
+
+            <!-- Liste des droits en cartes détaillées -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div
+                *ngFor="let perm of cataloguePermissions"
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs space-y-3 hover:border-slate-300 dark:hover:border-slate-700 transition">
+                
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h5 class="font-bold text-sm text-slate-900 dark:text-white">{{ perm.label }}</h5>
+                      <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {{ perm.group }}
+                      </span>
+                    </div>
+                    <code class="text-[11px] text-slate-400 font-mono mt-0.5 block">{{ perm.key }}</code>
+                  </div>
+
+                  <button
+                    type="button"
+                    (click)="teamSubTab = 'assign'"
+                    class="text-[11px] font-bold hover:underline cursor-pointer whitespace-nowrap"
+                    [style.color]="branding.primaryColor">
+                    Attribuer →
+                  </button>
+                </div>
+
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ perm.description }}
+                </p>
+
+                <!-- Rôles qui détiennent ce droit -->
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Rôles autorisés :</span>
+                  <ng-container *ngIf="getRolesWithPermission(perm.key).length > 0">
+                    <span
+                      *ngFor="let rLabel of getRolesWithPermission(perm.key)"
+                      class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      {{ rLabel }}
+                    </span>
+                  </ng-container>
+                  <span *ngIf="getRolesWithPermission(perm.key).length === 0" class="text-[11px] text-slate-400 italic">
+                    Aucun rôle n'a ce droit activé
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <div *ngIf="cataloguePermissions.length === 0" class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 text-xs text-slate-400">
+              Aucune permission ne correspond à votre filtre.
+            </div>
+
           </div>
+
+          <!-- =================================================================== -->
+          <!-- SOUS-ONGLET 4 : ASSIGNER DROIT (MATRICE 2 COLONNES STYLE EYASSUR) -->
+          <!-- =================================================================== -->
+          <div *ngIf="teamSubTab === 'assign'" class="space-y-6 animate-fade-in">
+            
+            <!-- Barre de sélection du rôle + Actions -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-3">
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                  Sélectionnez le rôle à configurer :
+                </label>
+                <select
+                  [(ngModel)]="selectedRoleId"
+                  (change)="selectRole(selectedRoleId)"
+                  class="px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
+                  <option *ngFor="let r of allRoles" [value]="r.role">
+                    {{ r.label }} {{ r.is_custom ? '(Personnalisé)' : '' }}
+                  </option>
+                </select>
+
+                <span *ngIf="selectedRole" [ngClass]="getRoleBadgeClass(selectedRole.role)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold">
+                  <span>{{ selectedRole.label }}</span>
+                  <span *ngIf="selectedRole.is_custom" class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-700">Sur-mesure</span>
+                </span>
+                
+                <p *ngIf="selectedRole" class="text-xs text-slate-400 italic hidden lg:block">
+                  — {{ selectedRole.description }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2.5">
+                <button
+                  *ngIf="selectedRole?.is_custom"
+                  type="button"
+                  (click)="openEditRoleModal(selectedRole!)"
+                  class="px-3.5 py-2 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition cursor-pointer">
+                  Modifier l'intitulé
+                </button>
+                <button
+                  *ngIf="selectedRole?.is_custom"
+                  type="button"
+                  (click)="deleteRole(selectedRole!.role, selectedRole!.label)"
+                  class="px-3.5 py-2 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-800/40 transition cursor-pointer">
+                  Supprimer
+                </button>
+                <button
+                  type="button"
+                  (click)="openCreateRoleModal()"
+                  class="px-4 py-2.5 rounded-2xl text-xs font-bold text-white transition cursor-pointer shadow-sm flex items-center gap-1.5 whitespace-nowrap active:scale-95"
+                  [style.backgroundColor]="branding.primaryColor">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <span>+ Nouveau Rôle Personnalisé</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Matrice 2 Colonnes : Style Eyassur (Gauche = Droits disponibles, Droite = Droits assignés) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              
+              <!-- COLONNE GAUCHE : TOUS LES DROITS DISPONIBLES -->
+              <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+                
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Droits & Permissions Disponibles</h4>
+                    <p class="text-xs text-slate-400">Cochez les droits que vous autorisez pour ce rôle</p>
+                  </div>
+                  <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    {{ checkedPermissionKeys.size }} / {{ availablePermissions.length }}
+                  </span>
+                </div>
+
+                <!-- Barre de recherche Droits Disponibles -->
+                <div class="relative">
+                  <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  <input
+                    type="text"
+                    [(ngModel)]="searchAllPermissions"
+                    placeholder="Filtrer un droit (ex: terrain, réservation, compta)..."
+                    class="w-full pl-9 pr-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+
+                <!-- Select All Bar -->
+                <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-xs">
+                  <label class="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      [checked]="allChecked"
+                      (change)="toggleAllPermissions($event)"
+                      class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer">
+                    <span>Tout sélectionner ({{ filteredAvailablePermissions.length }})</span>
+                  </label>
+                  <span class="text-[11px] text-slate-400">
+                    {{ checkedPermissionKeys.size }} actif(s)
+                  </span>
+                </div>
+
+                <!-- Liste avec scroll -->
+                <div class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                  <label
+                    *ngFor="let perm of filteredAvailablePermissions"
+                    class="flex items-start gap-3 p-3 rounded-2xl border transition cursor-pointer"
+                    [ngClass]="isCheckedPermission(perm.key)
+                      ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/60'
+                      : 'bg-white dark:bg-slate-900 border-slate-200/70 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'">
+                    <input
+                      type="checkbox"
+                      [checked]="isCheckedPermission(perm.key)"
+                      (change)="togglePermission(perm.key)"
+                      class="mt-1 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-xs text-slate-900 dark:text-white">{{ perm.label }}</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                          {{ perm.group }}
+                        </span>
+                      </div>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ perm.description }}</p>
+                    </div>
+                  </label>
+
+                  <div *ngIf="filteredAvailablePermissions.length === 0" class="text-center py-6 text-xs text-slate-400">
+                    Aucun droit ne correspond à votre recherche.
+                  </div>
+                </div>
+
+                <!-- Bouton Enregistrer les droits du rôle -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
+                  <button
+                    type="button"
+                    (click)="saveRoleRights()"
+                    [disabled]="isSavingRoleRights"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold text-white active:scale-95 disabled:opacity-50 transition shadow-sm cursor-pointer"
+                    [style.backgroundColor]="branding.primaryColor">
+                    <svg *ngIf="!isSavingRoleRights" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <svg *ngIf="isSavingRoleRights" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span>{{ isSavingRoleRights ? 'Enregistrement...' : 'Enregistrer les droits du rôle' }}</span>
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- COLONNE DROITE : DROITS ACTUELLEMENT ATTRIBUÉS (APERÇU STYLE EYASSUR) -->
+              <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+                
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Droits attribués à "{{ selectedRole?.label }}"</h4>
+                    <p class="text-xs text-slate-400">Résumé des permissions accordées aux utilisateurs ayant ce rôle</p>
+                  </div>
+                  <button
+                    *ngIf="checkedPermissionKeys.size > 0"
+                    type="button"
+                    (click)="unassignAllRolePermissions()"
+                    class="text-xs font-bold text-red-500 hover:text-red-700 transition cursor-pointer hover:underline">
+                    Tout retirer
+                  </button>
+                </div>
+
+                <!-- Barre de recherche Droits Assignés -->
+                <div class="relative">
+                  <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  <input
+                    type="text"
+                    [(ngModel)]="searchRolePermissions"
+                    placeholder="Filtrer les droits attribués..."
+                    class="w-full pl-9 pr-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+
+                <!-- Liste des droits attribués -->
+                <div class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                  
+                  <div *ngIf="filteredRolePermissions.length === 0" class="p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-slate-400">
+                    <p class="font-bold text-slate-600 dark:text-slate-300">Aucun droit attribué</p>
+                    <p class="mt-1">Cochez les droits dans la colonne de gauche puis cliquez sur "Enregistrer".</p>
+                  </div>
+
+                  <div
+                    *ngFor="let perm of filteredRolePermissions"
+                    class="flex items-center justify-between p-3 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 group hover:border-slate-300 dark:hover:border-slate-700 transition">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-xs text-slate-900 dark:text-white">{{ perm.label }}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          {{ perm.group }}
+                        </span>
+                      </div>
+                      <p class="text-[11px] text-slate-400 mt-0.5">{{ perm.description }}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="togglePermission(perm.key)"
+                      class="p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition cursor-pointer"
+                      title="Retirer ce droit">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
 
       </div>
@@ -1111,12 +1631,14 @@
       
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center"
+               [style.backgroundColor]="branding.primaryColor + '15'"
+               [style.color]="branding.primaryColor">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
           </div>
           <div>
             <h3 class="text-base font-bold text-slate-900 dark:text-white">Ajouter un Collaborateur</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Configurez le rôle et les autorisations de votre staff</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Configurez le rôle et les autorisations de votre team</p>
           </div>
         </div>
         <button (click)="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
@@ -1174,10 +1696,9 @@
             [(ngModel)]="newMember.role"
             (change)="onNewMemberRoleChange(newMember.role)"
             class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold cursor-pointer">
-            <option value="manager">👔 Administrateur Complexe (Accès total)</option>
-            <option value="receptionist">🛎️ Accueil / Réceptionniste (Créneaux & Réservations)</option>
-            <option value="field_staff">⚽ Responsable Terrain / Arbitre (Matchs & Maintenance)</option>
-            <option value="accountant">💼 Comptable / Finance (Relevés & Factures)</option>
+            <option *ngFor="let r of allRoles" [value]="r.role">
+              {{ r.label }} {{ r.is_custom ? '(Personnalisé)' : '' }}
+            </option>
             <option value="custom">⚙️ Rôle Sur-Mesure (Permissions manuelles)</option>
           </select>
         </div>
@@ -1213,7 +1734,8 @@
           type="button"
           (click)="saveNewMember()"
           [disabled]="isSavingMember"
-          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 transition shadow-sm cursor-pointer">
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white disabled:opacity-50 transition shadow-sm cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
           {{ isSavingMember ? 'Ajout en cours...' : 'Ajouter le collaborateur' }}
         </button>
       </div>
@@ -1229,7 +1751,9 @@
       
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center"
+               [style.backgroundColor]="branding.primaryColor + '15'"
+               [style.color]="branding.primaryColor">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
           </div>
           <div>
@@ -1251,10 +1775,9 @@
             [(ngModel)]="editMemberForm.role"
             (change)="onEditMemberRoleChange(editMemberForm.role)"
             class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold cursor-pointer">
-            <option value="manager">👔 Administrateur Complexe (Accès total)</option>
-            <option value="receptionist">🛎️ Accueil / Réceptionniste (Créneaux & Réservations)</option>
-            <option value="field_staff">⚽ Responsable Terrain / Arbitre (Matchs & Maintenance)</option>
-            <option value="accountant">💼 Comptable / Finance (Relevés & Factures)</option>
+            <option *ngFor="let r of allRoles" [value]="r.role">
+              {{ r.label }} {{ r.is_custom ? '(Personnalisé)' : '' }}
+            </option>
             <option value="custom">⚙️ Rôle Sur-Mesure (Permissions manuelles)</option>
           </select>
         </div>
@@ -1302,8 +1825,173 @@
           type="button"
           (click)="saveEditMember()"
           [disabled]="isSavingMember"
-          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 transition shadow-sm cursor-pointer">
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white disabled:opacity-50 transition shadow-sm cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
           {{ isSavingMember ? 'Mise à jour...' : 'Enregistrer les modifications' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE : CRÉER UN RÔLE PERSONNALISÉ -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showCreateRoleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div (click)="$event.stopPropagation()" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center"
+               [style.backgroundColor]="branding.primaryColor + '15'"
+               [style.color]="branding.primaryColor">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Nouveau Rôle Personnalisé</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Définissez un profil de rôle sur-mesure pour votre complexe</p>
+          </div>
+        </div>
+        <button (click)="closeCreateRoleModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Intitulé du rôle *</label>
+          <input
+            type="text"
+            [(ngModel)]="newRole.name"
+            placeholder="Ex: Superviseur des Tournois, Trésorier Adjoint..."
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Description</label>
+          <input
+            type="text"
+            [(ngModel)]="newRole.description"
+            placeholder="Ex: Responsable des plannings de match le week-end"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Droits accordés à ce rôle *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1 border border-slate-200 dark:border-slate-700 rounded-2xl">
+            <label *ngFor="let perm of availablePermissions" class="flex items-start gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700 text-xs cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800">
+              <input
+                type="checkbox"
+                [checked]="newRole.permissions.includes(perm.key)"
+                (change)="toggleNewRolePermission(perm.key)"
+                class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+              <div>
+                <p class="font-bold text-slate-900 dark:text-white leading-tight">{{ perm.label }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ perm.description }}</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <button
+          type="button"
+          (click)="closeCreateRoleModal()"
+          class="px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="saveCustomRole()"
+          [disabled]="isSavingNewRole"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white disabled:opacity-50 transition shadow-sm cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingNewRole ? 'Création en cours...' : 'Créer le rôle' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE : MODIFIER UN RÔLE PERSONNALISÉ -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showEditRoleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div (click)="$event.stopPropagation()" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center"
+               [style.backgroundColor]="branding.primaryColor + '15'"
+               [style.color]="branding.primaryColor">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Modifier le Rôle Personnalisé</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Ajustez l'intitulé, la description et les permissions du rôle</p>
+          </div>
+        </div>
+        <button (click)="closeEditRoleModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Intitulé du rôle *</label>
+          <input
+            type="text"
+            [(ngModel)]="editRoleForm.name"
+            placeholder="Nom du rôle"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Description</label>
+          <input
+            type="text"
+            [(ngModel)]="editRoleForm.description"
+            placeholder="Description du rôle"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Droits accordés à ce rôle</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1 border border-slate-200 dark:border-slate-700 rounded-2xl">
+            <label *ngFor="let perm of availablePermissions" class="flex items-start gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700 text-xs cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800">
+              <input
+                type="checkbox"
+                [checked]="editRoleForm.permissions.includes(perm.key)"
+                (change)="toggleEditRolePermission(perm.key)"
+                class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+              <div>
+                <p class="font-bold text-slate-900 dark:text-white leading-tight">{{ perm.label }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ perm.description }}</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <button
+          type="button"
+          (click)="closeEditRoleModal()"
+          class="px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="saveUpdatedCustomRole()"
+          [disabled]="isSavingEditRole"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white disabled:opacity-50 transition shadow-sm cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor">
+          {{ isSavingEditRole ? 'Enregistrement...' : 'Enregistrer les modifications' }}
         </button>
       </div>
 

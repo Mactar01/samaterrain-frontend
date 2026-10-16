@@ -78,4 +78,43 @@ export class OwnerTeamService {
   removeCollaborator(id: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/owner/team/${id}`);
   }
+
+  /**
+   * Assigne des droits à un rôle (Inspiré d'eyassur assignOrganismRights)
+   */
+  assignRoleRights(payload: { role_id: string; permissions: string[] }): Observable<{ message: string; role_id: string; permissions: string[] }> {
+    return this.http.post<{ message: string; role_id: string; permissions: string[] }>(
+      `${this.apiUrl}/owner/team/assign-role-rights`,
+      payload
+    );
+  }
+
+  /**
+   * Crée un nouveau rôle personnalisé pour le complexe
+   */
+  createCustomRole(payload: { name: string; description?: string; permissions: string[] }): Observable<{ message: string; role: any; roles: any[] }> {
+    return this.http.post<{ message: string; role: any; roles: any[] }>(
+      `${this.apiUrl}/owner/team/custom-roles`,
+      payload
+    );
+  }
+
+  /**
+   * Met à jour un rôle personnalisé pour le complexe
+   */
+  updateCustomRole(roleId: string, payload: { name?: string; description?: string; permissions?: string[] }): Observable<{ message: string; role: any; roles: any[] }> {
+    return this.http.put<{ message: string; role: any; roles: any[] }>(
+      `${this.apiUrl}/owner/team/custom-roles/${roleId}`,
+      payload
+    );
+  }
+
+  /**
+   * Supprime un rôle personnalisé
+   */
+  deleteCustomRole(roleId: string): Observable<{ message: string; roles: any[] }> {
+    return this.http.delete<{ message: string; roles: any[] }>(
+      `${this.apiUrl}/owner/team/custom-roles/${roleId}`
+    );
+  }
 }

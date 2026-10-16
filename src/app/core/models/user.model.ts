@@ -11,6 +11,14 @@ export interface User {
   must_change_password?: boolean;
   created_at?: string;
   updated_at?: string;
+  owner?: {
+    id: number;
+    business_name: string;
+    is_verified?: boolean;
+    is_primary?: boolean;
+    role?: string;
+    permissions?: string[];
+  };
 }
 
 export interface AuthResponse {

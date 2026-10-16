@@ -105,6 +105,34 @@ export class AuthService {
     return allowed.includes(currentRole);
   }
 
+  hasPermission(permission: string): boolean {
+    const user = this.currentUserValue;
+    if (!user) return false;
+    // Super admin a tous les droits
+    if (user.role === 'admin') {
+      return true;
+    }
+    // Si c'est explicitement un collaborateur invité non titulaire
+    if (user.owner && user.owner.is_primary === false) {
+      const perms = user.owner.permissions;
+      return Array.isArray(perms) ? perms.includes(permission) : false;
+    }
+    // Tout propriétaire loueur (owner) ou compte titulaire a tous les droits par défaut
+    if (user.role === 'owner' || user.owner?.is_primary === true) {
+      return true;
+    }
+    const perms = user.owner?.permissions;
+    if (Array.isArray(perms)) {
+      return perms.includes(permission);
+    }
+    return false;
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    if (!permissions || permissions.length === 0) return true;
+    return permissions.some(p => this.hasPermission(p));
+  }
+
   isBlocked(): boolean {
     return this.currentUserValue?.is_active === false;
   }

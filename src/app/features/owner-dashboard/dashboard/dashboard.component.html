@@ -36,7 +36,8 @@
           </a>
 
           <!-- 2. Mes Terrains -->
-          <a (click)="setTab('fields')"
+          <a *ngIf="canAccess('fields:manage')"
+             (click)="setTab('fields')"
              [ngClass]="{'bg-slate-800 text-white shadow-sm': activeTab === 'fields', 'text-slate-400 hover:bg-slate-800/60 hover:text-white': activeTab !== 'fields'}"
              class="cursor-pointer group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
             <svg [style.color]="activeTab === 'fields' ? branding.primaryColor : ''" [ngClass]="{'text-slate-500 group-hover:text-slate-300': activeTab !== 'fields'}" class="mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,7 +47,8 @@
           </a>
 
           <!-- 3. Réservations -->
-          <a routerLink="/dashboard/reservations"
+          <a *ngIf="canAccess('reservations:manage')"
+             routerLink="/dashboard/reservations"
              class="text-slate-400 hover:bg-slate-800/60 hover:text-white group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
             <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -55,7 +57,8 @@
           </a>
 
           <!-- 4. Statistiques & Revenus -->
-          <a (click)="setTab('stats')"
+          <a *ngIf="canAccess('accounting:view')"
+             (click)="setTab('stats')"
              [ngClass]="{'bg-slate-800 text-white shadow-sm': activeTab === 'stats', 'text-slate-400 hover:bg-slate-800/60 hover:text-white': activeTab !== 'stats'}"
              class="cursor-pointer group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
             <svg [style.color]="activeTab === 'stats' ? branding.primaryColor : ''" [ngClass]="{'text-slate-500 group-hover:text-slate-300': activeTab !== 'stats'}" class="mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -64,52 +67,129 @@
             <span>Statistiques & Revenus</span>
           </a>
 
-          <!-- 5. Gestion Utilisateurs (NOUVEAU SUR LE MENU) -->
-          <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team'}"
-             class="text-slate-400 hover:bg-slate-800/60 hover:text-white group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
-            <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span>Gestion Utilisateurs</span>
-            <span class="ml-auto text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">
-              Staff
-            </span>
-          </a>
+          <!-- 5. DOSSIER PARENT : GESTION UTILISATEUR (ACCORDION) -->
+          <div *ngIf="canAccess('team:manage')" class="space-y-1">
+            <button
+              type="button"
+              (click)="toggleTeamMenu()"
+              class="w-full text-left group flex items-center justify-between px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all cursor-pointer"
+              [ngClass]="isTeamMenuOpen ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'">
+              <div class="flex items-center">
+                <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span>Gestion Utilisateur</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-full"
+                      [style.backgroundColor]="branding.primaryColor + '25'"
+                      [style.color]="branding.primaryColor">
+                  Teams
+                </span>
+                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" [ngClass]="{'rotate-180': isTeamMenuOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
 
-          <!-- 6. Paramétrage Complexe (Modules Gérant) -->
-          <a routerLink="/dashboard/settings"
-             class="text-slate-400 hover:bg-slate-800/60 hover:text-white group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
-            <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Paramétrage</span>
-            <span class="ml-auto text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-              Gérant
-            </span>
-          </a>
+            <!-- SOUS-DOSSIERS ENFANTS : GESTION UTILISATEUR (Couleur 1 : Principale) -->
+            <div *ngIf="isTeamMenuOpen" class="pl-4 pr-1 py-1 space-y-1 animate-fade-in border-l-2 border-slate-800 ml-4">
+              <!-- Enfant 1: Profils / Utilisateurs -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team', sub: 'members'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.primaryColor"></span>
+                <span>Profils / Utilisateurs</span>
+              </a>
 
-          <!-- 7. Personnalisation de l'espace -->
-          <a (click)="setTab('branding')"
-             [ngClass]="{'bg-slate-800 text-white shadow-sm': activeTab === 'branding', 'text-slate-400 hover:bg-slate-800/60 hover:text-white': activeTab !== 'branding'}"
-             class="cursor-pointer group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
-            <svg [style.color]="activeTab === 'branding' ? branding.primaryColor : ''" [ngClass]="{'text-slate-500 group-hover:text-slate-300': activeTab !== 'branding'}" class="mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5 4 4 0 014 4 4 4 0 014 4 4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-            </svg>
-            <span>Personnaliser l'espace</span>
-            <span class="ml-auto text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-              Pro
-            </span>
-          </a>
+              <!-- Enfant 2: Rôles -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team', sub: 'roles'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.primaryColor"></span>
+                <span>Rôles</span>
+              </a>
 
-          <!-- 8. Mon Profil -->
-          <a routerLink="/dashboard/profile"
-             class="text-slate-400 hover:bg-slate-800/60 hover:text-white group flex items-center px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all">
-            <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span>Mon Profil</span>
-          </a>
+              <!-- Enfant 3: Droits -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team', sub: 'permissions'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.primaryColor"></span>
+                <span>Droits (Catalogue)</span>
+              </a>
+
+              <!-- Enfant 4: Assigner Droit -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team', sub: 'assign'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.primaryColor"></span>
+                <span>Assigner Droit</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 6. DOSSIER PARENT : PARAMÉTRAGE (ACCORDION) -->
+          <div *ngIf="canAccess('settings:manage')" class="space-y-1">
+            <button
+              type="button"
+              (click)="toggleSettingsMenu()"
+              class="w-full text-left group flex items-center justify-between px-3.5 py-3 text-sm font-semibold rounded-2xl transition-all cursor-pointer"
+              [ngClass]="isSettingsMenuOpen ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'">
+              <div class="flex items-center">
+                <svg class="text-slate-500 group-hover:text-slate-300 mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Paramétrage</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" [ngClass]="{'rotate-180': isSettingsMenuOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            <!-- SOUS-DOSSIERS ENFANTS : PARAMÉTRAGE (Couleur 2 : Secondaire) -->
+            <div *ngIf="isSettingsMenuOpen" class="pl-4 pr-1 py-1 space-y-1 animate-fade-in border-l-2 border-slate-800 ml-4">
+              <!-- Enfant 1: WhatsApp & SMS -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'whatsapp_sms'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>WhatsApp & SMS</span>
+              </a>
+
+              <!-- Enfant 2: Abonnements -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'subscriptions'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>Abonnements</span>
+              </a>
+
+              <!-- Enfant 3: Matchmaking -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'matchmaking'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>Matchmaking</span>
+              </a>
+
+              <!-- Enfant 4: Fidélité & Bonus -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'loyalty'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>Fidélité & Bonus</span>
+              </a>
+
+              <!-- Enfant 5: Export Comptable -->
+              <a routerLink="/dashboard/settings" [queryParams]="{tab: 'accounting'}"
+                 class="group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>Export Comptable</span>
+              </a>
+
+              <!-- Enfant 6: Personnalisation (Marque Blanche) -->
+              <a (click)="setTab('branding')"
+                 class="cursor-pointer group flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all">
+                <span class="w-1.5 h-1.5 rounded-full mr-2.5" [style.backgroundColor]="branding.secondaryColor || branding.primaryColor"></span>
+                <span>Marque Blanche</span>
+              </a>
+            </div>
+          </div>
         </nav>
 
         <div class="p-3 border-t border-slate-800">
@@ -368,256 +448,38 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- ONGLET : ACCUEIL & ACCÈS RAPIDE (FEATURE HUB LOUEUR) -->
+        <!-- ONGLET : ACCUEIL & ACCÈS RAPIDE (Inspiré d'eyassur - simple et épuré) -->
         <!-- ========================================================================= -->
-        <div *ngIf="activeTab === 'home'" class="mb-10 space-y-6 animate-fade-in">
-          
-          <!-- En-tête de section -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <section *ngIf="activeTab === 'home'" class="mb-10 animate-fade-in space-y-6">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <div class="flex items-center gap-2.5">
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Accès Rapide aux Fonctionnalités</h2>
-                <span class="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                  Hub Gérant
-                </span>
-              </div>
-              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Pilotez votre complexe sportif en un clic : retrouvez tous les raccourcis vers la gestion des terrains, réservations, équipe et comptabilité.
-              </p>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">Accès rapide</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Lancez vos opérations quotidiennes en un clic</p>
             </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              {{ modules.length }} module(s)
+            </span>
+          </div>
 
-            <!-- Mini statut rapide -->
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{{ fields.length }} terrain(s) en exploitation</span>
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <a *ngFor="let module of modules; let mIdx = index"
+               (click)="handleModuleClick(module)"
+               class="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-center transition-all hover:shadow-md cursor-pointer hover:-translate-y-0.5">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-105 shadow-xs"
+                    [style.backgroundColor]="(mIdx % 2 === 0 ? branding.primaryColor : (branding.secondaryColor || branding.primaryColor)) + '18'"
+                    [style.color]="mIdx % 2 === 0 ? branding.primaryColor : (branding.secondaryColor || branding.primaryColor)">
+                <i [class]="module.icon" class="text-xl"></i>
               </span>
-            </div>
+              <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 transition-colors">
+                {{ module.title }}
+              </span>
+            </a>
+
+            <p *ngIf="modules.length === 0" class="col-span-full text-center py-8 text-sm text-slate-500 dark:text-slate-400">
+              Aucun module accessible avec vos droits actuels.
+            </p>
           </div>
-
-          <!-- Grille des Cartes Raccourcis (Hub de toutes les features du menu) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            
-            <!-- 1. Mes Terrains -->
-            <div (click)="setTab('fields')"
-                 class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                    {{ fields.length }} Actif(s)
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                  Mes Terrains
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Voir vos terrains, leurs caractéristiques, photos multiples, tarifs horaires et surfaces.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <span>Gérer les terrains</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </div>
-
-            <!-- 2. Réservations -->
-            <a routerLink="/dashboard/reservations"
-               class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
-                    Planning Live
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  Réservations
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Consulter les réservations, valider les confirmations et saisir des réservations manuelles au comptoir.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400">
-                <span>Ouvrir les réservations</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </a>
-
-            <!-- 3. Gestion des Créneaux -->
-            <div (click)="goToSlots()"
-                 class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 dark:hover:border-amber-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                    Horaires & Promos
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  Créneaux Horaires
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Générer des créneaux en masse, créneaux nocturnes, remises promo et blocages maintenance.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
-                <span>Gérer les créneaux</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </div>
-
-            <!-- 4. Statistiques & Revenus -->
-            <div (click)="setTab('stats')"
-                 class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-purple-500/50 dark:hover:border-purple-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400">
-                    Performance
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                  Statistiques & Revenus
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Analyser les graphiques d'affluence, le taux de remplissage et les revenus hebdomadaires/mensuels.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-purple-600 dark:text-purple-400">
-                <span>Voir les statistiques</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </div>
-
-            <!-- 5. Gestion Utilisateurs (NOUVEAU) -->
-            <a routerLink="/dashboard/settings" [queryParams]="{tab: 'team'}"
-               class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 dark:hover:border-amber-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                    Staff & Rôles
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  Gestion Utilisateurs
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Inviter votre personnel (réceptionnistes, responsables terrain, comptables) et restreindre leurs droits.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
-                <span>Gérer l'équipe</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </a>
-
-            <!-- 6. Paramétrage Complexe -->
-            <a routerLink="/dashboard/settings"
-               class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    5 Modules
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                  Paramétrage Complexe
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Activer WhatsApp & SMS, abonnements récurrents, matchmaking ouvert et fidélité clients.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <span>Configurer les modules</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </a>
-
-            <!-- 7. Export Comptable -->
-            <a routerLink="/dashboard/settings" [queryParams]="{tab: 'accounting'}"
-               class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
-                    CSV & Fisc
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                  Export Comptable
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Télécharger les relevés de recettes, calculer les commissions plateforme et éditer le rapport.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-teal-600 dark:text-teal-400">
-                <span>Télécharger le relevé</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </a>
-
-            <!-- 8. Personnalisation de l'espace -->
-            <div (click)="setTab('branding')"
-                 class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-pink-500/50 dark:hover:border-pink-500/50 rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1">
-              <div>
-                <div class="flex items-center justify-between mb-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5 4 4 0 014 4 4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                    </svg>
-                  </div>
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-pink-500/15 text-pink-600 dark:text-pink-400">
-                    Marque Blanche
-                  </span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-                  Personnaliser l'Espace
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Configurer votre logo officiel, vos couleurs d'accentuation et l'ambiance visuelle du site.
-                </p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-pink-600 dark:text-pink-400">
-                <span>Studio de marque</span>
-                <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
+        </section>
 
         <!-- ========================================================================= -->
         <!-- ONGLET : STUDIO DE PERSONNALISATION (WHITE-LABEL STUDIO) -->
@@ -708,37 +570,62 @@
 
               </div>
 
-              <!-- SECTION 2 : COULEURS & CHARTE -->
+              <!-- SECTION 2 : COULEURS & CHARTE (2 COULEURS EXCLUSIVES DU GÉRANT) -->
               <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="branding.primaryColor"></span>
-                  2. Palette de Couleurs Principale
-                </h3>
-
-                <!-- Presets -->
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Thèmes prédéfinis</label>
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="branding.primaryColor"></span>
+                    2. Palette de Couleurs (2 Couleurs Exclusives)
+                  </h3>
+                  <p class="text-xs text-slate-400 mt-1">
+                    Définissez les 2 seules couleurs choisies pour votre espace : elles habillent toute la plateforme (points des sous-menus, boutons, badges et accents).
+                  </p>
+                </div>
+
+                <!-- Presets bicolores -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Thèmes bicolores prédéfinis</label>
                   <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    <button *ngFor="let p of brandPresets" type="button" (click)="selectPresetColor(p.color)"
+                    <button *ngFor="let p of brandPresets" type="button" (click)="selectPresetColor(p.color, p.secondaryColor)"
                             [ngClass]="{'ring-2 ring-offset-2 ring-slate-900 dark:ring-white scale-105': branding.primaryColor.toLowerCase() === p.color.toLowerCase()}"
                             class="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-left">
-                      <span class="w-5 h-5 rounded-full shrink-0 shadow-sm" [style.backgroundColor]="p.color"></span>
+                      <div class="flex -space-x-1 shrink-0">
+                        <span class="w-4 h-4 rounded-full shadow-sm" [style.backgroundColor]="p.color"></span>
+                        <span class="w-4 h-4 rounded-full shadow-sm" [style.backgroundColor]="p.secondaryColor"></span>
+                      </div>
                       <span class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{{ p.label }}</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Color picker custom -->
-                <div class="pt-2 flex items-center gap-4">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Couleur personnalisée</label>
+                <!-- Color pickers custom : 2 Couleurs -->
+                <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Couleur 1 (Principale) -->
+                  <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                      Couleur 1 : Principale
+                    </label>
                     <div class="flex items-center gap-3">
                       <input type="color" [(ngModel)]="branding.primaryColor" class="h-10 w-14 rounded-xl cursor-pointer border border-slate-300 dark:border-slate-700 bg-transparent p-0.5">
-                      <input type="text" [(ngModel)]="branding.primaryColor" class="w-28 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono font-bold text-slate-900 dark:text-white uppercase">
+                      <input type="text" [(ngModel)]="branding.primaryColor" class="w-28 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold text-slate-900 dark:text-white uppercase">
                     </div>
+                    <p class="text-[11px] text-slate-400">
+                      Boutons principaux, indicateurs Gestion Utilisateur et accents majeurs.
+                    </p>
                   </div>
-                  <div class="text-xs text-slate-400 mt-5">
-                    Cette couleur s'applique aux boutons d'actions, badges, bordures et accents de navigation.
+
+                  <!-- Couleur 2 (Secondaire) -->
+                  <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                      Couleur 2 : Secondaire
+                    </label>
+                    <div class="flex items-center gap-3">
+                      <input type="color" [(ngModel)]="branding.secondaryColor" class="h-10 w-14 rounded-xl cursor-pointer border border-slate-300 dark:border-slate-700 bg-transparent p-0.5">
+                      <input type="text" [(ngModel)]="branding.secondaryColor" class="w-28 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold text-slate-900 dark:text-white uppercase">
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                      Indicateurs Paramétrage, contrastes et badges secondaires.
+                    </p>
                   </div>
                 </div>
               </div>

@@ -43,6 +43,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   activeTab = 'home';
   showUserDropdown = false;
+  isSettingsMenuOpen = false;
+  isTeamMenuOpen = false;
+
+  toggleSettingsMenu(): void {
+    this.isSettingsMenuOpen = !this.isSettingsMenuOpen;
+  }
+
+  toggleTeamMenu(): void {
+    this.isTeamMenuOpen = !this.isTeamMenuOpen;
+  }
 
   isLoadingFields = true;
   isLoadingStats = true;
@@ -117,14 +127,159 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
+  canAccess(permission: string): boolean {
+    return this.authService.hasPermission(permission);
+  }
+
+  readonly quickModules = [
+    {
+      title: 'Mes Terrains',
+      type: 'fields',
+      icon: 'ph ph-soccer-ball',
+      bgClass: 'bg-emerald-50 dark:bg-emerald-950/60',
+      textClass: 'text-emerald-600 dark:text-emerald-400',
+      rights: ['fields:manage']
+    },
+    {
+      title: 'Réservations',
+      type: 'reservations',
+      link: '/dashboard/reservations',
+      icon: 'ph ph-calendar-check',
+      bgClass: 'bg-blue-50 dark:bg-blue-950/60',
+      textClass: 'text-blue-600 dark:text-blue-400',
+      rights: ['reservations:manage']
+    },
+    {
+      title: 'Créneaux & Tarifs',
+      type: 'slots',
+      icon: 'ph ph-clock',
+      bgClass: 'bg-amber-50 dark:bg-amber-950/60',
+      textClass: 'text-amber-600 dark:text-amber-400',
+      rights: ['slots:manage']
+    },
+    {
+      title: 'Statistiques & CA',
+      type: 'stats',
+      icon: 'ph ph-chart-line-up',
+      bgClass: 'bg-purple-50 dark:bg-purple-950/60',
+      textClass: 'text-purple-600 dark:text-purple-400',
+      rights: ['accounting:view']
+    },
+    {
+      title: 'WhatsApp & SMS',
+      type: 'whatsapp_sms',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'whatsapp_sms' },
+      icon: 'ph ph-whatsapp-logo',
+      bgClass: 'bg-emerald-50 dark:bg-emerald-950/60',
+      textClass: 'text-emerald-500',
+      rights: ['settings:manage']
+    },
+    {
+      title: 'Abonnements',
+      type: 'subscriptions',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'subscriptions' },
+      icon: 'ph ph-arrows-clockwise',
+      bgClass: 'bg-blue-50 dark:bg-blue-950/60',
+      textClass: 'text-blue-500',
+      rights: ['settings:manage']
+    },
+    {
+      title: 'Matchmaking',
+      type: 'matchmaking',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'matchmaking' },
+      icon: 'ph ph-users',
+      bgClass: 'bg-amber-50 dark:bg-amber-950/60',
+      textClass: 'text-amber-500',
+      rights: ['settings:manage']
+    },
+    {
+      title: 'Fidélité & Bonus',
+      type: 'loyalty',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'loyalty' },
+      icon: 'ph ph-gift',
+      bgClass: 'bg-purple-50 dark:bg-purple-950/60',
+      textClass: 'text-purple-500',
+      rights: ['settings:manage']
+    },
+    {
+      title: 'Export Comptable',
+      type: 'accounting',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'accounting' },
+      icon: 'ph ph-file-csv',
+      bgClass: 'bg-emerald-50 dark:bg-emerald-950/60',
+      textClass: 'text-emerald-600 dark:text-emerald-400',
+      rights: ['accounting:view']
+    },
+    {
+      title: 'Gestion Utilisateurs',
+      type: 'team',
+      link: '/dashboard/settings',
+      queryParams: { tab: 'team' },
+      icon: 'ph ph-users-three',
+      bgClass: 'bg-indigo-50 dark:bg-indigo-950/60',
+      textClass: 'text-indigo-600 dark:text-indigo-400',
+      rights: ['team:manage']
+    },
+    {
+      title: 'Paramétrage',
+      type: 'settings',
+      link: '/dashboard/settings',
+      icon: 'ph ph-gear',
+      bgClass: 'bg-teal-50 dark:bg-teal-950/60',
+      textClass: 'text-teal-600 dark:text-teal-400',
+      rights: ['settings:manage']
+    },
+    {
+      title: 'Personnaliser',
+      type: 'branding',
+      icon: 'ph ph-palette',
+      bgClass: 'bg-slate-100 dark:bg-slate-800',
+      textClass: 'text-slate-600 dark:text-slate-300',
+      rights: ['settings:manage']
+    }
+  ];
+
+  get modules() {
+    return this.quickModules.filter(m => {
+      if (!m.rights || m.rights.length === 0) return true;
+      return this.authService.hasAnyPermission(m.rights);
+    });
+  }
+
+  handleModuleClick(module: any) {
+    if (module.type === 'fields') {
+      this.setTab('fields');
+    } else if (module.type === 'stats') {
+      this.setTab('stats');
+    } else if (module.type === 'branding') {
+      this.setTab('branding');
+    } else if (module.type === 'slots') {
+      this.goToSlots();
+    } else if (module.link) {
+      if (module.queryParams) {
+        this.router.navigate([module.link], { queryParams: module.queryParams });
+      } else {
+        this.router.navigate([module.link]);
+      }
+    }
+  }
+
   // --- Loueur White-Label Branding Handlers ---
 
   setLogoPosition(pos: LogoPosition) {
     this.branding.logoPosition = pos;
   }
 
-  selectPresetColor(color: string) {
+  selectPresetColor(color: string, secondaryColor?: string) {
     this.branding.primaryColor = color;
+    if (secondaryColor) {
+      this.branding.secondaryColor = secondaryColor;
+    }
   }
 
   setBackgroundStyle(style: BackgroundStyle) {

@@ -90,6 +90,10 @@ export class ThemeService {
     root.style.setProperty('--brand-color-tint', this.hexToRgba(branding.primaryColor, 0.12));
     root.style.setProperty('--brand-color-dark', this.adjustColorBrightness(branding.primaryColor, -20));
     root.style.setProperty('--brand-color-light', this.adjustColorBrightness(branding.primaryColor, 20));
+
+    const secondaryColor = branding.secondaryColor || '#0f172a';
+    root.style.setProperty('--brand-secondary-color', secondaryColor);
+    root.style.setProperty('--brand-secondary-color-tint', this.hexToRgba(secondaryColor, 0.12));
   }
 
   private hexToRgba(hex: string, alpha: number): string {
