@@ -66,6 +66,13 @@ export const routes: Routes = [
             (m) => m.ProfileComponent
           ),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/owner-dashboard/settings/settings.component').then(
+            (m) => m.OwnerSettingsComponent
+          ),
+      },
     ],
   },
 

@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   user: User | null = null;
   notifications: any[] = [];
   unreadCount = 0;
-  activeTab = 'fields';
+  activeTab = 'home';
   showUserDropdown = false;
 
   isLoadingFields = true;
@@ -78,6 +78,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   goToCreateField() {
     this.router.navigate(['/dashboard/fields/new']);
+  }
+
+  goToSlots(fieldId?: number) {
+    if (fieldId) {
+      this.router.navigate(['/dashboard/fields', fieldId, 'slots']);
+    } else if (this.fields && this.fields.length > 0) {
+      this.router.navigate(['/dashboard/fields', this.fields[0].id, 'slots']);
+    } else {
+      this.setTab('fields');
+    }
   }
 
   get avatarUrl(): string | null {

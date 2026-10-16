@@ -1,0 +1,1314 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
+  
+  <!-- ========================================================================= -->
+  <!-- NAVBAR HAUTE (MODERNE AVEC DARK MODE, NOTIFS & RETOUR DASHBOARD) -->
+  <!-- ========================================================================= -->
+  <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 transition-colors shadow-sm">
+    <div class="flex items-center gap-3">
+      <a routerLink="/dashboard" 
+         class="inline-flex items-center justify-center w-9 h-9 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60 transition shadow-xs"
+         title="Retour au tableau de bord">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </a>
+
+      <div class="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block"></div>
+
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0 bg-emerald-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Paramétrage du Complexe</h1>
+            <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              Gérant
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">{{ businessName || 'Gestion avancée des modules' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions droites -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <app-dark-mode-toggle></app-dark-mode-toggle>
+      <app-notification-bell></app-notification-bell>
+
+      <button
+        (click)="saveSettings()"
+        [disabled]="isSaving || isLoading"
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 transition shadow-sm cursor-pointer">
+        <svg *ngIf="!isSaving" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <svg *ngIf="isSaving" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>{{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- CORPS PRINCIPAL -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6">
+
+    <!-- En-tête avec résumé -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+      <div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Paramètres & Modules Stratégiques</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Configurez les 5 fonctionnalités exclusives de votre complexe : notifications automatiques, abonnements récurrents, matchmaking, fidélité et export comptable.
+        </p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Taux commission : <strong class="text-slate-900 dark:text-white ml-0.5">{{ commissionRate }}%</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Squelette de chargement -->
+    <div *ngIf="isLoading" class="space-y-4">
+      <div class="h-14 bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse"></div>
+      <div class="h-96 bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse"></div>
+    </div>
+
+    <div *ngIf="!isLoading" class="space-y-6">
+
+      <!-- ===================================================================== -->
+      <!-- BARRE DES ONGLETS DES 5 MODULES (NAVIGATION HORIZONTALE) -->
+      <!-- ===================================================================== -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-1.5 shadow-xs overflow-x-auto scrollbar-none flex gap-1.5">
+        
+        <!-- Onglet 1: WhatsApp & SMS -->
+        <button
+          type="button"
+          (click)="setTab('whatsapp_sms')"
+          [ngClass]="activeTab === 'whatsapp_sms' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.174.086.275.073.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.203c.043.072.043.419-.101.824z" />
+          </svg>
+          <span>1. WhatsApp & SMS</span>
+          <span *ngIf="settings.whatsapp_sms.whatsapp_enabled" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </button>
+
+        <!-- Onglet 2: Abonnements Récurrents -->
+        <button
+          type="button"
+          (click)="setTab('subscriptions')"
+          [ngClass]="activeTab === 'subscriptions' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>2. Abonnements & Équipes</span>
+        </button>
+
+        <!-- Onglet 3: Matchmaking & Matchs Ouverts -->
+        <button
+          type="button"
+          (click)="setTab('matchmaking')"
+          [ngClass]="activeTab === 'matchmaking' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span>4. Matchmaking Ouvert</span>
+        </button>
+
+        <!-- Onglet 4: Fidélité & Parrainage -->
+        <button
+          type="button"
+          (click)="setTab('loyalty')"
+          [ngClass]="activeTab === 'loyalty' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+          </svg>
+          <span>5. Fidélité & Parrainage</span>
+        </button>
+
+        <!-- Onglet 5: Export Comptable & Rapports -->
+        <button
+          type="button"
+          (click)="setTab('accounting')"
+          [ngClass]="activeTab === 'accounting' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>6. Export Comptable</span>
+        </button>
+
+        <!-- Onglet 6: Gestion Utilisateurs (RBAC Loueur) -->
+        <button
+          type="button"
+          (click)="setTab('team')"
+          [ngClass]="activeTab === 'team' 
+            ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-white shadow-sm font-bold' 
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer">
+          <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <span>Gestion Utilisateurs</span>
+          <span *ngIf="teamMembers.length > 0" class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+            {{ teamMembers.length }}
+          </span>
+        </button>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 1 : WHATSAPP & SMS AUTOMATIQUES -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'whatsapp_sms'" class="space-y-6 animate-fade-in">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Colonne gauche : Réglages -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+              
+              <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Canaux de Notifications Joueurs</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Confirmation immédiate et rappels avant le coup d'envoi</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Switch WhatsApp -->
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white">Messages WhatsApp</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Envoi du ticket récapitulatif avec lien Google Maps & code créneau</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="settings.whatsapp_sms.whatsapp_enabled" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              <!-- Switch SMS -->
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white">Alerte SMS de secours</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Envoyé automatiquement si le joueur n'est pas joignable sur WhatsApp</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="settings.whatsapp_sms.sms_enabled" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              <!-- Numéro WhatsApp Gérant -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Numéro WhatsApp de contact du Complexe
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-xs font-bold">
+                    TEL
+                  </span>
+                  <input
+                    type="text"
+                    [(ngModel)]="settings.whatsapp_sms.phone_number"
+                    placeholder="+221 77 000 00 00"
+                    class="w-full pl-12 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition" />
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Ce numéro sera cliquable sur le reçu WhatsApp envoyé au joueur pour vous joindre directement.</p>
+              </div>
+
+              <!-- Délai de rappel automatique -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Rappel automatique avant le match
+                </label>
+                <select
+                  [(ngModel)]="settings.whatsapp_sms.notify_reminder_hours"
+                  class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition cursor-pointer">
+                  <option [ngValue]="0">Désactiver le rappel avant match</option>
+                  <option [ngValue]="1">1 heure avant le coup d'envoi</option>
+                  <option [ngValue]="2">2 heures avant le coup d'envoi (Recommandé)</option>
+                  <option [ngValue]="3">3 heures avant le coup d'envoi</option>
+                  <option [ngValue]="6">6 heures avant le coup d'envoi</option>
+                  <option [ngValue]="12">12 heures avant le coup d'envoi</option>
+                  <option [ngValue]="24">24 heures avant le coup d'envoi</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Modèle de message personnalisable -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white">Modèle du Message de Confirmation</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Cliquez sur une variable ci-dessous pour l'insérer dans votre texte</p>
+                </div>
+              </div>
+
+              <!-- Tags cliquables -->
+              <div class="flex flex-wrap gap-1.5">
+                <button
+                  *ngFor="let tag of availableTags"
+                  (click)="insertTag(tag.tag)"
+                  type="button"
+                  class="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200/60 dark:border-emerald-800/60 transition cursor-pointer">
+                  + {{ tag.label }}
+                </button>
+              </div>
+
+              <textarea
+                rows="4"
+                [(ngModel)]="settings.whatsapp_sms.custom_welcome_message"
+                class="w-full p-3.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition resize-none"></textarea>
+            </div>
+
+          </div>
+
+          <!-- Colonne droite : Mockup WhatsApp Live Preview -->
+          <div class="lg:col-span-5">
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-3xl p-5 border border-slate-800 text-white shadow-xl space-y-4 sticky top-24">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Aperçu Réel Smartphone</span>
+                </div>
+                <span class="text-[11px] text-emerald-400 font-semibold">WhatsApp Business</span>
+              </div>
+
+              <!-- Smartphone Screen Box -->
+              <div class="bg-[#0b141a] rounded-2xl border border-slate-800 overflow-hidden shadow-inner flex flex-col min-h-[360px]">
+                
+                <!-- WhatsApp Top Bar -->
+                <div class="bg-[#202c33] p-3 flex items-center justify-between border-b border-[#2a3942]">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold text-white">
+                      {{ businessName.charAt(0) || 'M' }}
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-white truncate max-w-[160px]">{{ businessName }}</p>
+                      <p class="text-[10px] text-emerald-400">Compte vérifié myTerrain</p>
+                    </div>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Aujourd'hui</div>
+                </div>
+
+                <!-- Chat Area with WhatsApp Wallpaper Pattern -->
+                <div class="flex-1 p-3.5 space-y-3 flex flex-col justify-end bg-gradient-to-b from-[#0b141a] to-[#121b22]">
+                  
+                  <!-- WhatsApp Incoming Bubble -->
+                  <div class="max-w-[92%] bg-[#005c4b] text-white p-3.5 rounded-2xl rounded-tl-none shadow-sm space-y-2 text-xs leading-relaxed">
+                    <p class="font-bold text-emerald-200">✅ Réservation Confirmée !</p>
+                    <p class="whitespace-pre-line text-slate-100 text-[11.5px]">
+                      {{ getLiveMessagePreview() }}
+                    </p>
+                    <div class="pt-2 border-t border-emerald-600/50 flex items-center justify-between text-[10px] text-emerald-200">
+                      <span>Réf: #RES-8942</span>
+                      <div class="flex items-center gap-1">
+                        <span>14:32</span>
+                        <svg class="w-3.5 h-3.5 text-blue-300" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- WhatsApp Bottom Bar -->
+                <div class="bg-[#202c33] p-2.5 px-3 flex items-center justify-between text-slate-400 text-xs">
+                  <span class="text-[11px] text-slate-400">Répondre au joueur...</span>
+                  <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">
+                    ➤
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="text-[11px] text-slate-400 text-center">
+                Ce modèle dynamique est transmis automatiquement au joueur dès validation de sa réservation.
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 2 : ABONNEMENTS RÉCURRENTS (ÉQUIPES & ENTREPRISES) -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'subscriptions'" class="space-y-6 animate-fade-in">
+        
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Formules d'Abonnements Récurrents</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Fidélisez les équipes corporate et les groupes réguliers avec un créneau garanti par semaine</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="settings.subscriptions.enabled" class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          <div *ngIf="!settings.subscriptions.enabled" class="p-6 rounded-2xl bg-slate-100 dark:bg-slate-800 text-center text-slate-500 dark:text-slate-400 text-xs">
+            Les formules d'abonnement sont actuellement désactivées pour votre complexe. Activez l'interrupteur ci-dessus pour configurer les remises.
+          </div>
+
+          <div *ngIf="settings.subscriptions.enabled" class="space-y-6">
+            
+            <!-- Les 3 Cartes de Formules -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
+              <!-- Formule Trimestrielle -->
+              <div class="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Trimestre</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/15 text-blue-600 dark:text-blue-400">3 Mois</span>
+                </div>
+                <div>
+                  <h4 class="text-lg font-black text-slate-900 dark:text-white">Formule Bronze</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">1 match par semaine pendant 12 semaines</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Remise accordée (%)</label>
+                  <div class="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      [(ngModel)]="settings.subscriptions.discount_quarterly"
+                      class="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition font-bold" />
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Formule Semestrielle -->
+              <div class="p-5 rounded-3xl border-2 border-emerald-500/60 bg-emerald-50/30 dark:bg-emerald-950/20 space-y-4 relative">
+                <span class="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white shadow-sm">
+                  Recommandé
+                </span>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Semestre</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">6 Mois</span>
+                </div>
+                <div>
+                  <h4 class="text-lg font-black text-slate-900 dark:text-white">Formule Argent</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">1 match par semaine pendant 24 semaines</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Remise accordée (%)</label>
+                  <div class="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      [(ngModel)]="settings.subscriptions.discount_semiannual"
+                      class="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition font-bold" />
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Formule Annuelle -->
+              <div class="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Année Complète</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/15 text-purple-600 dark:text-purple-400">12 Mois</span>
+                </div>
+                <div>
+                  <h4 class="text-lg font-black text-slate-900 dark:text-white">Formule Or VIP</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Saison complète garantie 52 semaines</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Remise accordée (%)</label>
+                  <div class="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      [(ngModel)]="settings.subscriptions.discount_annual"
+                      class="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition font-bold" />
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Options avancées d'abonnement -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              
+              <div class="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
+                <input
+                  type="checkbox"
+                  id="priority_booking"
+                  [(ngModel)]="settings.subscriptions.allow_priority_booking"
+                  class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                <div>
+                  <label for="priority_booking" class="text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
+                    Verrouillage automatique du créneau fixe
+                  </label>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Le créneau choisi (ex: chaque mardi à 20h) est automatiquement réservé pour l'équipe sur toute la durée du contrat.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
+                <input
+                  type="checkbox"
+                  id="corporate_billing"
+                  [(ngModel)]="settings.subscriptions.corporate_billing"
+                  class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                <div>
+                  <label for="corporate_billing" class="text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
+                    Facturation Entreprise & Justificatifs TVA
+                  </label>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Génération automatique d'un relevé de facture officiel avec le NINEA/RCCM de votre complexe pour les entreprises.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 4 : MATCHMAKING & MATCHS OUVERTS (JOUEURS MANQUANTS) -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'matchmaking'" class="space-y-6 animate-fade-in">
+        
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Matchmaking & Matchs Ouverts</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Augmentez le taux de remplissage de vos terrains en permettant aux joueurs individuels de rejoindre des matchs incomplets</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="settings.matchmaking.enabled" class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          <div *ngIf="settings.matchmaking.enabled" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Quotas de joueurs -->
+            <div class="space-y-4 p-5 rounded-3xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-700/60">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Configuration des effectifs</h4>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Min. Joueurs requis</label>
+                  <input
+                    type="number"
+                    min="4"
+                    max="22"
+                    [(ngModel)]="settings.matchmaking.min_players_required"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition font-bold" />
+                  <p class="text-[10px] text-slate-500 dark:text-slate-400">Ex: 10 pour un match 5v5</p>
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Max. Joueurs autorisés</label>
+                  <input
+                    type="number"
+                    min="4"
+                    max="26"
+                    [(ngModel)]="settings.matchmaking.max_players_allowed"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition font-bold" />
+                  <p class="text-[10px] text-slate-500 dark:text-slate-400">Remplaçants compris (ex: 14)</p>
+                </div>
+              </div>
+
+              <!-- Division automatique des frais -->
+              <div class="flex items-start gap-3 pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
+                <input
+                  type="checkbox"
+                  id="auto_split"
+                  [(ngModel)]="settings.matchmaking.auto_split_cost"
+                  class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                <div>
+                  <label for="auto_split" class="text-xs font-bold text-slate-900 dark:text-white cursor-pointer">
+                    Partage équitable automatique du tarif
+                  </label>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    Le tarif du terrain (ex: 20 000 FCFA) est divisé par le nombre de joueurs (ex: 2 000 FCFA/joueur) collecté directement à l'inscription.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Conditions d'annulation et alertes -->
+            <div class="space-y-4 p-5 rounded-3xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-700/60">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Sécurité du Créneau</h4>
+              
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Délai limite pour compléter l'effectif
+                </label>
+                <select
+                  [(ngModel)]="settings.matchmaking.auto_cancel_hours"
+                  class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition cursor-pointer">
+                  <option [ngValue]="1">1 heure avant le match</option>
+                  <option [ngValue]="2">2 heures avant le match</option>
+                  <option [ngValue]="3">3 heures avant le match (Recommandé)</option>
+                  <option [ngValue]="6">6 heures avant le match</option>
+                  <option [ngValue]="12">12 heures avant le match</option>
+                </select>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                  Si le quota minimum de joueurs n'est pas atteint avant cette heure limite, le match est annulé et le créneau redevient disponible pour d'autres réservations.
+                </p>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs">
+                💡 <strong>Astuce Gérant :</strong> Les matchs ouverts attirent une communauté active de joueurs réguliers qui comblent souvent les heures creuses (dimanches soirs, lundis soirs).
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 5 : PROGRAMME DE FIDÉLITÉ & PARRAINAGE -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'loyalty'" class="space-y-6 animate-fade-in">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Carte Fidélité Digitale -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Carte de Fidélité Digitale</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Récompensez automatiquement vos clients fidèles</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [(ngModel)]="settings.loyalty.loyalty_enabled" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+
+            <div *ngIf="settings.loyalty.loyalty_enabled" class="space-y-4">
+              
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Nombre de réservations pour débloquer la remise
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    [(ngModel)]="settings.loyalty.bookings_required"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition" />
+                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-semibold">réservations</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">À la {{ settings.loyalty.bookings_required + 1 }}ème réservation, la réduction s'appliquera automatiquement.</p>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Montant de la remise (FCFA)
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    min="500"
+                    step="500"
+                    [(ngModel)]="settings.loyalty.reward_discount_fcfa"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition" />
+                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-bold">FCFA</span>
+                </div>
+              </div>
+
+              <!-- Badge visuel fidélité -->
+              <div class="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40 flex items-center gap-3">
+                <span class="text-2xl">🎖️</span>
+                <p class="text-xs text-purple-900 dark:text-purple-300">
+                  Règle : Pour <strong>{{ settings.loyalty.bookings_required }} réservations</strong> payées, le joueur bénéficie de <strong>{{ formatPrice(settings.loyalty.reward_discount_fcfa) }} FCFA</strong> de réduction immédiate !
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Carte Parrainage Joueur -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Programme de Parrainage</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Encouragez vos capitaines à inviter d'autres équipes</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [(ngModel)]="settings.loyalty.referral_enabled" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+              </label>
+            </div>
+
+            <div *ngIf="settings.loyalty.referral_enabled" class="space-y-4">
+              
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Prime parrain & filleul (FCFA)
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    min="500"
+                    step="500"
+                    [(ngModel)]="settings.loyalty.referral_reward_fcfa"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition" />
+                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-bold">FCFA</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Crédité sur le portefeuille joueur dès le premier match terminé du filleul.</p>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Code Parrainage Exclusif de votre Complexe
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    [(ngModel)]="settings.loyalty.custom_referral_code"
+                    placeholder="EX: PRO-ARENA"
+                    class="flex-1 px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono uppercase focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition" />
+                  <button
+                    (click)="copyReferralLink()"
+                    type="button"
+                    class="px-4 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+                    <svg *ngIf="!copiedCode" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <svg *ngIf="copiedCode" class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>{{ copiedCode ? 'Copié !' : 'Copier lien' }}</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 6 : EXPORT COMPTABLE & RAPPORTS FINANCIERS -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'accounting'" class="space-y-6 animate-fade-in">
+        
+        <!-- Barre de Filtres de Période & Boutons d'Export -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <!-- Année -->
+            <select
+              [(ngModel)]="selectedYear"
+              (change)="loadAccountingReport()"
+              class="px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition cursor-pointer">
+              <option *ngFor="let y of availableYears" [ngValue]="y">Année {{ y }}</option>
+            </select>
+
+            <!-- Mois -->
+            <select
+              [(ngModel)]="selectedMonth"
+              (change)="loadAccountingReport()"
+              class="px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition cursor-pointer">
+              <option value="all">Toute l'année</option>
+              <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+            <!-- Bouton Imprimer -->
+            <button
+              type="button"
+              (click)="printReport()"
+              class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              <span>Imprimer</span>
+            </button>
+
+            <!-- Bouton Télécharger CSV -->
+            <button
+              type="button"
+              (click)="downloadCsv()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 transition shadow-sm cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Exporter en CSV (Excel)</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Chargement du rapport -->
+        <div *ngIf="isLoadingReport" class="p-12 text-center">
+          <svg class="animate-spin w-8 h-8 text-emerald-600 mx-auto" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <p class="text-xs text-slate-500 mt-2">Calcul des indicateurs comptables...</p>
+        </div>
+
+        <!-- Statistiques Clés (Cartes KPIs Financières) -->
+        <div *ngIf="!isLoadingReport && report" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Recettes Brutes -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+              <span>Recettes Brutes Encaissées</span>
+              <span class="w-7 h-7 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">💰</span>
+            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white mt-2 tracking-tight tabular-nums">
+              {{ formatPrice(report.total_gross_revenue) }} <span class="text-xs font-bold text-slate-400">FCFA</span>
+            </p>
+            <p class="text-[11px] text-slate-400 mt-1">Sur {{ report.confirmed_bookings }} réservations confirmées</p>
+          </div>
+
+          <!-- Commission Plateforme -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+              <span>Commission Plateforme</span>
+              <span class="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">🏷️</span>
+            </div>
+            <p class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2 tracking-tight tabular-nums">
+              {{ formatPrice(report.total_commission) }} <span class="text-xs font-bold text-slate-400">FCFA</span>
+            </p>
+            <p class="text-[11px] text-slate-400 mt-1">Taux contractuel : {{ report.commission_rate }}%</p>
+          </div>
+
+          <!-- Net Loueur Reversé -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+              <span>Net Loueur (À percevoir)</span>
+              <span class="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">🏦</span>
+            </div>
+            <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2 tracking-tight tabular-nums">
+              {{ formatPrice(report.net_payout) }} <span class="text-xs font-bold text-slate-400">FCFA</span>
+            </p>
+            <p class="text-[11px] text-emerald-500 mt-1 font-semibold">Reversé via Wave / Orange Money / Virement</p>
+          </div>
+
+          <!-- Volume Réservations -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+              <span>Réservations Totales</span>
+              <span class="w-7 h-7 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">📊</span>
+            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white mt-2 tracking-tight tabular-nums">
+              {{ report.total_bookings }}
+            </p>
+            <p class="text-[11px] text-slate-400 mt-1">
+              {{ report.cancelled_bookings }} annulée(s)
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Tableau des écritures comptables récentes -->
+        <div *ngIf="!isLoadingReport && report" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+          
+          <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Écritures & Transactions Rattachées</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Relevé chronologique conforme pour déclaration fiscale</p>
+            </div>
+            <span class="text-xs text-slate-400 font-semibold">{{ report.recent_reservations.length }} transactions affichées</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-800">
+                <tr>
+                  <th class="py-3 px-4 font-bold">Réf</th>
+                  <th class="py-3 px-4 font-bold">Date du match</th>
+                  <th class="py-3 px-4 font-bold">Client</th>
+                  <th class="py-3 px-4 font-bold">Terrain</th>
+                  <th class="py-3 px-4 font-bold">Créneau</th>
+                  <th class="py-3 px-4 font-bold text-right">Brut (FCFA)</th>
+                  <th class="py-3 px-4 font-bold text-right">Commission</th>
+                  <th class="py-3 px-4 font-bold text-right">Net Loueur</th>
+                  <th class="py-3 px-4 font-bold text-center">Statut</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                <tr *ngFor="let row of report.recent_reservations" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+                  <td class="py-3 px-4 font-mono font-bold text-slate-700 dark:text-slate-300">#{{ row.id }}</td>
+                  <td class="py-3 px-4 text-slate-600 dark:text-slate-400">{{ row.date }}</td>
+                  <td class="py-3 px-4">
+                    <p class="font-bold text-slate-900 dark:text-white">{{ row.client_name }}</p>
+                    <p class="text-[10px] text-slate-400 font-mono">{{ row.client_phone }}</p>
+                  </td>
+                  <td class="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">{{ row.field_name }}</td>
+                  <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-mono text-[11px]">{{ row.time_slot }}</td>
+                  <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white tabular-nums">{{ formatPrice(row.total_price) }}</td>
+                  <td class="py-3 px-4 text-right text-amber-600 dark:text-amber-400 font-medium tabular-nums">-{{ formatPrice(row.commission) }}</td>
+                  <td class="py-3 px-4 text-right font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{{ formatPrice(row.net_amount) }}</td>
+                  <td class="py-3 px-4 text-center">
+                    <span
+                      [ngClass]="{
+                        'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400': row.status === 'confirmed' || row.status === 'completed',
+                        'bg-amber-500/15 text-amber-600 dark:text-amber-400': row.status === 'pending',
+                        'bg-red-500/15 text-red-600 dark:text-red-400': row.status === 'cancelled'
+                      }"
+                      class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                      {{ row.status }}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="report.recent_reservations.length === 0">
+                  <td colspan="9" class="py-8 text-center text-slate-400">
+                    Aucune transaction trouvée pour la période sélectionnée.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODULE 7 : ÉQUIPE & GESTION DES RÔLES / PERMISSIONS (RBAC LOUEUR) -->
+      <!-- ===================================================================== -->
+      <div *ngIf="activeTab === 'team'" class="space-y-6 animate-fade-in">
+        
+        <!-- Header & Action Inviter -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Gestion Utilisateurs & Rôles</h3>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                Sécurité & RBAC
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Déléguez la gestion de vos terrains à vos employés (réceptionnistes, responsables terrain, comptables) avec des droits d'accès strictement contrôlés.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="openAddMemberModal()"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 transition shadow-sm cursor-pointer whitespace-nowrap shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span>+ Ajouter un Collaborateur</span>
+          </button>
+        </div>
+
+        <!-- Chargement de l'équipe -->
+        <div *ngIf="isLoadingTeam" class="p-12 text-center">
+          <svg class="animate-spin w-8 h-8 text-emerald-600 mx-auto" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <p class="text-xs text-slate-500 mt-2">Chargement des membres de votre équipe...</p>
+        </div>
+
+        <!-- Liste des membres de l'équipe -->
+        <div *ngIf="!isLoadingTeam" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+          
+          <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Membres Actifs ({{ teamMembers.length }})</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Les collaborateurs se connectent avec leur email personnel et accèdent uniquement aux écrans autorisés.</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-800">
+                <tr>
+                  <th class="py-3.5 px-4 font-bold">Collaborateur</th>
+                  <th class="py-3.5 px-4 font-bold">Rôle Attribué</th>
+                  <th class="py-3.5 px-4 font-bold">Droits & Accès</th>
+                  <th class="py-3.5 px-4 font-bold text-center">Statut</th>
+                  <th class="py-3.5 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                <tr *ngFor="let member of teamMembers" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+                  
+                  <!-- Collaborateur info -->
+                  <td class="py-4 px-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 shadow-xs"
+                           [ngClass]="member.is_primary ? 'bg-amber-500 text-slate-900' : 'bg-slate-800 text-white dark:bg-slate-700'">
+                        {{ member.name.charAt(0) | uppercase }}
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{{ member.name }}</p>
+                          <span *ngIf="member.is_primary" class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                            Titulaire
+                          </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ member.email }} • <span class="font-mono">{{ member.phone }}</span></p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Rôle badge -->
+                  <td class="py-4 px-4">
+                    <span [ngClass]="getRoleBadgeClass(member.role)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold">
+                      <span *ngIf="member.role === 'owner_master'">👑</span>
+                      <span *ngIf="member.role === 'manager'">👔</span>
+                      <span *ngIf="member.role === 'receptionist'">🛎️</span>
+                      <span *ngIf="member.role === 'field_staff'">⚽</span>
+                      <span *ngIf="member.role === 'accountant'">💼</span>
+                      <span *ngIf="member.role === 'custom'">⚙️</span>
+                      <span>{{ member.role_label }}</span>
+                    </span>
+                  </td>
+
+                  <!-- Droits / Permissions summary -->
+                  <td class="py-4 px-4">
+                    <div class="flex flex-wrap gap-1 max-w-xs">
+                      <span *ngIf="member.is_primary || member.role === 'manager'" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                        Accès Total Illimité
+                      </span>
+                      <ng-container *ngIf="!member.is_primary && member.role !== 'manager'">
+                        <span *ngFor="let p of member.permissions" class="px-1.5 py-0.5 rounded-lg text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
+                          {{ p }}
+                        </span>
+                      </ng-container>
+                    </div>
+                  </td>
+
+                  <!-- Statut Actif / Suspendu -->
+                  <td class="py-4 px-4 text-center">
+                    <span *ngIf="member.is_primary" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Actif permanent
+                    </span>
+                    <button
+                      *ngIf="!member.is_primary"
+                      type="button"
+                      (click)="toggleMemberStatus(member)"
+                      [title]="member.is_active ? 'Cliquer pour suspendre' : 'Cliquer pour activer'"
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition cursor-pointer"
+                      [ngClass]="member.is_active 
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25' 
+                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'">
+                      <span class="w-1.5 h-1.5 rounded-full" [ngClass]="member.is_active ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                      <span>{{ member.is_active ? 'Actif' : 'Suspendu' }}</span>
+                    </button>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="py-4 px-4 text-right">
+                    <div *ngIf="member.is_primary" class="text-[11px] text-slate-400 italic">
+                      Compte Maître
+                    </div>
+                    <div *ngIf="!member.is_primary" class="flex items-center justify-end gap-1.5">
+                      <!-- Bouton Modifier Droits -->
+                      <button
+                        type="button"
+                        (click)="openEditMemberModal(member)"
+                        class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                        title="Modifier le rôle et les droits">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                      </button>
+
+                      <!-- Bouton Retirer -->
+                      <button
+                        type="button"
+                        (click)="removeMember(member)"
+                        class="p-1.5 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                        title="Retirer du complexe">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    </div>
+                  </td>
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Description pédagogique des rôles -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div *ngFor="let r of defaultRoles" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 space-y-2">
+            <span [ngClass]="getRoleBadgeClass(r.role)" class="px-2 py-0.5 rounded-lg text-[10px] font-bold">
+              {{ r.label }}
+            </span>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ r.description }}</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE : AJOUTER UN COLLABORATEUR -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showAddMemberModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div (click)="$event.stopPropagation()" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Ajouter un Collaborateur</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Configurez le rôle et les autorisations de votre staff</p>
+          </div>
+        </div>
+        <button (click)="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- Nom & Prénom -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Nom & Prénom *</label>
+          <input
+            type="text"
+            [(ngModel)]="newMember.name"
+            placeholder="Ex: Ibrahima Ndiaye"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <!-- Email & Téléphone -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Email de connexion *</label>
+            <input
+              type="email"
+              [(ngModel)]="newMember.email"
+              placeholder="ibrahima@example.com"
+              class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Téléphone</label>
+            <input
+              type="text"
+              [(ngModel)]="newMember.phone"
+              placeholder="+221 77 000 00 00"
+              class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Mot de passe initial -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Mot de passe provisoire (optionnel)</label>
+          <input
+            type="password"
+            [(ngModel)]="newMember.password"
+            placeholder="Par défaut : Pass1234!"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500" />
+        </div>
+
+        <!-- Rôle Prédéfini -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Rôle assigné</label>
+          <select
+            [(ngModel)]="newMember.role"
+            (change)="onNewMemberRoleChange(newMember.role)"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold cursor-pointer">
+            <option value="manager">👔 Administrateur Complexe (Accès total)</option>
+            <option value="receptionist">🛎️ Accueil / Réceptionniste (Créneaux & Réservations)</option>
+            <option value="field_staff">⚽ Responsable Terrain / Arbitre (Matchs & Maintenance)</option>
+            <option value="accountant">💼 Comptable / Finance (Relevés & Factures)</option>
+            <option value="custom">⚙️ Rôle Sur-Mesure (Permissions manuelles)</option>
+          </select>
+        </div>
+
+        <!-- Permissions Sur-Mesure (si rôle = custom) -->
+        <div *ngIf="newMember.role === 'custom'" class="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Droits spécifiques accordés</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label *ngFor="let perm of availablePermissions" class="flex items-start gap-2 p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="isNewMemberPermissionSelected(perm.key)"
+                (change)="toggleNewMemberPermission(perm.key)"
+                class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+              <div>
+                <p class="font-bold text-slate-900 dark:text-white leading-tight">{{ perm.label }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ perm.description }}</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <button
+          type="button"
+          (click)="closeAddMemberModal()"
+          class="px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="saveNewMember()"
+          [disabled]="isSavingMember"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 transition shadow-sm cursor-pointer">
+          {{ isSavingMember ? 'Ajout en cours...' : 'Ajouter le collaborateur' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALE : MODIFIER LES DROITS DU COLLABORATEUR -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showEditMemberModal && selectedMember" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div (click)="$event.stopPropagation()" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Modifier les Droits</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ selectedMember.name }} ({{ selectedMember.email }})</p>
+          </div>
+        </div>
+        <button (click)="closeEditMemberModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- Rôle Prédéfini -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Rôle attribué</label>
+          <select
+            [(ngModel)]="editMemberForm.role"
+            (change)="onEditMemberRoleChange(editMemberForm.role)"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold cursor-pointer">
+            <option value="manager">👔 Administrateur Complexe (Accès total)</option>
+            <option value="receptionist">🛎️ Accueil / Réceptionniste (Créneaux & Réservations)</option>
+            <option value="field_staff">⚽ Responsable Terrain / Arbitre (Matchs & Maintenance)</option>
+            <option value="accountant">💼 Comptable / Finance (Relevés & Factures)</option>
+            <option value="custom">⚙️ Rôle Sur-Mesure (Permissions manuelles)</option>
+          </select>
+        </div>
+
+        <!-- Permissions Sur-Mesure -->
+        <div *ngIf="editMemberForm.role === 'custom'" class="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Permissions accordées</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label *ngFor="let perm of availablePermissions" class="flex items-start gap-2 p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="isEditMemberPermissionSelected(perm.key)"
+                (change)="toggleEditMemberPermission(perm.key)"
+                class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+              <div>
+                <p class="font-bold text-slate-900 dark:text-white leading-tight">{{ perm.label }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ perm.description }}</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Statut du compte -->
+        <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Statut du collaborateur</p>
+            <p class="text-[11px] text-slate-400">Désactiver pour bloquer temporairement l'accès sans supprimer le profil</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="editMemberForm.is_active" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <button
+          type="button"
+          (click)="closeEditMemberModal()"
+          class="px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="saveEditMember()"
+          [disabled]="isSavingMember"
+          class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 transition shadow-sm cursor-pointer">
+          {{ isSavingMember ? 'Mise à jour...' : 'Enregistrer les modifications' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
