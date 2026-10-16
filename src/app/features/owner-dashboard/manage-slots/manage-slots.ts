@@ -105,9 +105,12 @@ export class ManageSlotsComponent implements OnInit {
   getSlotHeight(start: string, end: string): string {
     if (!start || !end) return '60px';
     const [h1, m1] = start.split(':').map(Number);
-    const [h2, m2] = end.split(':').map(Number);
+    let [h2, m2] = end.split(':').map(Number);
+    if (h2 === 0 && h1 > 0) {
+      h2 = 24;
+    }
     const dur = ((h2 - h1) * 60) + (m2 - m1);
-    return `${dur}px`;
+    return `${Math.max(30, dur)}px`;
   }
 
 
@@ -196,6 +199,19 @@ export class ManageSlotsComponent implements OnInit {
   onDateChange() { this.refreshData(); }
 
   addSlot() {
+    if (!this.newSlot.start_time || !this.newSlot.end_time) {
+      this.confirmationService.toast("Veuillez renseigner l'heure de début et l'heure de fin.", 'warning');
+      return;
+    }
+    if (this.newSlot.start_time === this.newSlot.end_time) {
+      this.confirmationService.toast("L'heure de fin ne peut pas être identique à l'heure de début.", 'warning');
+      return;
+    }
+    if (this.newSlot.end_time !== '00:00' && this.newSlot.end_time < this.newSlot.start_time) {
+      this.confirmationService.toast("L'heure de fin doit être postérieure à l'heure de début.", 'warning');
+      return;
+    }
+
     this.isAdding = true;
     const payload = {
       date: this.selectedDate,
@@ -291,8 +307,12 @@ export class ManageSlotsComponent implements OnInit {
   applyBlockRange() {
     const slotsToBlock = this.slots.filter(s => {
       if (s.status !== 'available') return false;
-      return s.start_time.substring(0,5) >= this.blockRangeData.startTime && 
-             s.start_time.substring(0,5) < this.blockRangeData.endTime;
+      const slotStart = s.start_time.substring(0, 5);
+      if (this.blockRangeData.endTime === '00:00') {
+        return slotStart >= this.blockRangeData.startTime;
+      }
+      return slotStart >= this.blockRangeData.startTime && 
+             slotStart < this.blockRangeData.endTime;
     });
 
     if (slotsToBlock.length === 0) {
@@ -326,7 +346,10 @@ export class ManageSlotsComponent implements OnInit {
   estimateSlots(): number {
     if (!this.bulk.startDate || !this.bulk.endDate || !this.bulk.openTime || !this.bulk.closeTime) return 0;
     const [oh, om] = this.bulk.openTime.split(':').map(Number);
-    const [ch, cm] = this.bulk.closeTime.split(':').map(Number);
+    let [ch, cm] = this.bulk.closeTime.split(':').map(Number);
+    if (ch === 0 && oh > 0) {
+      ch = 24;
+    }
     const totalMins = (ch * 60 + cm) - (oh * 60 + om);
     if (totalMins <= 0) return 0;
     const slotsPerDay = Math.floor(totalMins / this.bulk.durationMinutes);
