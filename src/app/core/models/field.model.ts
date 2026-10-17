@@ -32,13 +32,19 @@ export interface FieldImageItem {
 
 export interface Field {
   id: number;
+  reference?: string;
   name: string;
   description?: string;
   type?: string;
   location?: string;
   address?: string;
   city?: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
   surface_type?: string;
+  size?: string;
+  capacity?: number;
+  amenities?: string[] | string;
   price_per_hour: number;
   hourly_rate?: number;
   photo?: string;
