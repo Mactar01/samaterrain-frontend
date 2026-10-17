@@ -56,5 +56,22 @@ export class AdminService {
   registerFromInvitation(data: any): Observable<any> {
     return this.http.post(`${this.publicApiUrl}/owners/register-from-invite`, data);
   }
+
+  // ---- Platform Roles & Permissions ----
+  getPlatformRoles(): Observable<{ roles: any[]; available_permissions: any[] }> {
+    return this.http.get<{ roles: any[]; available_permissions: any[] }>(`${this.apiUrl}/platform-roles`);
+  }
+
+  createPlatformRole(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/platform-roles`, data);
+  }
+
+  updatePlatformRole(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/platform-roles/${id}`, data);
+  }
+
+  deletePlatformRole(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/platform-roles/${id}`);
+  }
 }
 

@@ -1067,7 +1067,8 @@
                  class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col relative h-full">
               
               <!-- Image Banner du terrain avec défilement automatique toutes les 2 secondes -->
-              <div class="h-36 sm:h-40 rounded-t-2xl sm:rounded-t-3xl bg-slate-800 relative overflow-hidden flex-shrink-0 group/banner">
+              <div [routerLink]="['/dashboard/fields', field.id]"
+                   class="h-36 sm:h-40 rounded-t-2xl sm:rounded-t-3xl bg-slate-800 relative overflow-hidden flex-shrink-0 group/banner cursor-pointer">
                 
                 <!-- Photos avec transition fluide si plusieurs photos -->
                 <ng-container *ngIf="getFieldPhotos(field) as photos">
@@ -1123,7 +1124,7 @@
               <div class="p-3 sm:p-3.5 mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2">
                 
                 <!-- Adresse & Ville avec icône (prend la largeur nécessaire, multi-lignes sans tronquer prématurément) -->
-                <div class="flex items-start text-xs text-slate-500 dark:text-slate-400 font-medium min-w-[130px] flex-1">
+                <div [routerLink]="['/dashboard/fields', field.id]" class="flex items-start text-xs text-slate-500 dark:text-slate-400 font-medium min-w-[130px] flex-1 cursor-pointer">
                   <svg class="flex-shrink-0 mr-1.5 h-3.5 w-3.5 mt-0.5" [style.color]="branding.primaryColor" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1158,6 +1159,14 @@
                          (click)="$event.stopPropagation()"
                          class="absolute right-0 bottom-full mb-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-1.5 z-40 animate-scale-up">
                       
+                      <!-- Voir fiche détaillée -->
+                      <a [routerLink]="['/dashboard/fields', field.id]"
+                         (click)="closeFieldDropdown()"
+                         class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300 transition">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span>Fiche détaillée</span>
+                      </a>
+
                       <!-- Gérer les créneaux -->
                       <a *ngIf="canAccess('slots:manage')" [routerLink]="['/dashboard/fields', field.id, 'slots']"
                          (click)="closeFieldDropdown()"

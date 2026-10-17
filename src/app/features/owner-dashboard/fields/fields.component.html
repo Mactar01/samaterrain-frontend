@@ -1,0 +1,216 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
+
+  <!-- Header -->
+  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a routerLink="/dashboard"
+           class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </a>
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">Mes Terrains</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Gérez vos infrastructures sportives et leurs plannings</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <app-dark-mode-toggle></app-dark-mode-toggle>
+        <app-notification-bell></app-notification-bell>
+
+        <a routerLink="/dashboard/fields/new"
+           [style.backgroundColor]="primaryColor"
+           class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-xl text-xs font-bold shadow-sm hover:brightness-95 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span class="hidden sm:inline">Ajouter un terrain</span>
+          <span class="sm:hidden">Nouveau</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Filters & Search Toolbar -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      
+      <!-- Search Input -->
+      <div class="relative flex-1 max-w-md">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="filterFields()"
+               placeholder="Rechercher par nom, ville, adresse..."
+               class="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+      </div>
+
+      <!-- Type Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <button (click)="selectedType = 'all'; filterFields()"
+                [class.text-white]="selectedType === 'all'"
+                [style.backgroundColor]="selectedType === 'all' ? primaryColor : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0"
+                [ngClass]="selectedType === 'all' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+          Tous ({{ fields.length }})
+        </button>
+        <button (click)="selectedType = 'football'; filterFields()"
+                [class.text-white]="selectedType === 'football'"
+                [style.backgroundColor]="selectedType === 'football' ? primaryColor : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0"
+                [ngClass]="selectedType === 'football' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+          Football
+        </button>
+        <button (click)="selectedType = 'basketball'; filterFields()"
+                [class.text-white]="selectedType === 'basketball'"
+                [style.backgroundColor]="selectedType === 'basketball' ? primaryColor : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0"
+                [ngClass]="selectedType === 'basketball' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+          Basketball
+        </button>
+        <button (click)="selectedType = 'padel'; filterFields()"
+                [class.text-white]="selectedType === 'padel'"
+                [style.backgroundColor]="selectedType === 'padel' ? primaryColor : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0"
+                [ngClass]="selectedType === 'padel' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+          Padel
+        </button>
+        <button (click)="selectedType = 'tennis'; filterFields()"
+                [class.text-white]="selectedType === 'tennis'"
+                [style.backgroundColor]="selectedType === 'tennis' ? primaryColor : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0"
+                [ngClass]="selectedType === 'tennis' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+          Tennis
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let i of [1, 2, 3]" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden animate-pulse">
+        <div class="h-48 bg-slate-200 dark:bg-slate-800"></div>
+        <div class="p-5 space-y-3">
+          <div class="h-5 bg-slate-200 dark:bg-slate-800 rounded-xl w-3/4"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredFields.length === 0"
+         class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center max-w-md mx-auto space-y-4">
+      <div class="w-16 h-16 rounded-3xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Aucun terrain trouvé</h3>
+        <p class="text-xs text-slate-400 mt-1">
+          {{ searchTerm ? 'Aucun résultat correspondant à votre recherche.' : 'Vous n\'avez pas encore enregistré de terrain.' }}
+        </p>
+      </div>
+      <a routerLink="/dashboard/fields/new"
+         [style.backgroundColor]="primaryColor"
+         class="inline-flex items-center gap-2 px-5 py-2.5 text-white rounded-2xl text-xs font-bold shadow-sm hover:brightness-95 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Créer un nouveau terrain
+      </a>
+    </div>
+
+    <!-- Fields Grid -->
+    <div *ngIf="!isLoading && filteredFields.length > 0"
+         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div *ngFor="let field of filteredFields"
+           (click)="goToField(field)"
+           class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition duration-300 cursor-pointer flex flex-col justify-between">
+        
+        <div>
+          <!-- Image Cover with badges -->
+          <div class="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+            <img [src]="getFieldImage(field)" [alt]="field.name"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+            <!-- Top tags -->
+            <div class="absolute top-3 left-3 right-3 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full text-[11px] font-bold text-white bg-black/60 backdrop-blur-md uppercase tracking-wider">
+                {{ getTypeLabel(field.type) }}
+              </span>
+              
+              <span *ngIf="field.is_active !== false"
+                    class="px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-400 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Actif
+              </span>
+              <span *ngIf="field.is_active === false"
+                    class="px-2.5 py-1 rounded-full text-[10px] font-bold text-amber-400 bg-amber-950/80 backdrop-blur-md border border-amber-500/30">
+                Inactif
+              </span>
+            </div>
+
+            <!-- Price in photo corner -->
+            <div class="absolute bottom-3 left-3 text-white">
+              <span class="text-lg font-black tracking-tight">{{ field.price_per_hour | number }}</span>
+              <span class="text-xs font-semibold opacity-80"> FCFA / heure</span>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="p-5 space-y-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate">
+                {{ field.name }}
+              </h2>
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="truncate">{{ field.address || field.city || 'Adresse non renseignée' }}</span>
+              </div>
+            </div>
+
+            <!-- Surface & Features pill -->
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span *ngIf="field.surface_type"
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                {{ field.surface_type }}
+              </span>
+              <span *ngIf="field.city"
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                {{ field.city }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer Actions -->
+        <div class="px-5 pb-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+          
+          <!-- View Details link -->
+          <span class="text-xs font-bold text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition flex items-center gap-1">
+            Voir détails
+            <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </span>
+
+          <div class="flex items-center gap-1.5">
+            <!-- Fast direct access to slots -->
+            <button (click)="goToSlots(field, $event)"
+                    [style.backgroundColor]="primaryColor"
+                    title="Paramétrer les créneaux"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-white rounded-xl text-xs font-bold shadow-sm hover:brightness-95 transition cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Créneaux</span>
+            </button>
+
+            <!-- Delete button -->
+            <button (click)="deleteField(field, $event)"
+                    title="Supprimer le terrain"
+                    class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>

@@ -40,11 +40,27 @@ export const routes: Routes = [
           ).then((m) => m.DashboardComponent),
       },
       {
+        path: 'fields',
+        canActivate: [permissionGuard('fields:manage')],
+        loadComponent: () =>
+          import('./features/owner-dashboard/fields/fields.component').then(
+            (m) => m.FieldsComponent
+          ),
+      },
+      {
         path: 'fields/new',
         canActivate: [permissionGuard('fields:manage')],
         loadComponent: () =>
           import('./features/owner-dashboard/create-field/create-field').then(
             (m) => m.CreateFieldComponent
+          ),
+      },
+      {
+        path: 'fields/:id',
+        canActivate: [permissionGuard('fields:manage')],
+        loadComponent: () =>
+          import('./features/owner-dashboard/fields/field-detail.component').then(
+            (m) => m.FieldDetailComponent
           ),
       },
       {
@@ -115,6 +131,16 @@ export const routes: Routes = [
         path: 'billing',
         loadComponent: () =>
           import('./features/admin/billing/billing').then((m) => m.Billing),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/admin/profile/profile').then((m) => m.AdminProfileComponent),
+      },
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./features/admin/roles/roles').then((m) => m.AdminRolesComponent),
       },
       {
         path: 'settings',

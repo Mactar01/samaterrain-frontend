@@ -36,6 +36,12 @@ export class FieldService {
     return this.http.get<Field[]>(`${this.apiUrl}/owner/fields`);
   }
 
+  getField(fieldId: number): Observable<Field> {
+    return this.http.get<any>(`${this.apiUrl}/fields/${fieldId}`).pipe(
+      map(res => res?.field || res)
+    );
+  }
+
   createField(fieldData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/fields`, fieldData, { responseType: 'text' }).pipe(
       map(res => this.parseCleanJson(res))
