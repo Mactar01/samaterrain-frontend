@@ -1061,146 +1061,232 @@
             </app-empty-state>
           </div>
 
-          <!-- Terrains Grid (3 par ligne pour élargir les cartes) -->
-          <div *ngIf="!isLoadingFields && fields.length > 0" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div *ngFor="let field of fields"
-                 class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col relative h-full">
-              
-              <!-- Image Banner du terrain avec défilement automatique toutes les 2 secondes -->
-              <div [routerLink]="['/dashboard/fields', field.id]"
-                   class="h-36 sm:h-40 rounded-t-2xl sm:rounded-t-3xl bg-slate-800 relative overflow-hidden flex-shrink-0 group/banner cursor-pointer">
-                
-                <!-- Photos avec transition fluide si plusieurs photos -->
-                <ng-container *ngIf="getFieldPhotos(field) as photos">
-                  <div *ngIf="photos.length > 1; else singlePhoto">
-                    <img *ngFor="let photoUrl of photos; let imgIdx = index"
-                         [src]="photoUrl"
-                         (error)="onFieldImageError($event, photoUrl)"
-                         alt="Terrain"
-                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out group-hover:scale-105"
-                         [class.opacity-100]="getCurrentPhotoIndex(field) === imgIdx"
-                         [class.opacity-0]="getCurrentPhotoIndex(field) !== imgIdx"
-                         [class.pointer-events-none]="getCurrentPhotoIndex(field) !== imgIdx">
-                  </div>
-                  <ng-template #singlePhoto>
-                    <img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
-                         [src]="getFieldPhoto(field)"
-                         (error)="onFieldImageError($event)"
-                         alt="Terrain">
-                  </ng-template>
+          <!-- Filters & Search Toolbar -->
+          <div *ngIf="!isLoadingFields && fields.length > 0"
+               class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
 
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none"></div>
-                  
-                  <!-- Badge Type de sport (Haut Gauche) -->
-                  <div class="absolute top-3 left-3 pointer-events-none">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 text-slate-900 dark:text-white shadow-sm backdrop-blur-md border border-white/20">
-                      {{ formatFieldType(field.type) }}
-                    </span>
-                  </div>
-
-                  <!-- Badge Défilement Photos (Haut Droite) : 1/N avec indicateur de changement -->
-                  <div *ngIf="photos.length > 1" class="absolute top-3 right-3 pointer-events-none">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/65 text-white shadow-sm backdrop-blur-md border border-white/20">
-                      <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                      <span>{{ getCurrentPhotoIndex(field) + 1 }}/{{ photos.length }}</span>
-                    </span>
-                  </div>
-
-                  <!-- Points indicateurs (Dots) en bas à droite du banner -->
-                  <div *ngIf="photos.length > 1" class="absolute bottom-2.5 right-3.5 flex items-center gap-1 z-10 pointer-events-none">
-                    <span *ngFor="let dot of photos; let dIdx = index"
-                          class="h-1 rounded-full transition-all duration-300"
-                          [ngClass]="getCurrentPhotoIndex(field) === dIdx ? 'w-3 bg-emerald-400' : 'w-1 bg-white/40'"></span>
-                  </div>
-                </ng-container>
-
-                <!-- Nom du terrain sur l'image -->
-                <div class="absolute bottom-2.5 left-3.5 right-16 pointer-events-none">
-                  <h3 class="text-base sm:text-lg font-black text-white drop-shadow-md line-clamp-2 leading-tight">{{ field.name }}</h3>
-                </div>
-              </div>
-              
-              <!-- Corps de la carte : Flex-wrap adaptatif. Si la ville/adresse est longue, le bloc prix + actions pousse vers le bas à droite sans tronquer l'adresse -->
-              <div class="p-3 sm:p-3.5 mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2">
-                
-                <!-- Adresse & Ville avec icône (prend la largeur nécessaire, multi-lignes sans tronquer prématurément) -->
-                <div [routerLink]="['/dashboard/fields', field.id]" class="flex items-start text-xs text-slate-500 dark:text-slate-400 font-medium min-w-[130px] flex-1 cursor-pointer">
-                  <svg class="flex-shrink-0 mr-1.5 h-3.5 w-3.5 mt-0.5" [style.color]="branding.primaryColor" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span class="font-semibold text-slate-700 dark:text-slate-300 text-[11px] sm:text-xs tracking-tight leading-snug line-clamp-2 break-words" [title]="getFieldDisplayLocation(field)">
-                    {{ getFieldDisplayLocation(field) }}
-                  </span>
-                </div>
-
-                <!-- Bloc Prix + Bouton Actions 3 points (poussé sur la droite avec ml-auto) -->
-                <div class="flex items-center gap-2 flex-shrink-0 ml-auto">
-                  <div class="flex items-baseline gap-1">
-                    <span class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight tabular-nums">{{ formatPrice(field.price_per_hour) }}</span>
-                    <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">FCFA<span class="text-[9px] font-normal opacity-75">/h</span></span>
-                  </div>
-
-                  <!-- Bouton 3 Points pour toutes les actions -->
-                  <div *ngIf="canAccess('slots:manage') || canAccess('fields:manage')" class="relative flex-shrink-0">
-                    <button (click)="toggleFieldDropdown(field.id, $event)"
-                            type="button"
-                            title="Actions disponibles"
-                            class="w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer shadow-xs">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <circle cx="5" cy="12" r="1.75" />
-                        <circle cx="12" cy="12" r="1.75" />
-                        <circle cx="19" cy="12" r="1.75" />
-                      </svg>
-                    </button>
-
-                    <!-- Menu déroulant des Actions -->
-                    <div *ngIf="activeDropdownFieldId === field.id"
-                         (click)="$event.stopPropagation()"
-                         class="absolute right-0 bottom-full mb-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-1.5 z-40 animate-scale-up">
-                      
-                      <!-- Voir fiche détaillée -->
-                      <a [routerLink]="['/dashboard/fields', field.id]"
-                         (click)="closeFieldDropdown()"
-                         class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300 transition">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        <span>Fiche détaillée</span>
-                      </a>
-
-                      <!-- Gérer les créneaux -->
-                      <a *ngIf="canAccess('slots:manage')" [routerLink]="['/dashboard/fields', field.id, 'slots']"
-                         (click)="closeFieldDropdown()"
-                         class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300 transition">
-                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        <span>Gérer les créneaux</span>
-                      </a>
-
-                      <!-- Modifier le terrain -->
-                      <button *ngIf="canAccess('fields:manage')" (click)="editField(field); closeFieldDropdown()"
-                              type="button"
-                              class="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
-                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        <span>Modifier le terrain</span>
-                      </button>
-
-                      <div *ngIf="canAccess('fields:manage')" class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
-
-                      <!-- Supprimer le terrain -->
-                      <button *ngIf="canAccess('fields:manage')" (click)="deleteField(field.id); closeFieldDropdown()"
-                              type="button"
-                              class="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        <span>Supprimer le terrain</span>
-                      </button>
-                    </div>
-
-                    <!-- Backdrop pour fermer au clic dehors -->
-                    <div *ngIf="activeDropdownFieldId === field.id" (click)="closeFieldDropdown()" class="fixed inset-0 z-30"></div>
-                  </div>
-                </div>
-
-              </div>
+            <!-- Search Input -->
+            <div class="relative flex-1 max-w-md">
+              <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" [(ngModel)]="fieldsSearchTerm"
+                     placeholder="Rechercher par nom, réf poteau, ville, adresse..."
+                     class="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
             </div>
+
+            <!-- Type Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button (click)="fieldsSelectedType = 'all'"
+                      [class.text-white]="fieldsSelectedType === 'all'"
+                      [style.backgroundColor]="fieldsSelectedType === 'all' ? branding.primaryColor : ''"
+                      class="px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
+                      [ngClass]="fieldsSelectedType === 'all' ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                Tous ({{ fields.length }})
+              </button>
+              <button *ngFor="let t of fieldTypeFilters"
+                      (click)="fieldsSelectedType = t.value"
+                      [class.text-white]="fieldsSelectedType === t.value"
+                      [style.backgroundColor]="fieldsSelectedType === t.value ? branding.primaryColor : ''"
+                      class="px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
+                      [ngClass]="fieldsSelectedType === t.value ? 'shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                {{ t.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty filter results -->
+          <div *ngIf="!isLoadingFields && fields.length > 0 && filteredFieldsForDashboard.length === 0"
+               class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-xs text-slate-400">
+            Aucun terrain ne correspond à votre filtre de recherche.
+          </div>
+
+          <!-- TABLEAU DES TERRAINS -->
+          <div *ngIf="!isLoadingFields && filteredFieldsForDashboard.length > 0"
+               class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+
+            <!-- Stats summary bar -->
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <span class="font-bold text-slate-800 dark:text-white">{{ filteredFieldsForDashboard.length }}</span>
+                terrain{{ filteredFieldsForDashboard.length > 1 ? 's' : '' }} affiché{{ filteredFieldsForDashboard.length > 1 ? 's' : '' }}
+                <span *ngIf="filteredFieldsForDashboard.length !== fields.length" class="text-slate-400"> / {{ fields.length }} au total</span>
+              </p>
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Vue Tableau</span>
+            </div>
+
+            <!-- Scrollable table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-slate-50 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-700">
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Photo</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Réf. (Poteau)</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Nom</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Sport</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Adresse</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Ville</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Position (GPS)</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Surface</th>
+                    <th class="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Taille</th>
+                    <th class="text-right px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Tarif/h</th>
+                    <th class="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Statut</th>
+                    <th class="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let field of filteredFieldsForDashboard; let odd = odd"
+                      [ngClass]="odd ? 'bg-slate-50/50 dark:bg-slate-800/20' : 'bg-white dark:bg-slate-900'"
+                      class="border-b border-slate-100 dark:border-slate-800/60 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 transition-colors group cursor-pointer"
+                      [routerLink]="['/dashboard/fields', field.id]">
+
+                    <!-- Photo miniature -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 shrink-0 shadow-sm">
+                        <img [src]="getFieldPhoto(field)"
+                             [alt]="field.name"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                             (error)="onFieldImageError($event)">
+                      </div>
+                    </td>
+
+                    <!-- Référence unique (Code Poteau) -->
+                    <td class="px-4 py-3 whitespace-nowrap" (click)="$event.stopPropagation()">
+                      <button (click)="copyRef(field, $event)"
+                              title="Cliquer pour copier le code de repère"
+                              class="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg
+                                     bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300
+                                     hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400
+                                     border border-slate-200 dark:border-slate-700 transition cursor-pointer group/ref">
+                        {{ getFieldRef(field) }}
+                        <svg class="w-3 h-3 opacity-0 group-hover/ref:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                      </button>
+                    </td>
+
+                    <!-- Nom -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span class="font-bold text-slate-900 dark:text-white text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                        {{ field.name }}
+                      </span>
+                    </td>
+
+                    <!-- Type de sport -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                            [ngClass]="getTypeBadgeClass(field.type)">
+                        {{ getTypeLabel(field.type) }}
+                      </span>
+                    </td>
+
+                    <!-- Adresse -->
+                    <td class="px-4 py-3 max-w-[160px]">
+                      <span class="text-xs text-slate-600 dark:text-slate-300 truncate block" [title]="field.address || '—'">
+                        {{ field.address || '—' }}
+                      </span>
+                    </td>
+
+                    <!-- Ville -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span class="text-xs text-slate-600 dark:text-slate-300">{{ field.city || '—' }}</span>
+                    </td>
+
+                    <!-- Coordonnées GPS -->
+                    <td class="px-4 py-3 whitespace-nowrap" (click)="openMap(field, $event)">
+                      <ng-container *ngIf="field.latitude && field.longitude; else noGps">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer" title="Voir sur Google Maps">
+                          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          {{ (+field.latitude).toFixed(4) }}, {{ (+field.longitude).toFixed(4) }}
+                        </span>
+                      </ng-container>
+                      <ng-template #noGps>
+                        <span class="text-[11px] text-slate-400">—</span>
+                      </ng-template>
+                    </td>
+
+                    <!-- Surface -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span *ngIf="field.surface_type" class="text-xs text-slate-600 dark:text-slate-300">{{ field.surface_type }}</span>
+                      <span *ngIf="!field.surface_type" class="text-xs text-slate-400">—</span>
+                    </td>
+
+                    <!-- Taille / Dimensions -->
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span *ngIf="field.size" class="text-xs text-slate-600 dark:text-slate-300">{{ field.size }}</span>
+                      <span *ngIf="!field.size" class="text-xs text-slate-400">—</span>
+                    </td>
+
+                    <!-- Tarif -->
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      <span class="text-xs font-black text-slate-900 dark:text-white tabular-nums">{{ field.price_per_hour | number }}</span>
+                      <span class="text-[10px] text-slate-500 dark:text-slate-400 ml-0.5">FCFA</span>
+                    </td>
+
+                    <!-- Statut actif/inactif -->
+                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                      <span *ngIf="field.is_active !== false"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Actif
+                      </span>
+                      <span *ngIf="field.is_active === false"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        Inactif
+                      </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-4 py-3 whitespace-nowrap text-center" (click)="$event.stopPropagation()">
+                      <div class="flex items-center justify-center gap-1.5">
+
+                        <!-- Voir détails -->
+                        <a [routerLink]="['/dashboard/fields', field.id]"
+                           title="Voir la fiche détaillée"
+                           class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition cursor-pointer">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </a>
+
+                        <!-- Gérer Créneaux -->
+                        <a *ngIf="canAccess('slots:manage')"
+                           [routerLink]="['/dashboard/fields', field.id, 'slots']"
+                           [style.backgroundColor]="branding.primaryColor"
+                           title="Paramétrer les créneaux"
+                           class="inline-flex items-center gap-1 px-2.5 py-1.5 text-white rounded-lg text-[11px] font-bold hover:brightness-95 transition cursor-pointer">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                          Créneaux
+                        </a>
+
+                        <!-- Modifier -->
+                        <button *ngIf="canAccess('fields:manage')"
+                                (click)="editField(field)"
+                                title="Modifier le terrain"
+                                class="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition cursor-pointer">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        </button>
+
+                        <!-- Supprimer -->
+                        <button *ngIf="canAccess('fields:manage')"
+                                (click)="deleteField(field.id)"
+                                title="Supprimer le terrain"
+                                class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+
+                      </div>
+                    </td>
+
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
           </div>
         </div>
 

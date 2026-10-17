@@ -198,4 +198,27 @@ export class FieldDetailComponent implements OnInit {
     };
     return (type && map[type.toLowerCase()]) || type || 'Terrain';
   }
+
+  getFieldRef(): string {
+    if (this.field?.reference) return this.field.reference;
+    if (this.field?.id) return 'TER-' + this.field.id.toString().padStart(4, '0');
+    return 'TER-0000';
+  }
+
+  copyRef(event?: Event): void {
+    if (event) event.stopPropagation();
+    const ref = this.getFieldRef();
+    navigator.clipboard?.writeText(ref).then(() => {
+      this.toastService.success(`Référence ${ref} copiée !`);
+    }).catch(() => {
+      this.toastService.error('Impossible de copier la référence.');
+    });
+  }
+
+  openMap(): void {
+    if (this.field?.latitude && this.field?.longitude) {
+      const url = `https://www.google.com/maps?q=${this.field.latitude},${this.field.longitude}`;
+      window.open(url, '_blank', 'noopener');
+    }
+  }
 }

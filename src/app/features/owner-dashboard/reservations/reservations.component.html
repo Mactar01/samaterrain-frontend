@@ -192,7 +192,7 @@
                   <!-- WhatsApp Link button -->
                   <a
                     *ngIf="res.player_phone || res.guest_phone || res.user?.phone"
-                    [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date)"
+                    [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date, res.field?.reference)"
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Envoyer un message WhatsApp"
@@ -207,7 +207,23 @@
               <!-- Field -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-bold text-slate-900 dark:text-white">{{ res.field?.name || 'Terrain' }}</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400">{{ res.field?.location || res.field?.address || '' }}</div>
+                <!-- Référence unique du terrain -->
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span *ngIf="res.field?.reference || res.field_id"
+                        class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md
+                               bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400
+                               border border-amber-200 dark:border-amber-800/60">
+                    <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                    </svg>
+                    {{ res.field?.reference || ('TER-' + res.field_id.toString().padStart(4, '0')) }}
+                  </span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[120px]"
+                        [title]="res.field?.address || ''">
+                    {{ res.field?.location || res.field?.address || '' }}
+                  </span>
+                </div>
               </td>
 
               <!-- Date & Time -->
@@ -254,7 +270,7 @@
                     
                     <!-- WhatsApp -->
                     <a *ngIf="res.player_phone || res.guest_phone || res.user?.phone"
-                       [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date)"
+                       [href]="getWhatsAppLink(res.player_phone || res.guest_phone || res.user?.phone, res.player_name || res.guest_name || res.user?.name, res.field?.name, res.time_slot?.date, res.field?.reference)"
                        target="_blank"
                        rel="noopener noreferrer"
                        (click)="closeReservationDropdown()"

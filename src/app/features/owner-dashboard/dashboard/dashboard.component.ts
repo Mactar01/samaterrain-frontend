@@ -582,6 +582,82 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.closeFieldDropdown();
   }
 
+  fieldsSearchTerm: string = '';
+  fieldsSelectedType: string = 'all';
+
+  readonly fieldTypeFilters = [
+    { value: 'football',   label: '⚽ Football' },
+    { value: 'basketball', label: '🏀 Basketball' },
+    { value: 'padel',      label: '🏓 Padel' },
+    { value: 'tennis',     label: '🎾 Tennis' },
+    { value: 'volleyball', label: '🏐 Volleyball' },
+    { value: 'autre',      label: '🏟️ Multisport' },
+  ];
+
+  get filteredFieldsForDashboard(): Field[] {
+    const term = (this.fieldsSearchTerm || '').toLowerCase().trim();
+    return (this.fields || []).filter(f => {
+      const matchSearch = !term ||
+        f.name.toLowerCase().includes(term) ||
+        (f.reference && f.reference.toLowerCase().includes(term)) ||
+        (f.address && f.address.toLowerCase().includes(term)) ||
+        (f.city && f.city.toLowerCase().includes(term)) ||
+        (f.surface_type && f.surface_type.toLowerCase().includes(term));
+
+      const matchType = this.fieldsSelectedType === 'all' || 
+        (f.type && f.type.toLowerCase() === this.fieldsSelectedType.toLowerCase());
+
+      return matchSearch && matchType;
+    });
+  }
+
+  getFieldRef(field: Field): string {
+    if (field.reference) return field.reference;
+    return 'TER-' + field.id.toString().padStart(4, '0');
+  }
+
+  copyRef(field: Field, event: Event): void {
+    event.stopPropagation();
+    const ref = this.getFieldRef(field);
+    navigator.clipboard?.writeText(ref).then(() => {
+      this.toastService.success(`Référence ${ref} copiée !`);
+    }).catch(() => {
+      this.toastService.error('Impossible de copier la référence.');
+    });
+  }
+
+  openMap(field: Field, event: Event): void {
+    event.stopPropagation();
+    if (field.latitude && field.longitude) {
+      const url = `https://www.google.com/maps?q=${field.latitude},${field.longitude}`;
+      window.open(url, '_blank', 'noopener');
+    }
+  }
+
+  getTypeBadgeClass(type?: string): string {
+    const map: Record<string, string> = {
+      football:   'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300',
+      basketball: 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300',
+      tennis:     'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300',
+      padel:      'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300',
+      volleyball: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300',
+      autre:      'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
+    };
+    return (type && map[type.toLowerCase()]) || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+  }
+
+  getTypeLabel(type?: string): string {
+    const map: Record<string, string> = {
+      football:   'Football',
+      basketball: 'Basketball',
+      tennis:     'Tennis',
+      padel:      'Padel',
+      volleyball: 'Volleyball',
+      autre:      'Multisport'
+    };
+    return (type && map[type.toLowerCase()]) || type || 'Terrain';
+  }
+
   loadOwnerData() {
     this.isLoadingFields = true;
     this.fieldService.getOwnerFields().subscribe({

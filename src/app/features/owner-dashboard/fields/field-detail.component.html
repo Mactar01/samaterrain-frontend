@@ -87,7 +87,15 @@
           <!-- Title & Price Overlay -->
           <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
             <div>
-              <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">{{ field.name }}</h2>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">{{ field.name }}</h2>
+                <button (click)="copyRef($event)"
+                        title="Code de repère / poteau - Cliquer pour copier"
+                        class="inline-flex items-center gap-1 font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-400 text-slate-900 shadow-sm hover:bg-amber-300 transition cursor-pointer">
+                  <span>{{ getFieldRef() }}</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
+              </div>
               <p class="text-xs text-slate-200 font-medium flex items-center gap-1 mt-0.5">
                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 {{ field.address || field.city || 'Emplacement du complexe' }}
@@ -210,8 +218,33 @@
               </span>
             </div>
 
+            <!-- Code / Repère Poteau -->
             <div class="py-2.5 flex items-center justify-between">
-              <span class="text-slate-500 dark:text-slate-400">ID Référence</span>
+              <div>
+                <span class="text-slate-500 dark:text-slate-400 block font-semibold">Code / Repère Poteau</span>
+                <span class="text-[10px] text-slate-400">Pour orienter le joueur à l'entrée</span>
+              </div>
+              <button (click)="copyRef($event)"
+                      title="Cliquer pour copier le code"
+                      class="inline-flex items-center gap-1.5 font-mono text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 transition cursor-pointer">
+                <span>{{ getFieldRef() }}</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+            </div>
+
+            <!-- Position GPS -->
+            <div *ngIf="field.latitude && field.longitude" class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Position GPS</span>
+              <button (click)="openMap()"
+                      title="Ouvrir sur Google Maps"
+                      class="inline-flex items-center gap-1 text-xs font-mono text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                {{ (+field.latitude).toFixed(4) }}, {{ (+field.longitude).toFixed(4) }}
+              </button>
+            </div>
+
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Identifiant BDD</span>
               <span class="font-mono text-slate-500">#{{ field.id }}</span>
             </div>
 
