@@ -506,6 +506,7 @@ export class OwnerTeamComponent implements OnInit {
           if (idx > -1) {
             this.teamMembers[idx] = res.collaborator;
           }
+          this.authService.fetchCurrentUser().subscribe();
           this.closeEditMemberModal();
           this.confirmationService.success(res.message, 'Droits mis à jour !');
           this.cdr.detectChanges();

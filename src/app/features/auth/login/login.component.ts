@@ -83,9 +83,6 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    // Nettoyer d'anciens jetons expirés avant de se reconnecter
-    localStorage.removeItem('token');
-
     this.authService.login(this.credentials).subscribe({
       next: (res) => {
         // Bloquer immédiatement si le compte est inactif ou désactivé

@@ -41,7 +41,7 @@ export class ThemeService {
   private getStorageKey(ownerId?: string | number): string {
     if (ownerId) return `myterrain_branding_owner_${ownerId}`;
     try {
-      const userStr = localStorage.getItem('user');
+      const userStr = sessionStorage.getItem('user') || localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
         if (user && user.id) return `myterrain_branding_owner_${user.id}`;

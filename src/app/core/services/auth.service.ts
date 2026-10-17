@@ -11,19 +11,29 @@ import { User, UserRole, AuthResponse } from '../models/user.model';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentToken: string | null = null;
 
   constructor(private http: HttpClient, private router: Router) {
-    const savedUser = localStorage.getItem('user');
+    // Isoler la session par onglet via sessionStorage (avec bootstrap depuis localStorage à l'ouverture d'un nouvel onglet)
+    const tabToken = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const savedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
+
+    if (tabToken) {
+      this.currentToken = tabToken;
+      sessionStorage.setItem('token', tabToken);
+    }
+
     if (savedUser) {
       try {
         const parsed = this.normalizeUser(JSON.parse(savedUser));
         if (parsed.is_active === false) {
           this.clearSession();
         } else {
+          sessionStorage.setItem('user', JSON.stringify(parsed));
           this.currentUserSubject.next(parsed);
         }
       } catch (e) {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
       }
     }
     if (this.getToken()) {
@@ -72,10 +82,11 @@ export class AuthService {
 
   get currentUserValue(): User | null {
     if (!this.currentUserSubject.value) {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
       if (savedUser) {
         try {
           const parsed = this.normalizeUser(JSON.parse(savedUser));
+          sessionStorage.setItem('user', JSON.stringify(parsed));
           this.currentUserSubject.next(parsed);
           return parsed;
         } catch {
@@ -87,7 +98,15 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    if (this.currentToken) {
+      return this.currentToken;
+    }
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (token) {
+      this.currentToken = token;
+      sessionStorage.setItem('token', token);
+    }
+    return token;
   }
 
   isAuthenticated(): boolean {
@@ -188,12 +207,16 @@ export class AuthService {
             this.clearSession();
             return;
           }
-          localStorage.setItem('user', JSON.stringify(user));
+          const serialized = JSON.stringify(user);
+          sessionStorage.setItem('user', serialized);
+          if (localStorage.getItem('token') === token) {
+            localStorage.setItem('user', serialized);
+          }
           this.currentUserSubject.next(user);
         }
       }),
       catchError(err => {
-        if (err.status === 401 || err.status === 403) {
+        if (err.status === 401) {
           this.clearSession();
         }
         return of(this.currentUserSubject.value);
@@ -207,10 +230,7 @@ export class AuthService {
     }).pipe(
       tap(response => {
         if (response && response.token) {
-          const user = this.normalizeUser(response.user);
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(user));
-          this.currentUserSubject.next(user);
+          this.saveSession(response.token, response.user);
         }
       })
     );
@@ -225,8 +245,12 @@ export class AuthService {
 
   saveSession(token: string, user: User) {
     const normalized = this.normalizeUser(user);
+    const serialized = JSON.stringify(normalized);
+    this.currentToken = token;
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('user', serialized);
     localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(normalized));
+    localStorage.setItem('user', serialized);
     this.currentUserSubject.next(normalized);
   }
 
@@ -235,7 +259,11 @@ export class AuthService {
       tap(response => {
         if (response && response.user) {
           const user = this.normalizeUser(response.user);
-          localStorage.setItem('user', JSON.stringify(user));
+          const serialized = JSON.stringify(user);
+          sessionStorage.setItem('user', serialized);
+          if (localStorage.getItem('token') === this.getToken()) {
+            localStorage.setItem('user', serialized);
+          }
           this.currentUserSubject.next(user);
         }
       })
@@ -253,8 +281,14 @@ export class AuthService {
   }
 
   clearSession() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    const activeToken = this.currentToken || sessionStorage.getItem('token');
+    this.currentToken = null;
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    if (!activeToken || localStorage.getItem('token') === activeToken) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     this.currentUserSubject.next(null);
   }
 }

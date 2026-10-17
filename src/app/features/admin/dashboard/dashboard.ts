@@ -102,8 +102,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : null;
+    const user = this.authService.currentUserValue;
     this.adminName = user ? user.name : 'Administrateur';
     this.loadStats();
     this.loadOwners();

@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
   const router = inject(Router);
 
   let headers: any = {
@@ -50,9 +50,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      if (error.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      if (error.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/auth/logout')) {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        if (token && localStorage.getItem('token') === token) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
         router.navigate(['/login']);
       }
       return throwError(() => error);
