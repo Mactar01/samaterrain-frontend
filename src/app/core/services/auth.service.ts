@@ -42,30 +42,38 @@ export class AuthService {
   }
 
   getAvatarUrl(avatar?: string | null): string | null {
-    if (!avatar) return null;
-    if (avatar.startsWith('data:image')) return avatar;
+    if (!avatar || typeof avatar !== 'string') return null;
+    const trimmed = avatar.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith('data:image')) return trimmed;
 
     const backendOrigin = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
 
-    // Replace dead trycloudflare tunnel URLs or other obsolete tunnel hosts
-    if (avatar.includes('trycloudflare.com') || avatar.includes('ngrok') || avatar.includes('loca.lt')) {
-      avatar = avatar.replace(/^https?:\/\/[^\/]+/, backendOrigin);
+    // Any URL pointing to /storage/ should use the configured backendOrigin
+    const storageMatch = trimmed.match(/\/storage\/(.+)$/);
+    if (storageMatch) {
+      return `${backendOrigin}/storage/${storageMatch[1]}`;
     }
 
-    // Relative storage paths
-    if (avatar.startsWith('/storage')) {
-      return `${backendOrigin}${avatar}`;
-    }
-    if (avatar.startsWith('storage/')) {
-      return `${backendOrigin}/${avatar}`;
+    if (trimmed.startsWith('storage/')) {
+      return `${backendOrigin}/${trimmed}`;
     }
 
-    // If host is localhost or 127.0.0.1 on port 8000, ensure it matches environment.apiUrl
-    if (avatar.startsWith('http://localhost:8000') || avatar.startsWith('http://127.0.0.1:8000')) {
-      return avatar.replace(/^http:\/\/(localhost|127\.0\.0\.1):8000/, backendOrigin);
+    // Replace dead trycloudflare tunnel URLs or localhost/127.0.0.1/backend hosts
+    if (
+      trimmed.includes('trycloudflare.com') ||
+      trimmed.includes('ngrok') ||
+      trimmed.includes('loca.lt') ||
+      /^https?:\/\/(localhost|127\.0\.0\.1|backend)(:\d+)?(\/|$)/.test(trimmed)
+    ) {
+      return trimmed.replace(/^https?:\/\/[^\/]+/, backendOrigin);
     }
 
-    return avatar;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      return `${backendOrigin}/storage/${trimmed.replace(/^\/+/, '')}`;
+    }
+
+    return trimmed;
   }
 
   private normalizeUser(user: User): User {

@@ -102,8 +102,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  avatarFailed = false;
+  readonly defaultFieldPhoto = 'https://images.unsplash.com/photo-1575361204481-4d3b6707ea20?q=80&w=1000&auto=format&fit=crop';
+  private brokenFieldUrls = new Set<string>();
+
   get avatarUrl(): string | null {
+    if (this.avatarFailed) return null;
     return this.authService.getAvatarUrl(this.user?.avatar);
+  }
+
+  onAvatarError(): void {
+    this.avatarFailed = true;
   }
 
   getUserRoleLabel(): string {
@@ -111,13 +120,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    let loadedForUserId: number | null = null;
     this.authService.currentUser.subscribe(u => {
+      const prevAvatar = this.user?.avatar;
       this.user = u;
+      if (u?.avatar !== prevAvatar) {
+        this.avatarFailed = false;
+      }
       if (this.user?.role === 'owner') {
-        this.loadOwnerData();
-        this.loadOwnerStats();
-        this.themeService.initBranding(this.user.id);
+        this.themeService.initBranding(this.user.owner?.id || this.user.id, this.user.owner?.branding);
         this.branding = { ...this.themeService.currentBranding() };
+        if (loadedForUserId !== this.user.id) {
+          loadedForUserId = this.user.id;
+          this.loadOwnerData();
+          this.loadOwnerStats();
+        }
       }
     });
 
@@ -377,7 +394,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   saveBranding() {
     this.isSavingBranding = true;
-    this.themeService.saveBranding(this.branding, this.user?.id);
+    this.themeService.saveBranding(this.branding, this.user?.owner?.id || this.user?.id);
     setTimeout(() => {
       this.isSavingBranding = false;
       this.toastService.success('Vos préférences de personnalisation ont été enregistrées avec succès !');
@@ -386,7 +403,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   resetBranding() {
-    this.themeService.resetBranding(this.user?.id);
+    this.themeService.resetBranding(this.user?.owner?.id || this.user?.id);
     this.branding = { ...DEFAULT_OWNER_BRANDING };
     this.toastService.info('La personnalisation a été réinitialisée au thème par défaut.');
     this.cdr.detectChanges();
@@ -405,31 +422,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return types[type] || type;
   }
 
+  private normalizeMediaUrl(raw?: string | null): string | null {
+    if (!raw || typeof raw !== 'string') return null;
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith('data:image')) return trimmed;
+
+    const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
+
+    const storageMatch = trimmed.match(/\/storage\/(.+)$/);
+    if (storageMatch) {
+      return `${baseUrl}/storage/${storageMatch[1]}`;
+    }
+
+    if (trimmed.startsWith('storage/')) {
+      return `${baseUrl}/${trimmed}`;
+    }
+
+    if (
+      trimmed.includes('trycloudflare.com') ||
+      trimmed.includes('ngrok') ||
+      trimmed.includes('loca.lt') ||
+      /^https?:\/\/(localhost|127\.0\.0\.1|backend)(:\d+)?(\/|$)/.test(trimmed)
+    ) {
+      return trimmed.replace(/^https?:\/\/[^\/]+/, baseUrl);
+    }
+
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      return `${baseUrl}/storage/${trimmed.replace(/^\/+/, '')}`;
+    }
+
+    return trimmed;
+  }
+
   getFieldPhoto(field: Field): string {
-    if (field.photo_url) return field.photo_url;
-    if (field.photo) {
-      if (field.photo.startsWith('http://') || field.photo.startsWith('https://')) {
-        return field.photo;
+    const candidates = [
+      field?.photo_url,
+      field?.photo,
+      ((field as any)?.primary_image || (field as any)?.primaryImage)?.url,
+      ...(field?.images?.map(i => i?.url) || [])
+    ];
+
+    for (const candidate of candidates) {
+      const resolved = this.normalizeMediaUrl(candidate);
+      if (resolved && !this.brokenFieldUrls.has(resolved)) {
+        return resolved;
       }
-      const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
-      const cleanPath = field.photo.startsWith('/') ? field.photo : '/' + field.photo;
-      return `${baseUrl}/storage${cleanPath}`;
     }
-    const primaryImg = (field as any).primary_image || (field as any).primaryImage;
-    if (primaryImg?.url) {
-      if (primaryImg.url.startsWith('http')) return primaryImg.url;
-      const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
-      return `${baseUrl}${primaryImg.url.startsWith('/') ? '' : '/'}${primaryImg.url}`;
-    }
-    return 'https://images.unsplash.com/photo-1575361204481-4d3b6707ea20?q=80&w=1000&auto=format&fit=crop';
+
+    return this.defaultFieldPhoto;
   }
 
   getImageUrl(url?: string): string {
-    if (!url) return 'https://images.unsplash.com/photo-1575361204481-4d3b6707ea20?q=80&w=1000&auto=format&fit=crop';
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    const baseUrl = environment.apiUrl.replace(/\/api\/v1\/?$/, '');
-    const clean = url.startsWith('/') ? url : '/' + url;
-    return `${baseUrl}${clean}`;
+    const resolved = this.normalizeMediaUrl(url);
+    if (!resolved || this.brokenFieldUrls.has(resolved)) {
+      return this.defaultFieldPhoto;
+    }
+    return resolved;
+  }
+
+  onFieldImageError(event: Event, badUrl?: string): void {
+    if (badUrl) {
+      this.brokenFieldUrls.add(badUrl);
+    }
+    const imgEl = event.target as HTMLImageElement;
+    if (imgEl && imgEl.src !== this.defaultFieldPhoto) {
+      if (imgEl.src) {
+        this.brokenFieldUrls.add(imgEl.src);
+      }
+      imgEl.src = this.defaultFieldPhoto;
+    }
   }
 
   fieldPhotoIndex: { [fieldId: number]: number } = {};
@@ -459,7 +521,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getFieldPhotos(field: Field): string[] {
     if (!field) return [];
     if (field.images && field.images.length > 0) {
-      return field.images.map(img => this.getImageUrl(img.url));
+      const valid = field.images
+        .map(img => this.normalizeMediaUrl(img?.url))
+        .filter((u): u is string => !!u && !this.brokenFieldUrls.has(u));
+      if (valid.length > 0) {
+        return valid;
+      }
     }
     const single = this.getFieldPhoto(field);
     return single ? [single] : [];

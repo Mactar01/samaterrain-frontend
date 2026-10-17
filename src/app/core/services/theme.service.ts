@@ -1,10 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { OwnerBranding, DEFAULT_OWNER_BRANDING } from '../models/branding.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
+  private http = inject(HttpClient);
   readonly isDark = signal<boolean>(false);
   readonly currentBranding = signal<OwnerBranding>(DEFAULT_OWNER_BRANDING);
 
@@ -44,7 +47,8 @@ export class ThemeService {
       const userStr = sessionStorage.getItem('user') || localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        if (user && user.id) return `myterrain_branding_owner_${user.id}`;
+        if (user?.owner?.id) return `myterrain_branding_owner_${user.owner.id}`;
+        if (user?.id) return `myterrain_branding_owner_${user.id}`;
       }
     } catch (e) {
       // ignore
@@ -52,28 +56,71 @@ export class ThemeService {
     return 'myterrain_branding_current';
   }
 
-  initBranding(ownerId?: string | number) {
+  private safeStoreBranding(key: string, branding: OwnerBranding) {
+    try {
+      // Avoid storing two copies of the same base64 cover image in localStorage
+      const compact: any = { ...branding };
+      if (compact.coverUrl && compact.customBgUrl === compact.coverUrl) {
+        delete compact.customBgUrl;
+      }
+      localStorage.setItem(key, JSON.stringify(compact));
+    } catch (e) {
+      console.warn('Could not persist branding in localStorage (quota):', e);
+    }
+  }
+
+  initBranding(ownerId?: string | number, serverBranding?: Partial<OwnerBranding> | null) {
     const key = this.getStorageKey(ownerId);
+    let merged: OwnerBranding = { ...DEFAULT_OWNER_BRANDING };
+
     const saved = localStorage.getItem(key);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        this.currentBranding.set({ ...DEFAULT_OWNER_BRANDING, ...parsed });
-        this.applyBrandingToDOM(this.currentBranding());
-        return;
+        merged = { ...merged, ...parsed };
       } catch (e) {
         console.error('Failed to parse branding config', e);
       }
     }
-    this.currentBranding.set(DEFAULT_OWNER_BRANDING);
-    this.applyBrandingToDOM(DEFAULT_OWNER_BRANDING);
+
+    if (serverBranding && typeof serverBranding === 'object') {
+      merged = { ...merged, ...serverBranding };
+      this.safeStoreBranding(key, merged);
+    }
+
+    if (merged.coverUrl && !merged.customBgUrl) {
+      merged.customBgUrl = merged.coverUrl;
+    } else if (merged.customBgUrl && !merged.coverUrl) {
+      merged.coverUrl = merged.customBgUrl;
+    }
+
+    this.currentBranding.set(merged);
+    this.applyBrandingToDOM(merged);
   }
 
   saveBranding(branding: OwnerBranding, ownerId?: string | number) {
     const key = this.getStorageKey(ownerId);
-    localStorage.setItem(key, JSON.stringify(branding));
-    this.currentBranding.set(branding);
+    if (branding.coverUrl && !branding.customBgUrl) {
+      branding.customBgUrl = branding.coverUrl;
+    } else if (branding.customBgUrl && !branding.coverUrl) {
+      branding.coverUrl = branding.customBgUrl;
+    }
+    this.safeStoreBranding(key, branding);
+    this.currentBranding.set({ ...branding });
     this.applyBrandingToDOM(branding);
+
+    // Persist branding to backend database so it survives page reloads & deployments across devices
+    const payload: any = { ...branding };
+    if (payload.coverUrl && payload.customBgUrl === payload.coverUrl) {
+      delete payload.customBgUrl;
+    }
+    this.http.put(`${environment.apiUrl}/owner/settings`, {
+      settings: { branding: payload }
+    }).subscribe({
+      error: () => {
+        // Silent fallback if collaborator does not have settings:manage
+      }
+    });
   }
 
   resetBranding(ownerId?: string | number) {
@@ -81,6 +128,10 @@ export class ThemeService {
     localStorage.removeItem(key);
     this.currentBranding.set(DEFAULT_OWNER_BRANDING);
     this.applyBrandingToDOM(DEFAULT_OWNER_BRANDING);
+
+    this.http.put(`${environment.apiUrl}/owner/settings`, {
+      settings: { branding: DEFAULT_OWNER_BRANDING }
+    }).subscribe({ error: () => {} });
   }
 
   private applyBrandingToDOM(branding: OwnerBranding) {

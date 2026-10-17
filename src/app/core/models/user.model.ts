@@ -19,6 +19,7 @@ export interface User {
     role?: string;
     role_label?: string;
     permissions?: string[];
+    branding?: any;
   };
 }
 

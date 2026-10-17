@@ -110,7 +110,7 @@ export class ProfileComponent implements OnInit {
           name: user.name,
           phone: user.phone || ''
         });
-        this.themeService.initBranding(user.id);
+        this.themeService.initBranding(user.owner?.id || user.id, user.owner?.branding);
 
         if (!this.isPrimaryOwner) {
           this.loadCollaboratorInfo();
@@ -256,7 +256,7 @@ export class ProfileComponent implements OnInit {
         coverUrl: base64Data,
         customBgUrl: base64Data
       };
-      this.themeService.saveBranding(updated, this.user?.id);
+      this.themeService.saveBranding(updated, this.user?.owner?.id || this.user?.id);
       this.isUploadingCover = false;
       this.confirmationService.toast('Photo de couverture mise à jour avec succès !', 'success');
     }).catch(() => {
