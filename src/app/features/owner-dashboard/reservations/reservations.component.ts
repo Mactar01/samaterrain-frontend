@@ -166,7 +166,7 @@ export class ReservationsComponent implements OnInit {
     if (!phone) return '#';
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     const standardPhone = cleanPhone.startsWith('221') ? cleanPhone : `221${cleanPhone}`;
-    const poteauText = fieldRef ? ` (Repère Poteau : ${fieldRef})` : '';
+    const poteauText = fieldRef ? ` (Code terrain : ${fieldRef})` : '';
     const text = encodeURIComponent(
       `Bonjour ${playerName || ''}, concernant votre réservation myTerrain${fieldName ? ' pour le terrain ' + fieldName + poteauText : ''}${date ? ' le ' + date : ''} :`
     );

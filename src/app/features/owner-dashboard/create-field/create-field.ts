@@ -21,8 +21,11 @@ export class CreateFieldComponent {
   field = {
     name: '',
     type: 'artificial_grass',
+    surface_type: 'artificial_grass',
+    location: '',
     city: '',
     address: '',
+    description: '',
     price_per_hour: 0,
     capacity: 10,
     currency: 'FCFA',
@@ -64,8 +67,15 @@ export class CreateFieldComponent {
       if (typeof value === 'boolean') {
         value = value ? 1 : 0;
       }
-      formData.append(key, value);
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
     });
+
+    if (this.field.surface_type) {
+      formData.set('type', this.field.surface_type);
+      formData.set('surface_type', this.field.surface_type);
+    }
     
     if (this.selectedFiles.length > 0) {
       this.selectedFiles.forEach(file => {

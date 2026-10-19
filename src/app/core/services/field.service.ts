@@ -75,7 +75,11 @@ export class FieldService {
             formData.append('photos[]', file);
           });
         } else if (key !== 'photos' && fieldData[key] !== null && fieldData[key] !== undefined) {
-          formData.append(key, fieldData[key]);
+          let val = fieldData[key];
+          if (typeof val === 'boolean') {
+            val = val ? '1' : '0';
+          }
+          formData.append(key, val);
         }
       });
       return this.http.post(`${this.apiUrl}/fields/${fieldId}`, formData, { responseType: 'text' }).pipe(

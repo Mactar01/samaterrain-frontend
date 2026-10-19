@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +28,28 @@ export class FieldsComponent implements OnInit {
   searchTerm = '';
   selectedType = 'all';
 
-  /** Filter pills shown in the toolbar */
+  /** 3-dots action dropdown state */
+  activeDropdownFieldId: number | null = null;
+
+  /** Edit Modal State (aligned with creation) */
+  showEditModal = false;
+  isUpdating = false;
+  editingField: Field | null = null;
+  editForm = {
+    name: '',
+    surface_type: 'artificial_grass',
+    location: '',
+    capacity: 10,
+    price_per_hour: 0,
+    city: '',
+    address: '',
+    description: '',
+    is_active: true
+  };
+  editSelectedFiles: File[] = [];
+  editImagePreviews: string[] = [];
+
+  /** Filter pills shown in the toolbar (kept for reference) */
   readonly typeFilters = [
     { value: 'football',   label: '⚽ Football' },
     { value: 'basketball', label: '🏀 Basketball' },
@@ -78,6 +99,8 @@ export class FieldsComponent implements OnInit {
         f.name.toLowerCase().includes(term) ||
         (f.address && f.address.toLowerCase().includes(term)) ||
         (f.city && f.city.toLowerCase().includes(term)) ||
+        (f.location && f.location.toLowerCase().includes(term)) ||
+        (f.reference && f.reference.toLowerCase().includes(term)) ||
         (f.surface_type && f.surface_type.toLowerCase().includes(term));
 
       const matchType = this.selectedType === 'all' || (f.type && f.type.toLowerCase() === this.selectedType);
@@ -90,22 +113,141 @@ export class FieldsComponent implements OnInit {
     this.router.navigate(['/dashboard/fields', field.id]);
   }
 
-  goToSlots(field: Field, event: Event): void {
-    event.stopPropagation();
+  goToSlots(field: Field, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.closeActionDropdown();
     this.router.navigate(['/dashboard/fields', field.id, 'slots']);
   }
 
-  /** Open Google Maps with field GPS coordinates */
-  openMap(field: Field, event: Event): void {
+  toggleActionDropdown(fieldId: number, event: Event): void {
     event.stopPropagation();
-    if (field.latitude && field.longitude) {
-      const url = `https://www.google.com/maps?q=${field.latitude},${field.longitude}`;
-      window.open(url, '_blank', 'noopener');
+    if (this.activeDropdownFieldId === fieldId) {
+      this.activeDropdownFieldId = null;
+    } else {
+      this.activeDropdownFieldId = fieldId;
     }
   }
 
-  deleteField(field: Field, event: Event): void {
-    event.stopPropagation();
+  closeActionDropdown(): void {
+    this.activeDropdownFieldId = null;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeActionDropdown();
+  }
+
+  openEditModal(field: Field, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.closeActionDropdown();
+    this.editingField = field;
+    this.editForm = {
+      name: field.name || '',
+      surface_type: field.surface_type || field.type || 'artificial_grass',
+      location: field.location || '',
+      capacity: field.capacity || 10,
+      price_per_hour: field.price_per_hour || field.hourly_rate || 0,
+      city: field.city || '',
+      address: field.address || '',
+      description: field.description || '',
+      is_active: field.is_active !== false
+    };
+    this.editSelectedFiles = [];
+    this.editImagePreviews = [];
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editingField = null;
+    this.editSelectedFiles = [];
+    this.editImagePreviews = [];
+  }
+
+  onEditFilesSelected(event: any): void {
+    const files: FileList = event.target.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        this.editSelectedFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e: any) => this.editImagePreviews.push(e.target.result);
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeEditPreview(index: number): void {
+    this.editSelectedFiles.splice(index, 1);
+    this.editImagePreviews.splice(index, 1);
+  }
+
+  deleteExistingImage(imageId: number): void {
+    if (!this.editingField || !imageId) return;
+    Swal.fire({
+      title: 'Supprimer cette photo ?',
+      text: 'Cette photo sera retirée du terrain.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed && this.editingField) {
+        this.fieldService.deleteFieldImage(this.editingField.id, imageId).subscribe({
+          next: () => {
+            this.toastService.success('Photo supprimée.');
+            if (this.editingField && this.editingField.images) {
+              this.editingField.images = this.editingField.images.filter(img => img.id !== imageId);
+            }
+            this.loadFields();
+          },
+          error: (err) => {
+            this.toastService.error(formatApiError(err));
+          }
+        });
+      }
+    });
+  }
+
+  saveFieldEdit(): void {
+    if (!this.editingField) return;
+    if (!this.editForm.name.trim()) {
+      this.toastService.error('Le nom du terrain est obligatoire.');
+      return;
+    }
+
+    this.isUpdating = true;
+    const payload: any = {
+      ...this.editForm,
+      type: this.editForm.surface_type,
+      surface_type: this.editForm.surface_type
+    };
+
+    if (this.editSelectedFiles.length > 0) {
+      payload.photos = this.editSelectedFiles;
+      payload.photo = this.editSelectedFiles[0];
+    }
+
+    this.fieldService.updateField(this.editingField.id, payload).subscribe({
+      next: () => {
+        this.isUpdating = false;
+        this.toastService.success('Terrain mis à jour avec succès.');
+        this.closeEditModal();
+        this.loadFields();
+      },
+      error: (err) => {
+        this.isUpdating = false;
+        this.toastService.error(formatApiError(err));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  deleteField(field: Field, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.closeActionDropdown();
     Swal.fire({
       title: 'Supprimer ce terrain ?',
       text: `Êtes-vous sûr de vouloir supprimer le terrain "${field.name}" ainsi que tous ses créneaux associés ?`,
@@ -133,7 +275,6 @@ export class FieldsComponent implements OnInit {
   }
 
   getFieldImage(field: Field): string {
-    // Primary image from images array
     if (field.images && field.images.length > 0) {
       const primary = field.images.find(img => img.is_primary);
       const first = primary || field.images[0];
@@ -142,23 +283,34 @@ export class FieldsComponent implements OnInit {
     return field.photo_url || field.photo || field.image_url || PLACEHOLDER_IMG;
   }
 
-  /** Returns the field's unique reference code.
-   *  Uses the backend `reference` field if available,
-   *  otherwise generates a formatted code from the numeric id. */
+  /** Returns the field's unique code terrain */
   getFieldRef(field: Field): string {
     if (field.reference) return field.reference;
     return 'TER-' + field.id.toString().padStart(4, '0');
   }
 
-  /** Copy reference to clipboard */
-  copyRef(field: Field, event: Event): void {
-    event.stopPropagation();
-    const ref = this.getFieldRef(field);
-    navigator.clipboard?.writeText(ref).then(() => {
-      this.toastService.success(`Référence ${ref} copiée !`);
-    }).catch(() => {
-      this.toastService.error('Impossible de copier la référence.');
-    });
+  /** Format clean surface name */
+  formatSurface(surface?: string | null): string {
+    if (!surface) return '—';
+    const s = surface.toLowerCase().trim();
+    const map: Record<string, string> = {
+      'artificial_grass': 'Pelouse synthétique',
+      'natural_grass': 'Gazon naturel',
+      'synthetic': 'Pelouse synthétique',
+      'synthetique': 'Pelouse synthétique',
+      'futsal': 'Futsal (Indoor / Parquet)',
+      'indoor': 'Salle (Indoor)',
+      'concrete': 'Béton / Goudron',
+      'clay': 'Terre battue',
+      'parquet': 'Parquet',
+      'sand': 'Sable',
+      'tartan': 'Tartan',
+      'resin': 'Résine',
+      'hybrid': 'Hybride',
+      'herbe': 'Gazon naturel'
+    };
+    if (map[s]) return map[s];
+    return s.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
   /** Fallback if image fails to load */
@@ -168,30 +320,5 @@ export class FieldsComponent implements OnInit {
       img.src = PLACEHOLDER_IMG;
     }
   }
-
-  /** Human-readable label for field type */
-  getTypeLabel(type?: string): string {
-    const map: Record<string, string> = {
-      football:   'Football',
-      basketball: 'Basketball',
-      tennis:     'Tennis',
-      padel:      'Padel',
-      volleyball: 'Volleyball',
-      autre:      'Multisport'
-    };
-    return (type && map[type.toLowerCase()]) || type || 'Terrain';
-  }
-
-  /** Tailwind classes for sport badge color */
-  getTypeBadgeClass(type?: string): string {
-    const map: Record<string, string> = {
-      football:   'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300',
-      basketball: 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300',
-      tennis:     'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300',
-      padel:      'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300',
-      volleyball: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300',
-      autre:      'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
-    };
-    return (type && map[type.toLowerCase()]) || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
-  }
 }
+

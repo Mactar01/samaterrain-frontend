@@ -51,6 +51,8 @@ export class AdminProfileComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.email]],
       phone: [''],
+      cni: [''],
+      adresse: [''],
       current_password: [''],
       new_password: ['', [Validators.minLength(8)]],
       new_password_confirmation: ['']
@@ -63,7 +65,9 @@ export class AdminProfileComponent implements OnInit {
         this.profileForm.patchValue({
           name: user.name,
           email: user.email || '',
-          phone: user.phone || ''
+          phone: user.phone || '',
+          cni: user.cni || '',
+          adresse: user.adresse || ''
         });
       }
     });
@@ -159,7 +163,7 @@ export class AdminProfileComponent implements OnInit {
     if (this.profileForm.invalid) return;
 
     const v = this.profileForm.value;
-    const data: any = { name: v.name, phone: v.phone };
+    const data: any = { name: v.name, phone: v.phone, cni: v.cni, adresse: v.adresse };
     if (v.email) data.email = v.email;
 
     if (v.new_password) {

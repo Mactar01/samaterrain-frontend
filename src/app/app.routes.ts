@@ -121,6 +121,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'super-admins',
+        loadComponent: () =>
+          import('./features/admin/super-admins/super-admins').then(
+            (m) => m.SuperAdminsComponent
+          ),
+      },
+      {
         path: 'statistics',
         loadComponent: () =>
           import('./features/admin/statistics/statistics').then(

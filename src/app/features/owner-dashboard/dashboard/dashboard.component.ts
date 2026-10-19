@@ -410,16 +410,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   formatFieldType(type?: string): string {
-    if (!type) return 'Standard';
-    const types: { [key: string]: string } = {
-      'artificial_grass': 'Gazon Synthétique',
-      'natural_grass': 'Gazon Naturel',
-      'indoor': 'En Salle (Indoor)',
-      'clay': 'Terre Battue',
-      'concrete': 'Béton / Dur',
-      'parquet': 'Parquet'
+    return this.formatSurface(type);
+  }
+
+  formatSurface(surface?: string | null): string {
+    if (!surface) return '—';
+    const s = surface.toLowerCase().trim();
+    const map: Record<string, string> = {
+      'artificial_grass': 'Pelouse synthétique',
+      'natural_grass': 'Gazon naturel',
+      'synthetic': 'Pelouse synthétique',
+      'synthetique': 'Pelouse synthétique',
+      'futsal': 'Futsal (Indoor / Parquet)',
+      'indoor': 'Salle (Indoor)',
+      'concrete': 'Béton / Goudron',
+      'clay': 'Terre battue',
+      'parquet': 'Parquet',
+      'sand': 'Sable',
+      'tartan': 'Tartan',
+      'resin': 'Résine',
+      'hybrid': 'Hybride',
+      'herbe': 'Gazon naturel'
     };
-    return types[type] || type;
+    if (map[s]) return map[s];
+    return s.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
   private normalizeMediaUrl(raw?: string | null): string | null {
@@ -573,8 +587,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleActionDropdown(fieldId: number, event: Event) {
+    this.toggleFieldDropdown(fieldId, event);
+  }
+
   closeFieldDropdown() {
     this.activeDropdownFieldId = null;
+  }
+
+  closeActionDropdown() {
+    this.closeFieldDropdown();
   }
 
   @HostListener('document:click')
@@ -602,6 +624,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         (f.reference && f.reference.toLowerCase().includes(term)) ||
         (f.address && f.address.toLowerCase().includes(term)) ||
         (f.city && f.city.toLowerCase().includes(term)) ||
+        (f.location && f.location.toLowerCase().includes(term)) ||
         (f.surface_type && f.surface_type.toLowerCase().includes(term));
 
       const matchType = this.fieldsSelectedType === 'all' || 
@@ -830,22 +853,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Type de surface</label>
+              <select id="swal-input-surface" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none">
+                <option value="artificial_grass" ${(field.surface_type || field.type) === 'artificial_grass' ? 'selected' : ''}>Pelouse synthétique</option>
+                <option value="natural_grass" ${(field.surface_type || field.type) === 'natural_grass' ? 'selected' : ''}>Gazon naturel</option>
+                <option value="futsal" ${(field.surface_type || field.type) === 'futsal' ? 'selected' : ''}>Futsal (Indoor / Parquet)</option>
+                <option value="concrete" ${(field.surface_type || field.type) === 'concrete' ? 'selected' : ''}>Béton / Goudron</option>
+                <option value="clay" ${(field.surface_type || field.type) === 'clay' ? 'selected' : ''}>Terre battue</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Position dans le complexe</label>
+              <input id="swal-input-location" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Terrain 1 au fond, Salle A..." value="${field.location || ''}">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Capacité (joueurs)</label>
+              <input id="swal-input-capacity" type="number" min="2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="10" value="${field.capacity || 10}">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Prix par heure</label>
+              <div class="relative">
+                <input id="swal-input3" type="number" class="w-full pl-3 pr-12 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="10000" value="${field.price_per_hour}">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 text-sm font-medium">FCFA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div>
               <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Ville</label>
               <input id="swal-input-city" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Dakar" value="${field.city || ''}">
             </div>
             <div>
               <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Adresse exacte</label>
               <input id="swal-input2" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Sacré Cœur 3" value="${field.address || ''}">
-            </div>
-          </div>
-
-          <div class="mb-4 relative">
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Prix par heure</label>
-            <div class="relative">
-              <input id="swal-input3" type="number" class="w-full pl-3 pr-12 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="10000" value="${field.price_per_hour}">
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 text-sm font-medium">FCFA</span>
-              </div>
             </div>
           </div>
 
@@ -970,8 +1016,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Annuler',
       confirmButtonColor: '#16a34a',
       preConfirm: () => {
+        const surfaceVal = (document.getElementById('swal-input-surface') as HTMLSelectElement)?.value || 'artificial_grass';
         const data: any = {
           name: (document.getElementById('swal-input1') as HTMLInputElement).value,
+          surface_type: surfaceVal,
+          type: surfaceVal,
+          location: (document.getElementById('swal-input-location') as HTMLInputElement)?.value || '',
+          capacity: (document.getElementById('swal-input-capacity') as HTMLInputElement)?.value || 10,
           city: (document.getElementById('swal-input-city') as HTMLInputElement)?.value || '',
           address: (document.getElementById('swal-input2') as HTMLInputElement).value,
           price_per_hour: (document.getElementById('swal-input3') as HTMLInputElement).value

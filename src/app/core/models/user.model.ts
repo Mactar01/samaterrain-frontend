@@ -7,6 +7,8 @@ export interface User {
   role: UserRole;
   phone?: string;
   avatar?: string;
+  cni?: string;
+  adresse?: string;
   is_active?: boolean;
   must_change_password?: boolean;
   created_at?: string;

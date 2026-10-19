@@ -68,11 +68,7 @@
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
           <!-- Badges on top of photo -->
-          <div class="absolute top-4 left-4 right-4 flex items-center justify-between">
-            <span class="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-black/70 backdrop-blur-md uppercase tracking-wider">
-              {{ getTypeLabel(field.type) }}
-            </span>
-
+          <div class="absolute top-4 left-4 right-4 flex items-center justify-end">
             <span *ngIf="field.is_active !== false"
                   class="px-3 py-1 rounded-full text-xs font-bold text-emerald-400 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -89,12 +85,10 @@
             <div>
               <div class="flex items-center gap-2 flex-wrap">
                 <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">{{ field.name }}</h2>
-                <button (click)="copyRef($event)"
-                        title="Code de repère / poteau - Cliquer pour copier"
-                        class="inline-flex items-center gap-1 font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-400 text-slate-900 shadow-sm hover:bg-amber-300 transition cursor-pointer">
-                  <span>{{ getFieldRef() }}</span>
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                </button>
+                <span class="font-mono text-xs font-semibold text-slate-200"
+                      title="Code terrain">
+                  {{ getFieldRef() }}
+                </span>
               </div>
               <p class="text-xs text-slate-200 font-medium flex items-center gap-1 mt-0.5">
                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -190,13 +184,18 @@
           <div class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
             
             <div class="py-2.5 flex items-center justify-between">
-              <span class="text-slate-500 dark:text-slate-400">Discipline</span>
-              <span class="font-bold text-slate-900 dark:text-white">{{ getTypeLabel(field.type) }}</span>
+              <span class="text-slate-500 dark:text-slate-400">Revêtement / Surface</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ formatSurface(field.surface_type || field.type) }}</span>
             </div>
 
             <div class="py-2.5 flex items-center justify-between">
-              <span class="text-slate-500 dark:text-slate-400">Revêtement / Surface</span>
-              <span class="font-bold text-slate-900 dark:text-white">{{ field.surface_type || 'Non spécifié' }}</span>
+              <span class="text-slate-500 dark:text-slate-400">Position dans le complexe</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ field.location || 'Non spécifiée' }}</span>
+            </div>
+
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Capacité recommandée</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ field.capacity ? field.capacity + ' joueurs' : 'Non spécifiée' }}</span>
             </div>
 
             <div class="py-2.5 flex items-center justify-between">
@@ -218,29 +217,15 @@
               </span>
             </div>
 
-            <!-- Code / Repère Poteau -->
+            <!-- Code terrain -->
             <div class="py-2.5 flex items-center justify-between">
               <div>
-                <span class="text-slate-500 dark:text-slate-400 block font-semibold">Code / Repère Poteau</span>
-                <span class="text-[10px] text-slate-400">Pour orienter le joueur à l'entrée</span>
+                <span class="text-slate-500 dark:text-slate-400 block font-semibold">Code terrain</span>
+                <span class="text-[10px] text-slate-400">Identifiant d'orientation du terrain</span>
               </div>
-              <button (click)="copyRef($event)"
-                      title="Cliquer pour copier le code"
-                      class="inline-flex items-center gap-1.5 font-mono text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 transition cursor-pointer">
-                <span>{{ getFieldRef() }}</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              </button>
-            </div>
-
-            <!-- Position GPS -->
-            <div *ngIf="field.latitude && field.longitude" class="py-2.5 flex items-center justify-between">
-              <span class="text-slate-500 dark:text-slate-400">Position GPS</span>
-              <button (click)="openMap()"
-                      title="Ouvrir sur Google Maps"
-                      class="inline-flex items-center gap-1 text-xs font-mono text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                {{ (+field.latitude).toFixed(4) }}, {{ (+field.longitude).toFixed(4) }}
-              </button>
+              <span class="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {{ getFieldRef() }}
+              </span>
             </div>
 
             <div class="py-2.5 flex items-center justify-between">
@@ -285,55 +270,61 @@
         </button>
       </div>
 
-      <div class="space-y-3.5 text-xs">
+      <div class="space-y-3.5 text-xs max-h-[75vh] overflow-y-auto pr-1">
         <div>
           <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nom du terrain *</label>
-          <input type="text" [(ngModel)]="editForm.name"
+          <input type="text" [(ngModel)]="editForm.name" placeholder="ex: Terrain A - Wembley"
                  class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Sport</label>
-            <select [(ngModel)]="editForm.type"
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Type de surface</label>
+            <select [(ngModel)]="editForm.surface_type"
                     class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="football">Football</option>
-              <option value="basketball">Basketball</option>
-              <option value="tennis">Tennis</option>
-              <option value="padel">Padel</option>
-              <option value="volleyball">Volleyball</option>
-              <option value="autre">Multisport</option>
+              <option value="artificial_grass">Pelouse synthétique</option>
+              <option value="natural_grass">Gazon naturel</option>
+              <option value="futsal">Futsal (Indoor / Parquet)</option>
+              <option value="concrete">Béton / Goudron</option>
+              <option value="clay">Terre battue</option>
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Tarif (FCFA/h)</label>
-            <input type="number" [(ngModel)]="editForm.price_per_hour"
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Position dans le complexe</label>
+            <input type="text" [(ngModel)]="editForm.location" placeholder="ex: Terrain 1 au fond, Salle A..."
+                   class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Capacité (joueurs)</label>
+            <input type="number" [(ngModel)]="editForm.capacity" min="2" placeholder="ex: 10 (5 vs 5)"
+                   class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Tarif (FCFA/h) *</label>
+            <input type="number" [(ngModel)]="editForm.price_per_hour" min="0" placeholder="ex: 25000"
                    class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Surface</label>
-            <input type="text" [(ngModel)]="editForm.surface_type" placeholder="Ex: Synthétique 5G"
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Ville *</label>
+            <input type="text" [(ngModel)]="editForm.city" placeholder="ex: Dakar"
                    class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Ville</label>
-            <input type="text" [(ngModel)]="editForm.city" placeholder="Ex: Dakar"
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <input type="text" [(ngModel)]="editForm.address" placeholder="ex: Almadies, en face de la plage"
                    class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Adresse complète</label>
-          <input type="text" [(ngModel)]="editForm.address" placeholder="Ex: Almadies, en face de la plage"
-                 class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
 
         <div>
           <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Description</label>
-          <textarea [(ngModel)]="editForm.description" rows="3"
+          <textarea [(ngModel)]="editForm.description" rows="2" placeholder="Précisez les commodités, éclairage nocturne..."
                     class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl p-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
         </div>
 
@@ -342,6 +333,55 @@
                  class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
           <label for="field_active" class="font-semibold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
             Activer ce terrain (visible et ouvert aux réservations)
+          </label>
+        </div>
+
+        <!-- Section Gestion des Photos -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300">
+            Photos du terrain
+          </label>
+
+          <!-- Photos existantes -->
+          <div *ngIf="field && (allImages.length > 0 || (field.images && field.images.length > 0))" class="space-y-1.5">
+            <span class="text-[11px] text-slate-400 font-medium">Photos actuelles :</span>
+            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+              <!-- If field has structured images -->
+              <ng-container *ngIf="field.images && field.images.length > 0">
+                <div *ngFor="let img of field.images" class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
+                  <img [src]="img.url" class="w-full h-full object-cover">
+                  <button type="button" (click)="deleteExistingImage(img.id)"
+                          class="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600/90 text-white flex items-center justify-center text-[10px] font-bold hover:bg-red-700 cursor-pointer shadow"
+                          title="Supprimer cette photo">✕</button>
+                </div>
+              </ng-container>
+              <!-- Fallback if single photo exists but no images array -->
+              <ng-container *ngIf="(!field.images || field.images.length === 0) && (field.photo_url || field.photo)">
+                <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
+                  <img [src]="field.photo_url || field.photo" class="w-full h-full object-cover">
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Aperçu des nouvelles photos à ajouter -->
+          <div *ngIf="editImagePreviews.length > 0" class="space-y-1.5 pt-1">
+            <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Nouvelle(s) photo(s) à ajouter :</span>
+            <div class="grid grid-cols-4 gap-2">
+              <div *ngFor="let prev of editImagePreviews; let i = index" class="relative h-16 rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-700 shadow-sm">
+                <img [src]="prev" class="w-full h-full object-cover">
+                <button type="button" (click)="removeEditPreview(i)"
+                        class="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold hover:bg-red-700 cursor-pointer shadow"
+                        title="Retirer">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton ajouter des photos -->
+          <label class="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition shadow-sm">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>{{ editImagePreviews.length > 0 ? 'Ajouter d\'autres photos' : '+ Ajouter des photos' }}</span>
+            <input type="file" multiple (change)="onEditFilesSelected($event)" accept="image/*" class="sr-only">
           </label>
         </div>
       </div>

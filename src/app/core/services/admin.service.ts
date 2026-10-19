@@ -73,5 +73,26 @@ export class AdminService {
   deletePlatformRole(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/platform-roles/${id}`);
   }
+
+  // ---- Super Admins ----
+  getSuperAdmins(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/super-admins`);
+  }
+
+  createSuperAdmin(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/super-admins`, data);
+  }
+
+  updateSuperAdmin(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/super-admins/${id}`, data);
+  }
+
+  deleteSuperAdmin(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/super-admins/${id}`);
+  }
+
+  toggleSuperAdminStatus(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/super-admins/${id}/toggle-status`, {});
+  }
 }
 
