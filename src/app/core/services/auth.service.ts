@@ -27,7 +27,7 @@ export class AuthService {
       try {
         const parsed = this.normalizeUser(JSON.parse(savedUser));
         if (parsed.is_active === false) {
-          this.clearSession();
+          this.clearSession(false);
         } else {
           sessionStorage.setItem('user', JSON.stringify(parsed));
           this.currentUserSubject.next(parsed);
@@ -212,7 +212,7 @@ export class AuthService {
       tap(user => {
         if (user) {
           if (user.is_active === false) {
-            this.clearSession();
+            this.clearSession(false);
             return;
           }
           const serialized = JSON.stringify(user);
@@ -225,7 +225,7 @@ export class AuthService {
       }),
       catchError(err => {
         if (err.status === 401) {
-          this.clearSession();
+          this.clearSession(false);
         }
         return of(this.currentUserSubject.value);
       })
@@ -245,10 +245,20 @@ export class AuthService {
   }
 
   logout() {
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => this.clearSession(),
-      error: () => this.clearSession()
+    // 1. Envoyer la requête au backend (invalider le token côté serveur)
+    this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+      catchError(() => of(null))
+    ).subscribe({
+      next: () => this.clearSession(true),
+      error: () => this.clearSession(true)
     });
+
+    // 2. Sécurité : forcer la déconnexion locale après 500ms si le backend tarde
+    setTimeout(() => {
+      if (this.currentToken || sessionStorage.getItem('token')) {
+        this.clearSession(true);
+      }
+    }, 500);
   }
 
   saveSession(token: string, user: User) {
@@ -288,7 +298,7 @@ export class AuthService {
     );
   }
 
-  clearSession() {
+  clearSession(redirect: boolean = true) {
     const activeToken = this.currentToken || sessionStorage.getItem('token');
     this.currentToken = null;
     sessionStorage.removeItem('token');
@@ -298,5 +308,15 @@ export class AuthService {
       localStorage.removeItem('user');
     }
     this.currentUserSubject.next(null);
+
+    if (redirect) {
+      this.router.navigate(['/login']).then(navigated => {
+        if (!navigated) {
+          window.location.href = '/login';
+        }
+      }).catch(() => {
+        window.location.href = '/login';
+      });
+    }
   }
 }

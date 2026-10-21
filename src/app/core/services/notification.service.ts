@@ -58,7 +58,15 @@ export class NotificationService {
   readonly unreadCount = computed(() => this.unreadCountSignal());
 
   constructor() {
-    this.startPolling();
+    this.authService.currentUser.subscribe(user => {
+      if (!user) {
+        this.stopPolling();
+        this.notificationsSignal.set([]);
+        this.unreadCountSignal.set(0);
+      } else {
+        this.startPolling();
+      }
+    });
   }
 
   startPolling() {
