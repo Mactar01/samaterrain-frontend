@@ -20,6 +20,7 @@ export class CreateFieldComponent {
 
   field = {
     name: '',
+    reference: '',
     type: 'artificial_grass',
     surface_type: 'artificial_grass',
     location: '',
@@ -67,7 +68,7 @@ export class CreateFieldComponent {
       if (typeof value === 'boolean') {
         value = value ? 1 : 0;
       }
-      if (value !== null && value !== undefined) {
+      if (value !== null && value !== undefined && value !== '') {
         formData.append(key, value);
       }
     });
@@ -88,7 +89,7 @@ export class CreateFieldComponent {
       next: () => {
         this.isSubmitting = false;
         this.confirmationService.toast("Terrain ajouté avec succès !", "success");
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard/fields']);
       },
       error: (err) => {
         console.error("CREATE FIELD ERROR:", err);

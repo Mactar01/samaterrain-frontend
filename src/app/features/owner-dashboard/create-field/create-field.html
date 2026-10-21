@@ -10,7 +10,7 @@
   <!-- Form Container -->
   <div class="relative z-10 w-full max-w-4xl mx-auto my-6">
     <div class="mb-8 text-center sm:text-left">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-3 backdrop-blur-sm">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs font-semibold uppercase tracking-wider mb-3 backdrop-blur-sm">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -19,7 +19,7 @@
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
         Ajouter un nouveau terrain
       </h2>
-      <p class="mt-2 text-sm text-emerald-100/90 font-medium max-w-2xl">
+      <p class="mt-2 text-sm text-green-100/90 font-medium max-w-2xl">
         Renseignez les détails de votre infrastructure sportive. Vos créneaux seront immédiatement visibles par les joueurs.
       </p>
     </div>
@@ -34,16 +34,28 @@
 
           <div class="grid grid-cols-6 gap-6">
             
+            <!-- Nom du terrain -->
             <div class="col-span-6 sm:col-span-3">
               <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Nom du terrain *</label>
               <input type="text" name="name" id="name" [(ngModel)]="field.name" required placeholder="ex: Terrain A - Wembley"
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
             </div>
 
+            <!-- Code terrain -->
+            <div class="col-span-6 sm:col-span-3">
+              <label for="reference" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                Code terrain
+                <span class="text-slate-400 font-normal lowercase">(optionnel, auto-généré si vide)</span>
+              </label>
+              <input type="text" name="reference" id="reference" [(ngModel)]="field.reference" placeholder="ex: TER-0001"
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm font-mono uppercase">
+            </div>
+
+            <!-- Type de surface -->
             <div class="col-span-6 sm:col-span-3">
               <label for="type" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Type de surface</label>
               <select id="type" name="surface_type" [(ngModel)]="field.surface_type"
-                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
                 <option value="artificial_grass">Pelouse synthétique</option>
                 <option value="natural_grass">Gazon naturel</option>
                 <option value="futsal">Futsal (Indoor / Parquet)</option>
@@ -59,42 +71,42 @@
                 <span class="text-slate-400 font-normal lowercase">(emplacement intérieur)</span>
               </label>
               <input type="text" name="location" id="location" [(ngModel)]="field.location" placeholder="ex: Terrain 1 au fond, Salle A, Aile Est..."
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
             </div>
 
             <div class="col-span-6 sm:col-span-3">
               <label for="capacity" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Capacité recommandée (joueurs)</label>
               <input type="number" name="capacity" id="capacity" [(ngModel)]="field.capacity" required min="2" placeholder="ex: 10 (5 vs 5)"
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
             </div>
 
             <div class="col-span-6 sm:col-span-3">
               <label for="price" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Prix par heure (FCFA) *</label>
               <input type="number" name="price" id="price" [(ngModel)]="field.price_per_hour" required min="0" placeholder="ex: 25000"
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm font-semibold">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm font-semibold">
             </div>
 
             <div class="col-span-6 sm:col-span-3">
               <label for="city" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Ville *</label>
               <input type="text" name="city" id="city" [(ngModel)]="field.city" required placeholder="ex: Dakar, Almadies"
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
             </div>
 
             <div class="col-span-6 sm:col-span-3">
               <label for="address" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Adresse détaillée *</label>
               <input type="text" name="address" id="address" [(ngModel)]="field.address" required placeholder="ex: Route de Ngor, près de la station"
-                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm">
+                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm">
             </div>
 
             <div class="col-span-6">
               <label for="description" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Description du terrain</label>
               <textarea name="description" id="description" [(ngModel)]="field.description" rows="3" placeholder="Précisez les commodités, éclairage nocturne, vestiaires, consignes..."
-                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none shadow-sm text-sm"></textarea>
+                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none shadow-sm text-sm"></textarea>
             </div>
 
             <div class="col-span-6 flex items-center gap-2 pt-1">
               <input type="checkbox" id="field_active" name="is_active" [(ngModel)]="field.is_active"
-                     class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                     class="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500">
               <label for="field_active" class="font-semibold text-xs text-slate-700 dark:text-slate-300 select-none cursor-pointer">
                 Activer ce terrain dès la création (visible et ouvert aux réservations)
               </label>
@@ -107,14 +119,14 @@
               <div *ngIf="imagePreviews.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                 <div *ngFor="let preview of imagePreviews; let i = index" class="relative group h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
                   <img [src]="preview" class="h-full w-full object-cover">
-                  <span *ngIf="i === 0" class="absolute top-1.5 left-1.5 bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow">Principale</span>
+                  <span *ngIf="i === 0" class="absolute top-1.5 left-1.5 bg-green-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow">Principale</span>
                   <button type="button" (click)="removeFile(i)" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center text-xs font-bold shadow transition cursor-pointer" title="Retirer">✕</button>
                 </div>
               </div>
 
               <div class="flex items-center gap-3 flex-wrap">
                 <label for="image" class="cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-3 px-5 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-sm flex items-center gap-2">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                   <span>{{ imagePreviews.length > 0 ? 'Ajouter d\'autres photos' : 'Choisir une ou plusieurs photos' }}</span>
                   <input type="file" id="image" multiple (change)="onFilesSelected($event)" accept="image/*" class="sr-only">
                 </label>
@@ -132,7 +144,7 @@
               Annuler
             </button>
             <button type="submit" [disabled]="!fieldForm.form.valid || isSubmitting"
-                    class="inline-flex justify-center items-center py-3 px-8 rounded-2xl shadow-lg shadow-emerald-600/20 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98">
+                    class="inline-flex justify-center items-center py-3 px-8 rounded-2xl shadow-lg shadow-green-600/20 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98">
               {{ isSubmitting ? 'Enregistrement...' : 'Créer le terrain' }}
             </button>
           </div>

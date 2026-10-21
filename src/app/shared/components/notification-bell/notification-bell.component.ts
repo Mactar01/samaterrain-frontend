@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { NotificationService, AppNotification } from '../../../core/services/notification.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-notification-bell',
@@ -14,7 +15,7 @@ import { NotificationService, AppNotification } from '../../../core/services/not
         (click)="toggleDropdown($event)"
         type="button"
         title="Notifications"
-        class="relative p-2 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+        class="relative p-2 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
         aria-label="Voir les notifications">
         
         <!-- Icône Cloche -->
@@ -62,7 +63,7 @@ import { NotificationService, AppNotification } from '../../../core/services/not
                 <button
                   (click)="markAllAsRead()"
                   type="button"
-                  class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition cursor-pointer">
+                  class="text-[11px] font-semibold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition cursor-pointer">
                   Tout marquer comme lu
                 </button>
               }
@@ -79,56 +80,89 @@ import { NotificationService, AppNotification } from '../../../core/services/not
                   </svg>
                 </div>
                 <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Aucune notification</p>
-                <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Vous serez notifié dès qu'une réservation sera effectuée.</p>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                  {{ isAdmin() ? "Vous serez notifié dès qu'un partenaire s'inscrit ou se connecte." : "Vous serez notifié dès qu'une réservation sera effectuée." }}
+                </p>
               </div>
             } @else {
               @for (notif of notifications(); track notif.id) {
                 <div
                   (click)="onNotificationClick(notif)"
                   class="p-4 flex gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer relative"
-                  [ngClass]="{'bg-emerald-50/30 dark:bg-emerald-950/10': !notif.read_at}">
+                  [ngClass]="{'bg-green-50/30 dark:bg-green-950/10': !notif.read_at}">
                   
-                  <!-- Icône de type Réservation -->
-                  <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-emerald-600 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
+                  <!-- Icône dynamique selon le type -->
+                  @if (isPartnerRegistration(notif)) {
+                    <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-green-600 dark:text-green-400 bg-green-100/70 dark:bg-green-950/60 border border-green-200/60 dark:border-green-800/50">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                    </div>
+                  } @else if (isPartnerLogin(notif)) {
+                    <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-100/70 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/50">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                    </div>
+                  } @else {
+                    <!-- Réservation par défaut -->
+                    <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-green-600 dark:text-green-400 bg-green-100/70 dark:bg-green-950/60 border border-green-200/60 dark:border-green-800/50">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  }
 
                   <!-- Contenu de la notification -->
                   <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between gap-1">
                       <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        {{ notif.data.player_name || 'Nouvelle réservation' }}
+                        {{ getNotificationTitle(notif) }}
                       </p>
                       <span class="text-[10px] text-slate-400 dark:text-slate-500 shrink-0 font-medium">
                         {{ notif.data.creation_time || formatTime(notif.created_at) }}
                       </span>
                     </div>
 
-                    <!-- Détail du terrain & horaire -->
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium truncate">
-                      ⚽ {{ notif.data.field_name || 'Terrain' }}
-                      @if (notif.data.field_location) {
-                        <span class="text-slate-400 dark:text-slate-500">({{ notif.data.field_location }})</span>
+                    <!-- Détails spécifiques Partenaire vs Réservation -->
+                    @if (isPartnerNotif(notif)) {
+                      <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium line-clamp-2">
+                        {{ notif.body || notif.data.body || notif.data.message || (notif.data.partner_name + (notif.data.business_name ? ' (' + notif.data.business_name + ')' : '')) }}
+                      </p>
+                      @if (notif.data.phone || notif.data.email) {
+                        <div class="flex items-center gap-2 mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                          @if (notif.data.phone) {
+                            <span>📞 {{ notif.data.phone }}</span>
+                          }
+                          @if (notif.data.email) {
+                            <span class="truncate">✉️ {{ notif.data.email }}</span>
+                          }
+                        </div>
                       }
-                    </p>
+                    } @else {
+                      <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium truncate">
+                        ⚽ {{ notif.data.field_name || 'Terrain' }}
+                        @if (notif.data.field_location) {
+                          <span class="text-slate-400 dark:text-slate-500">({{ notif.data.field_location }})</span>
+                        }
+                      </p>
 
-                    <div class="flex items-center gap-2 mt-1.5 text-[11px] font-semibold">
-                      <span class="text-slate-500 dark:text-slate-400">
-                        📅 {{ notif.data.date }} {{ notif.data.time ? 'à ' + notif.data.time : '' }}
-                      </span>
-                      @if (notif.data.deposit || notif.data.amount) {
-                        <span class="text-emerald-600 dark:text-emerald-400 font-bold ml-auto">
-                          {{ (notif.data.deposit || notif.data.amount) | number }} FCFA
+                      <div class="flex items-center gap-2 mt-1.5 text-[11px] font-semibold">
+                        <span class="text-slate-500 dark:text-slate-400">
+                          📅 {{ notif.data.date }} {{ notif.data.time ? 'à ' + notif.data.time : '' }}
                         </span>
-                      }
-                    </div>
+                        @if (notif.data.deposit || notif.data.amount) {
+                          <span class="text-green-600 dark:text-green-400 font-bold ml-auto">
+                            {{ (notif.data.deposit || notif.data.amount) | number }} FCFA
+                          </span>
+                        }
+                      </div>
+                    }
                   </div>
 
-                  <!-- Point bleu indiquant Non Lu -->
+                  <!-- Point vert/bleu indiquant Non Lu -->
                   @if (!notif.read_at) {
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 self-center"></span>
+                    <span class="w-2 h-2 rounded-full bg-green-500 shrink-0 self-center"></span>
                   }
                 </div>
               }
@@ -137,12 +171,21 @@ import { NotificationService, AppNotification } from '../../../core/services/not
 
           <!-- Pied du Dropdown -->
           <div class="p-3 bg-slate-50/70 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
-            <a
-              routerLink="/dashboard/reservations"
-              (click)="closeDropdown()"
-              class="text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition">
-              Voir toutes les réservations →
-            </a>
+            @if (isAdmin()) {
+              <a
+                routerLink="/admin/dashboard"
+                (click)="closeDropdown()"
+                class="text-xs font-bold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition">
+                Voir le tableau de bord Super Admin →
+              </a>
+            } @else {
+              <a
+                routerLink="/dashboard/reservations"
+                (click)="closeDropdown()"
+                class="text-xs font-bold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition">
+                Voir toutes les réservations →
+              </a>
+            }
           </div>
         </div>
 
@@ -154,10 +197,14 @@ import { NotificationService, AppNotification } from '../../../core/services/not
 })
 export class NotificationBellComponent {
   readonly notifService = inject(NotificationService);
+  readonly authService = inject(AuthService);
+  readonly router = inject(Router);
 
   readonly notifications = this.notifService.notifications;
   readonly unreadCount = this.notifService.unreadCount;
   readonly isOpen = signal(false);
+
+  readonly isAdmin = computed(() => this.authService.getUserRole() === 'admin');
 
   toggleDropdown(event: MouseEvent) {
     event.stopPropagation();
@@ -172,9 +219,38 @@ export class NotificationBellComponent {
     this.notifService.markAllAsRead();
   }
 
+  isPartnerNotif(notif: AppNotification): boolean {
+    const t = notif.data?.type || notif.type || '';
+    return t.includes('partner') || t.includes('PartnerNotification');
+  }
+
+  isPartnerRegistration(notif: AppNotification): boolean {
+    const t = notif.data?.type || notif.type || '';
+    return t.includes('register') || t.includes('new_partner');
+  }
+
+  isPartnerLogin(notif: AppNotification): boolean {
+    const t = notif.data?.type || notif.type || '';
+    return t.includes('login') || t.includes('connexion');
+  }
+
+  getNotificationTitle(notif: AppNotification): string {
+    if (notif.title) return notif.title;
+    if (notif.data?.title) return notif.data.title;
+    if (this.isPartnerRegistration(notif)) return 'Nouveau partenaire inscrit 🎉';
+    if (this.isPartnerLogin(notif)) return 'Connexion partenaire 👤';
+    return notif.data?.player_name || 'Nouvelle réservation';
+  }
+
   onNotificationClick(notif: AppNotification) {
     if (!notif.read_at) {
       this.notifService.markAsRead(notif.id);
+    }
+    this.closeDropdown();
+    if (this.isAdmin() || this.isPartnerNotif(notif)) {
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      this.router.navigate(['/dashboard/reservations']);
     }
   }
 

@@ -30,6 +30,7 @@ export class FieldDetailComponent implements OnInit {
   isUpdating = false;
   editForm = {
     name: '',
+    reference: '',
     surface_type: 'artificial_grass',
     location: '',
     capacity: 10,
@@ -127,6 +128,7 @@ export class FieldDetailComponent implements OnInit {
     if (!this.field) return;
     this.editForm = {
       name: this.field.name || '',
+      reference: this.field.reference || this.getFieldRef(),
       surface_type: this.field.surface_type || this.field.type || 'artificial_grass',
       location: this.field.location || '',
       capacity: this.field.capacity || 10,

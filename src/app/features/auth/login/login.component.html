@@ -1,6 +1,93 @@
 <div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-  <!-- Left Side: Form -->
-  <div class="flex-1 flex flex-col justify-center py-12 px-6 sm:px-10 lg:flex-none lg:px-20 xl:px-24 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800/80 transition-colors">
+  
+  <!-- Left Side: Structured Showcase -->
+  <div class="hidden lg:flex relative w-0 flex-1 overflow-hidden bg-slate-950">
+    <!-- Image de fond avec overlay dégradé sombre et net -->
+    <img
+      class="absolute inset-0 h-full w-full object-cover opacity-35" 
+      src="https://images.unsplash.com/photo-1529900965600-09ce14b08759?q=80&w=2070&auto=format&fit=crop" 
+      alt="Terrain de sport">
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-950/85 to-green-950/30 backdrop-blur-[2px]"></div>
+
+    <!-- Contenu bien structuré de haut en bas -->
+    <div class="relative z-10 flex flex-col justify-between w-full h-full p-12 xl:p-16">
+      
+      <!-- Haut: Badge & Tagline -->
+      <div>
+        <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-xs font-bold tracking-wide backdrop-blur-md shadow-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+          <span>Espace Professionnel Partenaires</span>
+        </div>
+      </div>
+
+      <!-- Centre: Titre principal et Cartes d'avantages -->
+      <div class="max-w-xl my-auto py-8">
+        <h2 class="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
+          La plateforme tout-en-un conçue pour les gérants de terrains.
+        </h2>
+        <p class="text-sm xl:text-base text-slate-300 leading-relaxed mb-8">
+          Optimisez votre planning de créneaux, recevez des réservations 24h/24 et sécurisez vos paiements mobiles (Wave, Orange Money) en toute simplicité.
+        </p>
+
+        <!-- 3 Piliers Fonctionnels Clairs -->
+        <div class="space-y-3.5">
+          <!-- Point 1 -->
+          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+            <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-white">Planning & Créneaux en Direct</div>
+              <div class="text-xs text-slate-300">Vos joueurs réservent en toute autonomie sans appels manqués.</div>
+            </div>
+          </div>
+
+          <!-- Point 2 -->
+          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+            <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-white">Acomptes Wave & Orange Money</div>
+              <div class="text-xs text-slate-300">Encaissez automatiquement les acomptes pour réduire les désistements.</div>
+            </div>
+          </div>
+
+          <!-- Point 3 -->
+          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-white">Statistiques & Visibilité</div>
+              <div class="text-xs text-slate-300">Suivi du chiffre d'affaires, taux de remplissage et contact joueur WhatsApp.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bas: Footer de confiance -->
+      <div class="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+        <span>© {{ currentYear }} myTerrain. Tous droits réservés.</span>
+        <span class="inline-flex items-center gap-1.5 text-slate-300 font-medium">
+          <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Connexion chiffrée & sécurisée
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right Side: Form -->
+  <div class="flex-1 flex flex-col justify-center py-12 px-6 sm:px-10 lg:flex-none lg:px-20 xl:px-24 bg-white dark:bg-slate-900 border-l border-slate-100 dark:border-slate-800/80 transition-colors">
     <div class="mx-auto w-full max-w-sm lg:w-96">
       
       <!-- Top Bar: Logo & Dark Mode Toggle -->
@@ -91,7 +178,7 @@
               <button
                 type="button"
                 (click)="togglePasswordVisibility()"
-                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none cursor-pointer"
                 [title]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
                 <svg *ngIf="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -109,7 +196,7 @@
             <button
               type="submit"
               [disabled]="isLoading"
-              class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-2xl shadow-md shadow-green-600/20 text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98]">
+              class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-2xl shadow-md shadow-green-600/20 text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98] cursor-pointer">
               <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -129,92 +216,6 @@
           </button>
         </p>
       </div>
-    </div>
-  </div>
-  
-  <!-- Right Side: Structured Showcase -->
-  <div class="hidden lg:flex relative w-0 flex-1 overflow-hidden bg-slate-950">
-    <!-- Image de fond avec overlay dégradé sombre et net -->
-    <img
-      class="absolute inset-0 h-full w-full object-cover opacity-35" 
-      src="https://images.unsplash.com/photo-1529900965600-09ce14b08759?q=80&w=2070&auto=format&fit=crop" 
-      alt="Terrain de sport">
-    <div class="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-950/85 to-green-950/30 backdrop-blur-[2px]"></div>
-
-    <!-- Contenu bien structuré de haut en bas -->
-    <div class="relative z-10 flex flex-col justify-between w-full h-full p-12 xl:p-16">
-      
-      <!-- Haut: Badge & Tagline -->
-      <div>
-        <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-xs font-bold tracking-wide backdrop-blur-md shadow-sm">
-          <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
-          <span>Espace Professionnel Partenaires</span>
-        </div>
-      </div>
-
-      <!-- Centre: Titre principal et Cartes d'avantages -->
-      <div class="max-w-xl my-auto py-8">
-        <h2 class="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
-          La plateforme tout-en-un conçue pour les gérants de terrains.
-        </h2>
-        <p class="text-sm xl:text-base text-slate-300 leading-relaxed mb-8">
-          Optimisez votre planning de créneaux, recevez des réservations 24h/24 et sécurisez vos paiements mobiles (Wave, Orange Money) en toute simplicité.
-        </p>
-
-        <!-- 3 Piliers Fonctionnels Clairs -->
-        <div class="space-y-3.5">
-          <!-- Point 1 -->
-          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-            <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-bold text-white">Planning & Créneaux en Direct</div>
-              <div class="text-xs text-slate-300">Vos joueurs réservent en toute autonomie sans appels manqués.</div>
-            </div>
-          </div>
-
-          <!-- Point 2 -->
-          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-bold text-white">Acomptes Wave & Orange Money</div>
-              <div class="text-xs text-slate-300">Encaissez automatiquement les acomptes pour réduire les désistements.</div>
-            </div>
-          </div>
-
-          <!-- Point 3 -->
-          <div class="flex items-center gap-4 p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-bold text-white">Statistiques & Visibilité</div>
-              <div class="text-xs text-slate-300">Suivi du chiffre d'affaires, taux de remplissage et contact joueur WhatsApp.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bas: Footer de confiance -->
-      <div class="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-        <span>© {{ currentYear }} myTerrain. Tous droits réservés.</span>
-        <span class="inline-flex items-center gap-1.5 text-slate-300 font-medium">
-          <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
-          Connexion chiffrée & sécurisée
-        </span>
-      </div>
-
     </div>
   </div>
 
@@ -253,19 +254,19 @@
           [href]="getWhatsAppLink(adminContact.phone)"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition group">
+          class="flex items-center justify-between p-3.5 rounded-2xl bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 hover:bg-green-100 dark:hover:bg-green-900/40 transition group">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.92-.457-1.503-.62-2.464-2.155-2.538-2.256-.075-.101-.6-799-.6-1.523 0-.724.379-1.08.513-1.228.134-.149.294-.187.392-.187.099 0 .198.001.284.006.091.004.213-.034.333.254.125.3.428 1.042.465 1.118.038.076.063.165.013.266-.05.1-.075.165-.15.253-.075.088-.158.196-.226.264-.075.076-.153.158-.066.308.087.15.385.636.827 1.028.568.504 1.047.66 1.196.734.15.075.238.063.326-.038.088-.101.376-.438.476-.589.1-.15.2-.126.338-.075.138.05 879.414 1.03.488.15.075.25.113.287.175.038.063.038.363-.106.768z" />
               </svg>
             </div>
             <div>
-              <div class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">WhatsApp (Recommandé)</div>
+              <div class="text-xs font-bold uppercase tracking-wider text-green-800 dark:text-green-300">WhatsApp (Recommandé)</div>
               <div class="text-sm font-semibold text-slate-800 dark:text-white">{{ adminContact.phone }}</div>
             </div>
           </div>
-          <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-green-600 dark:text-green-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
 
         <!-- Option Appel direct -->

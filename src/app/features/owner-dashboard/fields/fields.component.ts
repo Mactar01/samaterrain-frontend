@@ -37,6 +37,7 @@ export class FieldsComponent implements OnInit {
   editingField: Field | null = null;
   editForm = {
     name: '',
+    reference: '',
     surface_type: 'artificial_grass',
     location: '',
     capacity: 10,
@@ -143,6 +144,7 @@ export class FieldsComponent implements OnInit {
     this.editingField = field;
     this.editForm = {
       name: field.name || '',
+      reference: field.reference || this.getFieldRef(field),
       surface_type: field.surface_type || field.type || 'artificial_grass',
       location: field.location || '',
       capacity: field.capacity || 10,
@@ -321,4 +323,3 @@ export class FieldsComponent implements OnInit {
     }
   }
 }
-

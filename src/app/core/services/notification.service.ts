@@ -8,9 +8,14 @@ import { Subscription, interval } from 'rxjs';
 export interface AppNotification {
   id: string;
   type: string;
-  notifiable_type: string;
-  notifiable_id: number;
+  title?: string;
+  body?: string;
+  notifiable_type?: string;
+  notifiable_id?: number;
   data: {
+    type?: string;
+    title?: string;
+    body?: string;
     reservation_id?: number;
     message?: string;
     amount?: number;
@@ -25,6 +30,11 @@ export interface AppNotification {
     remainder?: number;
     total_price?: number;
     creation_time?: string;
+    partner_id?: number;
+    partner_name?: string;
+    business_name?: string;
+    email?: string;
+    phone?: string;
     [key: string]: any;
   };
   read_at: string | null;
@@ -54,7 +64,7 @@ export class NotificationService {
   startPolling() {
     if (this.pollSub) return;
 
-    // Premier chargement immédiat si authentifié
+    // Premier appel immédiat si connecté
     if (this.authService.isAuthenticated()) {
       this.fetchNotifications();
     }
@@ -92,7 +102,9 @@ export class NotificationService {
         if (this.hasInitialized && count > prevCount) {
           this.playChime();
           const latest = list[0];
-          if (latest?.data?.message) {
+          if (latest?.title) {
+            this.toastService.show('info', `${latest.title}${latest.body ? ' : ' + latest.body : ''}`);
+          } else if (latest?.data?.message) {
             this.toastService.show('info', latest.data.message);
           } else if (latest?.data?.player_name) {
             this.toastService.show('info', `Nouvelle réservation par ${latest.data.player_name}`);

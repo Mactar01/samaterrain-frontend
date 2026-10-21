@@ -844,10 +844,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       title: 'Modifier le terrain',
       html: `
         <div class="text-left px-1">
-          <div class="mb-4 relative">
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nom du terrain</label>
-            <div class="relative">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nom du terrain</label>
               <input id="swal-input1" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none" placeholder="Ex: Terrain Synthétique A" value="${field.name}">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Code terrain</label>
+              <input id="swal-input-reference" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 transition-all text-sm outline-none font-mono uppercase" placeholder="Ex: TER-0001" value="${field.reference || this.getFieldRef(field)}">
             </div>
           </div>
 
@@ -1019,6 +1023,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const surfaceVal = (document.getElementById('swal-input-surface') as HTMLSelectElement)?.value || 'artificial_grass';
         const data: any = {
           name: (document.getElementById('swal-input1') as HTMLInputElement).value,
+          reference: (document.getElementById('swal-input-reference') as HTMLInputElement)?.value || '',
           surface_type: surfaceVal,
           type: surfaceVal,
           location: (document.getElementById('swal-input-location') as HTMLInputElement)?.value || '',
