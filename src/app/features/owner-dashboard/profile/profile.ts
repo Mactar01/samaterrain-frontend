@@ -64,7 +64,7 @@ export class ProfileComponent implements OnInit {
       'fields:manage': 'Gestion des Terrains',
       'slots:manage': 'Créneaux & Tarifs',
       'reservations:manage': 'Réservations & Encaissements',
-      'accounting:view': 'Comptabilité & Export CSV',
+      'accounting:view': 'Comptabilité & Expert-Comptable',
       'settings:manage': 'Paramétrage Stratégique',
       'team:manage': 'Gestion de l\'Équipe (Teams)'
     };

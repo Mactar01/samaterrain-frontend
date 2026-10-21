@@ -67,7 +67,7 @@
       <div>
         <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Paramètres & Modules Stratégiques</h2>
         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Configurez les 5 fonctionnalités exclusives de votre complexe : notifications automatiques, abonnements récurrents, matchmaking, fidélité et export comptable.
+          Configurez les 5 fonctionnalités exclusives de votre complexe : notifications automatiques, abonnements récurrents, matchmaking, fidélité et expert comptable.
         </p>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -152,7 +152,7 @@
           <span>Fidélité & Parrainage</span>
         </button>
 
-        <!-- Onglet : Export Comptable & Rapports -->
+        <!-- Onglet : Expert Comptable & Rapports -->
         <button
           *ngIf="canAccess('accounting:view')"
           type="button"
@@ -164,7 +164,7 @@
           <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span>Export Comptable</span>
+          <span>Expert Comptable</span>
         </button>
 
       </div>
@@ -738,7 +738,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- MODULE : EXPORT COMPTABLE & RAPPORTS FINANCIERS -->
+      <!-- MODULE : EXPERT COMPTABLE & RAPPORTS FINANCIERS -->
       <!-- ===================================================================== -->
       <div *ngIf="activeTab === 'accounting' && canAccess('accounting:view')" class="space-y-6 animate-fade-in">
         

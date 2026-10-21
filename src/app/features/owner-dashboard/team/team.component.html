@@ -4,53 +4,59 @@
   <!-- HEADER & BREADCRUMB -->
   <!-- ===================================================================== -->
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs">
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-      
-      <!-- Titre & Contexte -->
-      <div class="space-y-2">
-        <div class="flex items-center gap-3">
-          <a routerLink="/dashboard" 
-             class="inline-flex items-center justify-center w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60 transition shadow-xs"
-             title="Retour au tableau de bord">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </a>
-          <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <a routerLink="/dashboard" class="hover:text-slate-800 dark:hover:text-slate-200 transition">Espace Partenaire</a>
-            <span>/</span>
-            <span class="text-slate-900 dark:text-white font-bold">Teams & Rôles</span>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shrink-0"
-               [style.backgroundColor]="branding.primaryColor">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              Gestion Utilisateur & Rôles
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              Pilotez l'équipe de <strong class="text-slate-800 dark:text-slate-200">{{ businessName || branding.businessName || 'votre complexe' }}</strong>, attribuez les profils et personnalisez les autorisations d'accès.
-            </p>
-          </div>
+    
+    <!-- Ligne 1 : Navigation & Utilitaires (Dark mode & Notifications) -->
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+      <div class="flex items-center gap-3">
+        <a routerLink="/dashboard" 
+           class="inline-flex items-center justify-center w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60 transition shadow-xs"
+           title="Retour au tableau de bord">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <a routerLink="/dashboard" class="hover:text-slate-800 dark:hover:text-slate-200 transition">Espace Partenaire</a>
+          <span>/</span>
+          <span class="text-slate-900 dark:text-white font-bold">Gestion des Utilisateurs</span>
         </div>
       </div>
 
-      <!-- Actions Rapides -->
-      <div class="flex flex-wrap items-center gap-3">
+      <!-- Widgets utilitaires alignés en haut à droite -->
+      <div class="flex items-center gap-2">
         <app-dark-mode-toggle></app-dark-mode-toggle>
         <app-notification-bell></app-notification-bell>
+      </div>
+    </div>
 
+    <!-- Ligne 2 : Titre & Actions principales (Créer un Rôle + Nouveau Collaborateur) -->
+    <div class="pt-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
+      
+      <!-- Titre & Contexte -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shadow-green-600/20 shrink-0 bg-green-600"
+             [style.backgroundColor]="branding.primaryColor || '#16a34a'">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            Gestion des Utilisateurs
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Pilotez l'équipe de <strong class="text-slate-800 dark:text-slate-200">{{ businessName || branding.businessName || 'votre complexe' }}</strong>, attribuez les profils et personnalisez les autorisations d'accès.
+          </p>
+        </div>
+      </div>
+
+      <!-- Boutons d'actions parfaitement alignés côte à côte -->
+      <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
         <button
           type="button"
           (click)="openCreateRoleModal()"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition shadow-xs cursor-pointer active:scale-95">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition shadow-xs cursor-pointer active:scale-95">
+          <svg class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           <span>Créer un Rôle</span>
@@ -59,8 +65,8 @@
         <button
           type="button"
           (click)="openAddMemberModal()"
-          class="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-white text-xs sm:text-sm font-bold transition shadow-md cursor-pointer active:scale-95"
-          [style.backgroundColor]="branding.primaryColor">
+          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl text-white text-xs sm:text-sm font-bold bg-green-600 hover:bg-green-700 transition shadow-md shadow-green-600/25 cursor-pointer active:scale-95"
+          [style.backgroundColor]="branding.primaryColor || '#16a34a'">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
           </svg>
@@ -221,16 +227,29 @@
             class="w-full pl-9 pr-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400">
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <label class="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">Filtrer :</label>
-          <select
-            [(ngModel)]="memberStatusFilter"
-            class="px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
-            <option value="all">Tous les membres ({{ teamMembers.length }})</option>
-            <option value="active">Comptes actifs uniquement ({{ activeMembersCount }})</option>
-            <option value="inactive">Comptes suspendus ({{ teamMembers.length - activeMembersCount }})</option>
-            <option value="incomplete">Dossiers à compléter ({{ incompleteProfilesCount }})</option>
-          </select>
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">Filtrer :</label>
+            <select
+              [(ngModel)]="memberStatusFilter"
+              class="px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+              <option value="all">Tous les membres ({{ teamMembers.length }})</option>
+              <option value="active">Comptes actifs uniquement ({{ activeMembersCount }})</option>
+              <option value="inactive">Comptes suspendus ({{ teamMembers.length - activeMembersCount }})</option>
+              <option value="incomplete">Dossiers à compléter ({{ incompleteProfilesCount }})</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            (click)="openAddMemberModal()"
+            class="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-white text-xs font-bold bg-green-600 hover:bg-green-700 transition shadow-sm shadow-green-600/20 cursor-pointer active:scale-95"
+            [style.backgroundColor]="branding.primaryColor || '#16a34a'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>+ Collaborateur</span>
+          </button>
         </div>
 
       </div>

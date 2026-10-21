@@ -232,7 +232,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       rights: ['settings:manage']
     },
     {
-      title: 'Export Comptable',
+      title: 'Expert Comptable',
       type: 'accounting',
       link: '/dashboard/settings',
       queryParams: { tab: 'accounting' },
